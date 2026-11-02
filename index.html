@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============================================================
+     ICON SPRITE (Heroicons-style outline, 24px grid)
+     ============================================================ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9v11h5v-6h4v6h5V9"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></symbol>
+    <symbol id="i-award" viewBox="0 0 24 24"><circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/></symbol>
+    <symbol id="i-card" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.7-3.5 3.3-5.5 6.5-5.5s5.8 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14.8c2 .7 3.2 2.5 3.5 5.2"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 17v-6a6 6 0 1 1 12 0v6l1.5 2h-15z"/><path d="M10 21h4"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+    <symbol id="i-mega" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1z"/><path d="M15 9a3 3 0 0 1 0 6M18 6a7 7 0 0 1 0 12"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v6H3v-6z"/></symbol>
+    <symbol id="i-logout" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 17l5-5-5-5M15 12H3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 10 17 19 7"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+    <symbol id="i-ur" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m14 6 4 4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
+    <symbol id="i-nfc" viewBox="0 0 24 24"><path d="M6 8.5a5 5 0 0 1 0 7M9.5 6a9 9 0 0 1 0 12M13 4a13 13 0 0 1 0 16"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12 20 4l-6 16-3-7z"/><path d="m11 13 9-9"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
+    <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-sign" viewBox="0 0 24 24"><path d="M3 17c3 0 4-6 6-6s1 5 3 5 2-3 4-3 2 2 5 2"/><path d="M3 21h18"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></symbol>
+
+    <!-- Ben fallback mascot (shows only if ben.gif is missing) -->
+    <symbol id="ben" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="60" fill="#C1272D"/>
+      <path d="M22 120c2-22 18-34 38-34s36 12 38 34z" fill="#fff"/>
+      <path d="M48 89l12 20 12-20" fill="none" stroke="#16213B" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="30" y="110" width="60" height="10" fill="#16213B"/>
+      <circle cx="60" cy="56" r="25" fill="#F6D2B0"/>
+      <path d="M35 53c0-16 11-25 25-25s25 9 25 25c-5-7-13-10-25-10s-20 3-25 10z" fill="#1B1B22"/>
+      <ellipse cx="60" cy="26" rx="8" ry="6" fill="#1B1B22"/>
+      <path d="M35 49c8-4 16-6 25-6s17 2 25 6v6c-8-4-16-6-25-6s-17 2-25 6z" fill="#fff"/>
+      <circle cx="60" cy="49" r="3.2" fill="#C1272D"/>
+      <circle cx="51" cy="61" r="2.6" fill="#1B1B22"/><circle cx="69" cy="61" r="2.6" fill="#1B1B22"/>
+      <path d="M53 69c4 4 10 4 14 0" fill="none" stroke="#1B1B22" stroke-width="2.4" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<!-- shared public nav (site + About) -->
+  <header class="nav">
+    <div class="nav-in">
+      <a class="brand" href="#home"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">AIKIDO SHINJU-KAI</a>
+      <nav class="links" aria-label="Main">
+        <div class="dd">
+          <a href="#about">About<svg class="ic"><use href="#i-chev"/></svg></a>
+          <div class="dd-menu">
+            <a href="#about-benefits">Benefits of Aikido<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#about-history">Our History<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#about-vision">Vision &amp; Mission<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#about-shihan">Philip Lee Shihan<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#about-instructors">Our Instructors<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#about-overseas">Overseas Instructors<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#about-family">Our Extended Family<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#about-life">Life Members<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#about-careers">Careers<svg class="ic"><use href="#i-arrow"/></svg></a>
+          </div>
+        </div>
+        <a href="#classes">Classes</a>
+        <a href="#pricing">Fees</a>
+        <a href="#about-instructors">Instructors</a>
+        <a href="#find">Dojos</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <div class="nav-acts">
+        <button class="nav-login" data-go="login">Log in</button>
+        <a class="btn btn-light" href="#join">Join Now<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+        <button class="menu-btn" data-sm-open aria-expanded="false" aria-controls="sm">Menu<span class="plus"></span></button>
+      </div>
+    </div>
+  </header>
+
+
+<!-- ============================================================
+     VIEW 1 — PUBLIC SITE
+     ============================================================ -->
+<div class="view" id="v-home">
+
+
+  <main>
+    <div class="hero" id="top">
+      <div class="hero-card">
+        <div class="bg" role="img" aria-label="Adults class training at the Shinju-Kai HQ dojo"></div>
+        <div class="kanji-mark" aria-hidden="true">合気道</div>
+        <div class="hero-content">
+          <div class="hero-copy">
+            <span class="eyebrow on-dark">Est. 1988 · Aikikai Hombu recognised</span>
+            <h1><span class="shiny on-dark">Train with purpose.</span><br>Grow with discipline.</h1>
+            <p>Classes every day for adults and children at our Headquarters Dojo and 60+ dojos across Singapore. Start with one trial class.</p>
+            <div class="ctas">
+              <a class="btn btn-light" href="#join">Become a Member<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+              <a class="btn btn-ghost" href="#pass-trial">Book a Trial · S$29<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div><b class="num" data-count="10000" data-suffix="+">0</b><span>Members trained</span></div>
+            <div><b class="num" data-count="60" data-suffix="+">0</b><span>Dojos</span></div>
+            <div><b class="num" data-count="70">0</b><span>Instructors</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LogoLoop: dojo names -->
+    <div class="loop-band">
+      <small>Train at any Shinju-Kai dojo</small>
+      <div class="loop" id="dojoLoop" aria-label="Dojo locations"><div class="loop-track"></div></div>
+    </div>
+
+    <!-- CLASSES -->
+    <section class="sec wrap" id="classes">
+      <div class="sec-head ac">
+        <div><span class="eyebrow">Class types</span><h2>One hour on the mat, every class</h2></div>
+        <p>Every class is 60 minutes. Beginners start at white belt and are placed by age and grade, not by experience.</p>
+      </div>
+      <div class="classes ac" data-stagger>
+        <article class="cls"><span class="k">大</span><span class="tag">13 yrs &amp; above</span><h3>Adults</h3><p class="d">All grades. The core class at every dojo.</p></article>
+        <article class="cls"><span class="k">子</span><span class="tag">Ages 4–12</span><h3>Children Beginners</h3><p class="d">7th Kyu and above. Ukemi, etiquette, focus.</p></article>
+        <article class="cls"><span class="k">幼</span><span class="tag">Ages 4–6</span><h3>Children Juniors</h3><p class="d">All grades. Play-based movement and balance.</p></article>
+        <article class="cls"><span class="k">和</span><span class="tag">All grades &amp; ages</span><h3>Mixed</h3><p class="d">Train alongside family and friends.</p></article>
+        <article class="cls"><span class="k">剣</span><span class="tag">Weapons</span><h3>Bokken &amp; Jo</h3><p class="d">Required before 2nd Kyu grading.</p></article>
+        <article class="cls"><span class="k">中</span><span class="tag">4th Kyu &amp; above</span><h3>Intermediate</h3><p class="d">Faster pace, wider technique set.</p></article>
+        <article class="cls"><span class="k">上</span><span class="tag">1st Kyu &amp; above</span><h3>Advanced</h3><p class="d">Yudansha preparation and freestyle.</p></article>
+        <article class="cls"><span class="k">女</span><span class="tag">Ladies only</span><h3>Ladies</h3><p class="d">Women-only class with women instructors.</p></article>
+      </div>
+    </section>
+
+    <!-- FEES -->
+    <section class="sec wrap" id="pricing" style="padding-top:0">
+      <div class="sec-head ac">
+        <div><span class="eyebrow">Fees</span><h2>Start small, then commit</h2></div>
+        <p>Guests can try one session. Members pay a one-time S$60 to join, then choose a lesson package.</p>
+      </div>
+      <div class="prices ac" data-stagger>
+        <article class="price-card feature">
+          <span class="eyebrow on-dark">Membership</span>
+          <div class="amt num">S$60 <small>to join</small></div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>Registration, student handbook and membership book</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Year-one annual dues (S$48)</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Student card, collected at your first lesson</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Book classes and track grading online</li>
+          </ul>
+          <a class="btn btn-light" href="#join">Register Online<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+        </article>
+        <article class="price-card">
+          <span class="eyebrow">Trial</span>
+          <div class="amt num">S$29 <small>one session</small></div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>First-time visitors, once per person</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Any dojo, any beginner class</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>No uniform needed</li>
+          </ul>
+          <a class="btn btn-dark arrow" href="#pass-trial">Book a Trial<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        </article>
+        <article class="price-card">
+          <span class="eyebrow">Guest passes</span>
+          <div class="amt num">S$50 <small>1-day unlimited</small></div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>1-week unlimited pass: S$150</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Overseas guests from S$40</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Private class: S$120 per hour</li>
+          </ul>
+          <a class="btn btn-dark arrow" href="#pass-day">Buy a Guest Pass<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        </article>
+      </div>
+    </section>
+
+    <!-- INSTRUCTORS -->
+    <section class="sec" id="instructors" style="padding-top:0">
+      <div class="wrap sec-head ac">
+        <div><span class="eyebrow">Our instructors</span><h2>Learn from certified senseis</h2></div>
+        <p>Led by Chairman Founder and Chief Instructor Philip Lee Shihan, 7th Dan. Hover to slow the line down. <a href="#about-instructors" style="color:var(--red);font-weight:600">See all instructors</a></p>
+      </div>
+      <div class="marquee" id="marquee" aria-label="Instructor profiles"><div class="mq-track" id="mqTrack"></div></div>
+    </section>
+
+    <!-- CONTACT CARDS -->
+    <section class="sec wrap" style="padding-top:0" aria-label="Contact details">
+      <div class="cards4 ac" data-stagger>
+        <article class="info"><div class="ib"><svg class="ic"><use href="#i-phone"/></svg></div><h3>Call Us</h3><p>Questions about classes, fees or which dojo suits you?</p><strong>+65 6513 1588<br>+65 6256 0111</strong></article>
+        <article class="info"><div class="ib"><svg class="ic"><use href="#i-mail"/></svg></div><h3>Email Us</h3><p>We'll route it to the right dojo or instructor.</p><strong>hq@aikidoshinjukai.com.sg</strong></article>
+        <article class="info"><div class="ib"><svg class="ic"><use href="#i-home"/></svg></div><h3>HQ Dojo</h3><p>Thomson V One, 9 Sin Ming Road, #B1-02</p><strong>Singapore 575630</strong></article>
+        <article class="info"><div class="ib"><svg class="ic"><use href="#i-clock"/></svg></div><h3>Office Hours</h3><p>Mon–Fri: 10:00 AM – 9:00 PM<br>Sat–Sun: 8:00 AM – 6:00 PM</p><strong>Closed on public holidays</strong></article>
+      </div>
+    </section>
+
+    <!-- DOJOS: depth carousel + live map -->
+    <section class="wrap" id="find">
+      <div class="dojos ac">
+        <div class="dojos-head">
+          <div><span class="eyebrow on-dark">Our dojos</span><h2>Find a dojo near you</h2></div>
+          <div style="display:grid;gap:14px;justify-items:start">
+            <p>Swipe through our dojos. The map follows whichever one is in front.</p>
+            <div class="tools" id="regionFilter"></div>
+          </div>
+        </div>
+        <div class="dojos-grid">
+          <div class="dc" id="dojoCarousel" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Dojo locations">
+            <div class="dc-stage"></div>
+            <button class="dc-arrow prev" type="button" aria-label="Previous dojo"><svg class="ic"><use href="#i-left"/></svg></button>
+            <button class="dc-arrow next" type="button" aria-label="Next dojo"><svg class="ic"><use href="#i-right"/></svg></button>
+            <div class="dc-dots" role="tablist" aria-label="Dojos"></div>
+          </div>
+          <div class="map-panel" id="mapPanel">
+            <div class="map-spin"><i></i></div>
+            <iframe id="dojoMap" title="Map of the selected dojo" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="map-info" aria-live="polite"><b id="mapName">ASK Headquarters Dojo</b><span class="ad" id="mapAddr">Thomson V One, 9 Sin Ming Road, #B1-02, Singapore 575630</span><div class="row2" id="mapTags"></div></div>
+            <a class="map-open" id="mapOpen" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-map"/></svg>Open in Maps</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="sec wrap" id="faq">
+      <div class="faq">
+        <div class="faq-intro ac"><span class="eyebrow">Questions</span><h2>Before you join</h2><p>Quick answers about membership, uniforms and grading.</p></div>
+        <div class="ac">
+          <div class="qa open"><button aria-expanded="true">Do I need martial arts experience?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>No. Most members start with none. New members begin at white belt. If you trained in Aikido before, bring your record book and certificates and we'll verify your grade.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">What does the S$60 cover?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>Registration, the student handbook, your membership book and year-one annual dues. Your dogi and lesson package are paid in the same checkout.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">When do I get my student card?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>You get your membership number by email right after you register. Collect your physical student card at your principal dojo on your first lesson.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">When can I take my first grading?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>After at least 3 months of membership with no outstanding fees and enough training hours. Your student portal tracks this for you.</p></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" style="padding-bottom:96px">
+      <div class="cta ac">
+        <div class="cta-l">
+          <div class="ben-big ben-av"><img src="ben.gif" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></div>
+          <div><span class="eyebrow">Still curious?</span><h2>Ask Ben, our dojo assistant</h2><p>Ben answers questions about class types, fees, dojo locations and grading at any hour.</p></div>
+        </div>
+        <button class="btn btn-red" data-ben-open>Chat with Ben<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></button>
+      </div>
+    </section>
+  </main>
+
+
+</div>
+
+<!-- ============================================================
+     VIEW 2 — MEMBERSHIP REGISTRATION
+     ============================================================ -->
+<div class="view" id="v-join">
+  <div class="reg">
+    <aside class="reg-side">
+      <div class="bg"></div>
+      <a class="brand" href="#home"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">AIKIDO SHINJU-KAI</a>
+      <h2>Membership application</h2>
+      <p>About 6 minutes. Your membership number arrives by email the moment you finish.</p>
+      <ol class="steps" id="regSteps">
+        <li data-s="1"><span class="n"><span>1</span><svg class="ic"><use href="#i-check"/></svg></span><div>Your particulars<small>Name, contact, email check</small></div></li>
+        <li data-s="2"><span class="n"><span>2</span><svg class="ic"><use href="#i-check"/></svg></span><div>Health &amp; history<small>Experience, medical</small></div></li>
+        <li data-s="3"><span class="n"><span>3</span><svg class="ic"><use href="#i-check"/></svg></span><div>Dojo &amp; dogi<small>Where you train, uniform size</small></div></li>
+        <li data-s="4"><span class="n"><span>4</span><svg class="ic"><use href="#i-check"/></svg></span><div>Lesson package<small>Pay for your classes</small></div></li>
+        <li data-s="5"><span class="n"><span>5</span><svg class="ic"><use href="#i-check"/></svg></span><div>Terms &amp; payment<small>Read, agree, pay</small></div></li>
+      </ol>
+    </aside>
+
+    <main class="reg-main">
+      <div class="reg-top">
+        <button class="sbtn ghost" data-go="home"><svg class="ic"><use href="#i-back"/></svg>Back to site</button>
+        <span class="mobile-steps" id="regMobileStep">Step 1 of 5</span>
+      </div>
+      <div class="reg-prog"><i id="regProg"></i></div>
+
+      <form id="regForm" novalidate>
+        <!-- STEP 1 -->
+        <section class="rstep on" data-step="1">
+          <h2>Your particulars</h2>
+          <p class="lead">Fields marked <span class="req">*</span> are required. Your membership number and date joined are recorded automatically.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3>About you</h3>
+              <div class="grid2">
+                <div class="fld full"><label for="r-name">Name<span class="req">*</span></label><input id="r-name" autocomplete="name" placeholder="As shown on your NRIC or passport"><span class="err">Enter your name.</span></div>
+                <div class="fld"><span class="lbl">Gender<span class="req">*</span></span>
+                  <div class="seg" role="radiogroup" aria-label="Gender"><input type="radio" name="gender" id="g-m" value="Male"><label for="g-m">Male</label><input type="radio" name="gender" id="g-f" value="Female"><label for="g-f">Female</label></div>
+                  <span class="err">Select your gender.</span></div>
+                <div class="fld"><label for="r-nat">Nationality<span class="req">*</span></label>
+                  <select id="r-nat"><option value="">Select</option><option>Singaporean</option><option>Singapore PR</option><option>Malaysian</option><option>Chinese</option><option>Indian</option><option>Filipino</option><option>Indonesian</option><option>Other</option></select><span class="err">Select your nationality.</span></div>
+                <div class="fld"><label for="r-dob">Date of birth<span class="req">*</span></label><input id="r-dob" type="text" data-dp="dob" placeholder="DD / MM / YYYY" inputmode="numeric" autocomplete="bday"><span class="err" id="dobErr">Enter a real date. Members must be at least 4 years old.</span></div>
+                <div class="fld"><label for="r-age">Age</label><input id="r-age" readonly placeholder="Calculated from date of birth"><span class="hint" id="ageHint">Sets your class group and fees.</span></div>
+              </div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Contact</h3>
+              <div class="grid2">
+                <div class="fld"><label for="r-phone">Mobile number (HP)<span class="req">*</span></label><input id="r-phone" type="tel" inputmode="tel" placeholder="9123 4567" autocomplete="tel"><span class="err">Enter an 8-digit Singapore mobile number.</span></div>
+                <div class="fld full"><label for="r-email">Email address<span class="req">*</span></label>
+                  <div class="email-row">
+                    <input id="r-email" type="email" placeholder="you@example.com" autocomplete="email">
+                    <button type="button" class="sbtn dark" id="sendCode">Send code</button>
+                    <span class="verified" id="emailOk" hidden><svg class="ic"><use href="#i-check"/></svg>Verified</span>
+                  </div>
+                  <span class="err" id="emailErr">Enter a valid email, then verify it.</span>
+                  <div class="reveal" id="otpReveal"><div>
+                    <div class="otp-box">
+                      <p>We sent a 6-digit code to <b id="otpTo">your email</b>. It expires in 10 minutes.</p>
+                      <div class="slots" id="slots">
+                        <input class="cap" id="otpInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="6-digit code">
+                        <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+                      </div>
+                      <div class="meta"><span>Prototype: the code is <b>123456</b></span><button type="button" id="resend">Resend code</button></div>
+                    </div>
+                  </div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Emergency contact</h3>
+              <div class="grid3">
+                <div class="fld"><label for="r-ecname">Name<span class="req">*</span></label><input id="r-ecname" placeholder="Full name"><span class="err">Required.</span></div>
+                <div class="fld"><label for="r-ecrel">Relationship<span class="req">*</span></label><select id="r-ecrel"><option value="">Select</option><option>Parent</option><option>Spouse</option><option>Sibling</option><option>Guardian</option><option>Friend</option></select><span class="err">Required.</span></div>
+                <div class="fld"><label for="r-ecphone">Mobile<span class="req">*</span></label><input id="r-ecphone" type="tel" inputmode="tel" placeholder="9123 4567"><span class="err">Enter an 8-digit number.</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="rnav"><span></span><button type="button" class="btn btn-dark arrow" data-next>Continue<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section class="rstep" data-step="2">
+          <h2>Health &amp; history</h2>
+          <p class="lead">This helps your instructor keep you safe and place you at the right grade.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3>Martial arts experience <small>Optional</small></h3>
+              <div class="grid2">
+                <div class="fld"><label for="r-exp">Previous martial arts experience<span class="opt">Optional</span></label><input id="r-exp" placeholder="e.g. Judo, 3 years"></div>
+                <div class="fld"><label for="r-grade">Grade<span class="opt">Optional</span></label><input id="r-grade" placeholder="e.g. 2nd Kyu, green belt"></div>
+              </div>
+              <div class="note"><svg class="ic"><use href="#i-info"/></svg><span>New members start at white belt. Aikido grades from other recognised dojos can be carried over once our office checks your record book and certificate.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <div class="q">
+                <div class="qt">Previously registered as a member of Aikido Shinju-Kai?<span class="req">*</span></div>
+                <div class="yn" role="radiogroup" aria-label="Previously registered"><input type="radio" name="prev" id="prev-y" value="Yes"><label for="prev-y">Yes</label><input type="radio" name="prev" id="prev-n" value="No"><label for="prev-n">No</label></div>
+              </div>
+              <div class="fld" id="f-prev"><span class="err">Choose Yes or No.</span></div>
+              <div class="reveal" id="prevReveal"><div>
+                <div class="grid2">
+                  <div class="fld"><label for="r-prevdate">Date you joined previously<span class="req">*</span></label><input id="r-prevdate" type="text" data-dp="past" placeholder="DD / MM / YYYY" inputmode="numeric"><span class="err">Enter the date you first joined.</span></div>
+                  <div class="fld"><span class="lbl">&nbsp;</span><span class="hint" style="padding-top:12px">Members who left 2 or more years ago re-register at the full S$60.</span></div>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="rgroup">
+              <div class="q">
+                <div class="qt">Do you have any past injuries, medical conditions or medical history?<span class="req">*</span><small>e.g. heart disease, high blood pressure, diabetes, asthma, allergies, fractures</small></div>
+                <div class="yn" role="radiogroup" aria-label="Medical history"><input type="radio" name="med" id="med-y" value="Yes"><label for="med-y">Yes</label><input type="radio" name="med" id="med-n" value="No"><label for="med-n">No</label></div>
+              </div>
+              <div class="fld" id="f-med"><span class="err">Choose Yes or No.</span></div>
+              <div class="reveal" id="medReveal"><div>
+                <div class="fld"><label for="r-med">Please specify<span class="req">*</span></label><textarea id="r-med" placeholder="Condition, when it happened, anything your instructor should avoid"></textarea><span class="err">Tell us about the condition.</span></div>
+              </div></div>
+            </div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" data-prev><svg class="ic"><use href="#i-back"/></svg>Back</button><button type="button" class="btn btn-dark arrow" data-next>Continue<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section class="rstep" data-step="3">
+          <h2>Dojo &amp; dogi</h2>
+          <p class="lead">Your principal dojo is where you collect your student card and take gradings from. You can still book classes at any dojo.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3>Principal dojo<span class="req">*</span></h3>
+              <div class="choices grid2" id="dojoChoices"></div>
+              <div class="fld" id="f-dojo"><span class="err">Choose your principal dojo.</span></div>
+            </div>
+            <div class="rgroup">
+              <h3>Class group<span class="req">*</span></h3>
+              <div class="fld"><label for="r-class">Preferred class</label><select id="r-class"></select><span class="hint" id="classHint">Suggested from your age.</span><span class="err">Choose a class group.</span></div>
+            </div>
+            <div class="rgroup">
+              <h3>Purchase of dogi<span class="req">*</span> <small>Required for training</small></h3>
+              <div class="choices grid3" id="dogiChoices">
+                <div class="choice"><input type="radio" name="dogi" id="d1" value="Cotton (Standard)" data-price="30"><label for="d1"><span class="top"><span class="t">Cotton</span><span class="tick"><svg class="ic"><use href="#i-check"/></svg></span></span><span class="d">Standard single weave. Good for beginners.</span><span class="price num">S$30</span></label></div>
+                <div class="choice"><input type="radio" name="dogi" id="d2" value="Heavyweight Cotton" data-price="45"><label for="d2"><span class="top"><span class="t">Heavyweight</span><span class="tick"><svg class="ic"><use href="#i-check"/></svg></span></span><span class="d">Double weave. Lasts years of ukemi.</span><span class="price num">S$45</span></label></div>
+                <div class="choice"><input type="radio" name="dogi" id="d3" value="Competition Grade" data-price="60"><label for="d3"><span class="top"><span class="t">Competition</span><span class="tick"><svg class="ic"><use href="#i-check"/></svg></span></span><span class="d">Pre-shrunk, reinforced knees.</span><span class="price num">S$60</span></label></div>
+              </div>
+              <div class="fld" id="f-dogi"><span class="err">Choose a dogi type.</span></div>
+              <div class="fld"><span class="lbl">Dogi size<span class="req">*</span></span>
+                <div class="size-pick" id="sizePick"></div>
+                <span class="err" id="sizeErr">Choose a size.</span>
+              </div>
+              <details>
+                <summary class="sbtn ghost" style="width:fit-content"><svg class="ic"><use href="#i-info"/></svg>Size guide</summary>
+                <div class="tbl-wrap" style="margin-top:10px"><table class="size-guide" style="min-width:0">
+                  <thead><tr><th>Size</th><th>Height</th><th>Size</th><th>Height</th></tr></thead>
+                  <tbody>
+                    <tr><td>000</td><td>100–110 cm</td><td>3</td><td>155–165 cm</td></tr>
+                    <tr><td>00</td><td>110–120 cm</td><td>4</td><td>165–175 cm</td></tr>
+                    <tr><td>0</td><td>120–130 cm</td><td>5</td><td>175–182 cm</td></tr>
+                    <tr><td>1</td><td>130–140 cm</td><td>6</td><td>182–190 cm</td></tr>
+                    <tr><td>2</td><td>140–155 cm</td><td>7</td><td>190 cm +</td></tr>
+                  </tbody></table></div>
+              </details>
+            </div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" data-prev><svg class="ic"><use href="#i-back"/></svg>Back</button><button type="button" class="btn btn-dark arrow" data-next>Continue<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+
+        <!-- STEP 4 -->
+        <section class="rstep" data-step="4">
+          <h2>Lesson package</h2>
+          <p class="lead" id="pkgLead">Pick how you want to pay for classes. Lessons are credited to your account straight after payment.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3 id="pkgGroupTitle">Adult packages</h3>
+              <div class="choices grid2" id="pkgChoices"></div>
+              <div class="fld" id="f-pkg"><span class="err">Choose a package.</span></div>
+            </div>
+            <div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Book up to 1 month ahead and at least 1 day before class. Cancel 4 or more hours before class to get the lesson back.</span></div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" data-prev><svg class="ic"><use href="#i-back"/></svg>Back</button><button type="button" class="btn btn-dark arrow" data-next>Review &amp; pay<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+
+        <!-- STEP 5 -->
+        <section class="rstep" data-step="5">
+          <h2>Terms &amp; payment</h2>
+          <p class="lead">Check your details, read the terms to the end, then slide to pay.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3>Your application</h3>
+              <dl class="review" id="review"></dl>
+            </div>
+
+            <div class="tc">
+              <div class="tc-h"><b>Consent, declaration &amp; indemnity</b><span id="tcPct">0% read</span></div>
+              <div class="tc-prog"><i id="tcBar"></i></div>
+              <div class="tc-fade" id="tcFade">
+                <div class="tc-body" id="tcBody" tabindex="0" aria-label="Terms and conditions, scroll to read">
+                  <p>By submitting this form, I confirm my membership application and certify that I understand and agree to all the stated Terms and Conditions. I also declare that the personal data I have provided is true and correct.</p>
+                  <h4>1. Indemnity</h4>
+                  <p>I accept personal responsibility and agree that Aikido Shinju-Kai (ASK), Shinju-Kai International Pte Ltd (SIPL), its affiliated organisations, partners and governing bodies, their officers, instructors and personnel, other members, participants, supervisors, coaches and sponsoring organisations or their agents will not be held liable for any loss or damage, including injury, death or damage to property, caused or alleged to be caused in whole or in part by the negligence of myself or my child or otherwise.</p>
+                  <h4>2. Training of my own free will</h4>
+                  <p>I recognise and accept that I enter martial arts training entirely of my own free will, and I understand the importance of following the rules of training and dojo etiquette.</p>
+                  <h4>3. Health declaration</h4>
+                  <p>I certify that I am, or my child is, in good physical condition with no disease, injury or other condition that would impair performance or physical and mental well-being during training. If I have any injury or illness that could affect my ability to take part, I will tell the organisation and instructor, and discuss with my doctor whether martial arts training is appropriate.</p>
+                  <h4>4. Emergency medical treatment</h4>
+                  <p>In an emergency injury that needs medical attention, I permit a doctor, nurse, athletic trainer or other emergency medical personnel to give me or my child medical assistance or treatment. The cost of any treatment or hospitalisation arising from injury during training will not be paid by ASK, its affiliated organisations and governing bodies, their officers, instructors or personnel.</p>
+                  <h4>5. Fees</h4>
+                  <p>Membership and registration fees are non-refundable. All Principal Dojo training fees must be paid before the start of a new term. Annual dues are payable each year; a membership unpaid for more than 365 days lapses, and class booking is locked until dues are paid.</p>
+                  <h4>6. Private policy</h4>
+                  <p>In accordance with the Personal Data Protection Act 2012, I consent to the collection, use and disclosure of my personal data by ASK and/or any ASK-Authorised Party for membership-related matters.</p>
+                  <h4>7. Terminology</h4>
+                  <ol>
+                    <li>"ASK" means Aikido Shinju-Kai.</li>
+                    <li>"Data" means any information relating to me in the possession of, or provided from time to time to, any ASK-Authorised Party.</li>
+                    <li>"ASK-Authorised Party" means Aikido Shinju-Kai in China or its related companies, such as Shinju-Kai International Pte Ltd in Singapore; the Company's existing or potential third-party service providers, affiliated organisations, contracting partners and agents; any governmental or regulatory authority in any jurisdiction; and any other party listed in the prevailing ASK Privacy Policy.</li>
+                    <li>The current ASK Privacy Policy is published at aikidoshinjukai.com.sg.</li>
+                  </ol>
+                  <h4>8. Right to reject</h4>
+                  <p>Aikido Shinju-Kai reserves the right to reject any application without giving a reason.</p>
+                  <p class="end">End of terms · Version 2020.1</p>
+                </div>
+                <span class="tc-cue"><svg class="ic"><use href="#i-chev"/></svg>Scroll to the end to continue</span>
+              </div>
+              <div class="tc-f">
+                <label class="check locked" id="tcAgreeWrap"><input type="checkbox" id="tcAgree" disabled><span>I have read and agree to the Terms and Conditions<span class="req">*</span><small id="tcAgreeHint">Unlocks once you scroll to the end.</small></span></label>
+                <label class="check"><input type="checkbox" id="pdpa"><span>I consent to ASK processing my personal data under the PDPA 2012<span class="req">*</span></span></label>
+                <label class="check"><input type="checkbox" id="mkt"><span>Send me news about events, seminars and activities<small>Optional</small></span></label>
+              </div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Payment</h3>
+              <div class="fees" id="fees"></div>
+              <div class="paybox">
+                <div class="card-mock"><span class="brand-chip">STRIPE</span><span class="grow">Card payment · Visa •••• 4242</span><svg class="ic" style="color:var(--ok)"><use href="#i-lock"/></svg></div>
+                <div class="slide locked" id="regSlide">
+                  <div class="fill"></div>
+                  <div class="lbl"><em id="regSlideLbl">Slide to pay</em></div>
+                  <div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg class="ic"><use href="#i-arrow"/></svg></div>
+                </div>
+                <span class="hint" id="payHint" style="font-size:12px;color:var(--muted)">Agree to the terms and PDPA consent to unlock payment.</span>
+              </div>
+            </div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" data-prev><svg class="ic"><use href="#i-back"/></svg>Back</button><span></span></div>
+        </section>
+
+        <!-- DONE -->
+        <section class="rstep" data-step="6">
+          <div class="done-wrap">
+            <div class="done-hero">
+              <div class="seal" aria-hidden="true">心</div>
+              <div>
+                <span class="eyebrow">Welcome to Shinju-Kai</span>
+                <div class="memno" id="memNo">ASK-2026-0000</div>
+                <p style="color:var(--muted);margin-top:4px">Your membership number · Joined <b id="joinedOn">—</b></p>
+              </div>
+            </div>
+            <div class="done-grid">
+              <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-mail"/></svg></span><b>Welcome email sent</b><p>Your membership number and log-in details went to <span id="doneEmail">your email</span>.</p></div>
+              <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-receipt"/></svg></span><b>Receipt sent</b><p>Registration, dogi and lesson package. Paid <b id="donePaid">S$0</b>.</p></div>
+              <div class="done-item key"><span class="ib"><svg class="ic"><use href="#i-id"/></svg></span><b>Collect your student card</b><p>Pick it up at <b id="doneDojo">your principal dojo</b> on your first lesson.</p></div>
+            </div>
+            <div class="mail-tabs">
+              <div class="filters" id="mailTabs"><button type="button" class="fpill on" data-mail="welcome">Welcome email</button><button type="button" class="fpill" data-mail="receipt">Receipt</button></div>
+              <div class="mail" id="mailView"></div>
+            </div>
+            <div class="rnav"><button type="button" class="sbtn" data-go="home">Back to site</button><button type="button" class="btn btn-red arrow" data-go="login">Log in to your portal<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+          </div>
+        </section>
+      </form>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================
+     VIEW 3 — LOG IN
+     ============================================================ -->
+<div class="view" id="v-login">
+  <div class="login">
+    <div class="login-art">
+      <div class="bg"></div>
+      <a class="brand" href="#home" style="color:#fff"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">AIKIDO SHINJU-KAI</a>
+      <blockquote>"When an opponent comes forward, move in and greet him; if he wants to pull back, send him on his way."<cite>Ueshiba Morihei, O'Sensei</cite></blockquote>
+    </div>
+    <div class="login-main">
+      <form class="login-box" id="loginForm" novalidate>
+        <button type="button" class="sbtn ghost" data-go="home" style="justify-self:start"><svg class="ic"><use href="#i-back"/></svg>Back to site</button>
+        <h1>Welcome back</h1>
+        <p id="loginNote">Log in with your membership ID, or the Google account you registered with.</p>
+        <div class="role-tabs" id="roleTabs" role="tablist">
+          <span class="thumb"></span>
+          <button type="button" role="tab" class="on" data-role="student">Student</button>
+          <button type="button" role="tab" data-role="instructor">Instructor</button>
+          <button type="button" role="tab" data-role="admin">Admin</button>
+        </div>
+        <div class="fld"><label for="l-id" id="idLabel">Membership ID</label>
+          <div class="id-wrap"><svg class="ic prefix"><use href="#i-id"/></svg><input id="l-id" value="ASK-2025-1834" autocomplete="username" spellcheck="false"></div>
+          <span class="hint" id="idHint">On your student card and welcome email, e.g. ASK-2025-1834</span><span class="err">Enter your ID in the format shown.</span></div>
+        <div class="fld"><label for="l-pass">Password</label><input id="l-pass" type="password" value="password123" autocomplete="current-password"><span class="err">Enter your password.</span></div>
+        <div class="row-between"><label class="check" style="font-size:13px"><input type="checkbox" id="l-remember" checked><span>Keep me logged in</span></label><button type="button" id="forgot">Forgot password?</button></div>
+        <button class="btn btn-dark arrow" type="submit" style="justify-self:start">Log in<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button>
+        <div class="divider">or</div>
+        <button type="button" class="google-btn" id="googleBtn"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.7 13.3l7.9 6.1C12.5 13.6 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.7 6c4.5-4.2 6.9-10.3 6.9-17.7z"/><path fill="#FBBC05" d="M10.6 28.6c-.5-1.4-.8-3-.8-4.6s.3-3.2.8-4.6l-7.9-6.1C1 16.6 0 20.2 0 24s1 7.4 2.7 10.7l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.7-6c-2.2 1.5-5 2.3-8.2 2.3-6.2 0-11.5-4.1-13.4-9.8l-7.9 6.1C6.6 42.6 14.6 48 24 48z"/></svg><span id="googleLbl">Continue with Google</span></button>
+        <p class="fine">New to Shinju-Kai? <button type="button" data-go="join">Register as a member</button></p>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     VIEW 4 — STUDENT PORTAL
+     ============================================================ -->
+<div class="view" id="v-student">
+  <div class="shell">
+    <aside class="rail">
+      <div class="rail-top"><a class="brand" href="#home"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt=""><span class="t">SHINJU-KAI</span></a><button class="rail-toggle" data-rail-toggle aria-label="Collapse sidebar" aria-expanded="true"><svg class="ic"><use href="#i-left"/></svg></button></div>
+      <div class="rail-role">Student</div>
+      <nav data-portal="student">
+        <button data-page="home" class="on"><svg class="ic"><use href="#i-home"/></svg>Home</button>
+        <button data-page="book"><svg class="ic"><use href="#i-cal"/></svg>Book a class</button>
+        <button data-page="packages"><svg class="ic"><use href="#i-box"/></svg>Packages</button>
+        <button data-page="grading"><svg class="ic"><use href="#i-award"/></svg>Grading</button>
+        <button data-page="payments"><svg class="ic"><use href="#i-card"/></svg>Payments</button>
+        <button data-page="profile"><svg class="ic"><use href="#i-user"/></svg>Profile</button>
+      </nav>
+      <div class="rail-me"><span class="av">LW</span><div><b>Lervyn Wong</b><span>4th Kyu · HQ Dojo</span></div><button data-go="home" aria-label="Log out"><svg class="ic"><use href="#i-logout"/></svg></button></div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <button class="sbtn mobile-menu" data-sm-open><svg class="ic"><use href="#i-plus"/></svg>Menu</button>
+        <span class="crumb">Student · <b data-crumb>Home</b></span>
+        <span class="sp"></span>
+        <label class="search"><svg class="ic"><use href="#i-search"/></svg><input placeholder="Search classes, dojos" aria-label="Search"></label>
+        <button class="icon-btn" data-notif aria-label="Notifications"><svg class="ic"><use href="#i-bell"/></svg><span class="badge-dot"></span></button>
+      </div>
+
+      <!-- Student · Home -->
+      <section class="page on" data-page="home">
+        <div class="g-side">
+          <div class="hello ac">
+            <div>
+              <h1><span class="shiny on-dark" id="greet">Good evening, Lervyn.</span></h1>
+              <p>Seven more sessions and you're eligible for 3rd Kyu. Grading applications close on 29 Nov.</p>
+              <div class="mini">
+                <div><b class="num" data-count="18">0</b><span>Lessons left</span></div>
+                <div><b class="num" data-count="29">0</b><span>Sessions at this rank</span></div>
+                <div><b class="num" data-count="7">0</b><span>Months in rank</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- ProfileCard → digital student card -->
+          <div class="pcard ac" id="studentCard">
+            <div class="pcard-body">
+              <div class="pcard-tile">
+                <span class="pcard-holo"></span>
+                <div class="pcard-top"><span class="pcard-org"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><span class="pcard-kanji">合気道</span></div>
+                <div class="pcard-mid"><span class="pcard-av">LW</span><div><div class="pcard-name">Lervyn Wong</div><div class="pcard-rank"><i></i>4th Kyu · Brown</div></div></div>
+                <div class="pcard-bot"><span>MEMBER NO.<b>ASK-2025-1834</b></span><span style="text-align:right">PRINCIPAL DOJO<b>HQ · Thomson</b></span></div>
+                <span class="pcard-glare"></span>
+              </div>
+              <div class="pcard-foot"><span class="st">Active · renews Jan 2027</span><button type="button" data-qr><svg class="ic"><use href="#i-nfc"/></svg>Check in</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g4 ac" data-stagger>
+          <div class="stat"><span class="l">Lessons remaining</span><span class="v"><span data-count="18">0</span></span><span class="h">25-lesson pack · expires Apr 2027</span></div>
+          <div class="stat"><span class="l">Sessions to 3rd Kyu</span><span class="v"><span data-count="29">0</span><small>/36</small></span><span class="h up">7 to go</span></div>
+          <div class="stat"><span class="l">Membership</span><span class="v" style="font-size:28px">Active</span><span class="h">Annual dues paid · Jan 2027</span></div>
+          <div class="stat dark"><span class="l">Next grading</span><span class="v">13 Dec</span><span class="h">Applications close 29 Nov</span></div>
+        </div>
+
+        <div class="g-wide">
+          <div class="card ac">
+            <div class="card-h"><div><h3>Progress to 3rd Kyu</h3><span class="sub">6 months and 36 sessions at 4th Kyu</span></div>
+              <div class="view-toggle" id="progToggle"><button class="on" data-v="path">Belt path</button><button data-v="bar">Bar</button></div></div>
+            <div id="progPath"><div class="path" id="beltPath"></div></div>
+            <div id="progBar" hidden>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><b>29 of 36 sessions</b><span style="color:var(--muted)">81%</span></div>
+              <div class="bar red"><i data-w="81"></i></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin:18px 0 8px"><b>7 of 6 months</b><span style="color:var(--ok)">Met</span></div>
+              <div class="bar"><i data-w="100"></i></div>
+            </div>
+          </div>
+          <div class="card ac">
+            <div class="card-h"><h3>Rate your last class</h3><span class="sub">Adults · Sat 1 Nov · Bob Tan Sensei</span></div>
+            <div id="peek" class="peek"></div>
+            <textarea class="input" id="rateNote" placeholder="Anything to tell the instructor? (optional)" style="margin-top:12px;min-height:70px"></textarea>
+            <button class="sbtn dark" id="rateSend" style="margin-top:12px" disabled>Send feedback</button>
+          </div>
+        </div>
+
+        <div class="card ac">
+          <div class="card-h"><h3>Upcoming classes</h3><button class="sbtn" data-page-link="book"><svg class="ic"><use href="#i-plus"/></svg>Book another</button></div>
+          <div id="upcoming"></div>
+        </div>
+      </section>
+
+      <!-- Student · Book -->
+      <section class="page" data-page="book">
+        <div class="page-h"><div><h1>Book a class</h1><p>Book up to 1 month ahead and at least 1 day before. Each class uses 1 lesson.</p></div>
+          <div class="week-nav"><button class="icon-btn" id="wkPrev" aria-label="Previous week"><svg class="ic"><use href="#i-left"/></svg></button><b id="wkLabel">3 – 9 Nov 2026</b><button class="icon-btn" id="wkNext" aria-label="Next week"><svg class="ic"><use href="#i-right"/></svg></button></div></div>
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+          <div class="filters" id="dojoFilter"></div>
+          <div class="tt-legend"><span><i></i>Adults &amp; mixed</span><span><i class="k"></i>Children</span><span><i class="b"></i>Booked</span></div>
+        </div>
+        <div class="tt"><div class="tt-grid" id="bookGrid"></div></div>
+      </section>
+
+      <!-- Student · Packages -->
+      <section class="page" data-page="packages">
+        <div class="page-h"><div><h1>Packages</h1><p>Top up lessons or switch to unlimited. Paid securely with Stripe.</p></div></div>
+        <div class="credit-banner ac">
+          <div class="big num"><span id="creditBig">18</span><small>lessons left</small></div>
+          <div><b>25-lesson pack</b><p style="color:var(--muted);font-size:14px;margin-top:4px">10 lessons expire on 30 Nov. Your balance drops to 8 if they're not used.</p><div class="bar red" style="margin-top:12px"><i data-w="72"></i></div></div>
+          <span class="pill warn">Expiring soon</span>
+        </div>
+        <div class="card-h" style="margin:8px 4px 0"><h3>Adult packages</h3><span class="sub">Unlimited replaces your lesson balance while it runs</span></div>
+        <div class="pkgs" id="pkgAdult"></div>
+        <div class="card-h" style="margin:8px 4px 0"><h3>Children packages</h3><span class="sub">For members aged 4 to 12</span></div>
+        <div class="pkgs" id="pkgKids"></div>
+      </section>
+
+      <!-- Student · Grading -->
+      <section class="page" data-page="grading">
+        <div class="page-h"><div><h1>Grading</h1><p>Eligibility is worked out from your sessions and time in rank.</p></div><span class="pill warn">Not yet eligible</span></div>
+        <div class="g-wide">
+          <div class="card ac">
+            <div class="card-h"><h3>Checklist · 3rd Kyu</h3><span class="sub">Adult grading · 13 Dec 2026</span></div>
+            <div class="checks">
+              <div><span class="cb"><svg class="ic"><use href="#i-check"/></svg></span><span class="t">Member for at least 3 months</span><span class="v">17 months</span></div>
+              <div><span class="cb"><svg class="ic"><use href="#i-check"/></svg></span><span class="t">6 months at current grade</span><span class="v">7 months</span></div>
+              <div><span class="cb no"><svg class="ic"><use href="#i-clock"/></svg></span><span class="t">36 sessions at current grade</span><span class="v">29 / 36</span></div>
+              <div><span class="cb"><svg class="ic"><use href="#i-check"/></svg></span><span class="t">No outstanding membership fees</span><span class="v">Paid</span></div>
+              <div><span class="cb no"><svg class="ic"><use href="#i-clock"/></svg></span><span class="t">Instructor marks you Qualified</span><span class="v">Pending</span></div>
+            </div>
+          </div>
+          <div class="card ac">
+            <div class="card-h"><h3>Grading calendar</h3></div>
+            <div class="rows">
+              <div class="row"><div class="grow"><div class="t">13 Sep 2026</div><div class="d">Applications 2 – 30 Aug</div></div><span class="pill plain">Closed</span></div>
+              <div class="row"><div class="grow"><div class="t">13 Dec 2026</div><div class="d">Applications 1 – 29 Nov</div></div><span class="pill ok">Open</span></div>
+              <div class="row"><div class="grow"><div class="t">14 Mar 2027</div><div class="d">Applications 1 – 28 Feb</div></div><span class="pill plain">Upcoming</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card white ac">
+          <div class="card-h"><div><h3>Grading application</h3><span class="sub">Unlocks when every item on the checklist is met</span></div><span class="pill plain"><svg class="ic" style="width:13px;height:13px"><use href="#i-lock"/></svg>Locked</span></div>
+          <form class="grid2" id="gradeForm" novalidate>
+            <div class="fld"><label for="ga-dojo">Principal dojo</label><input id="ga-dojo" value="HQ Dojo · Thomson V One" readonly></div>
+            <div class="fld"><label for="ga-cur">Current grade &amp; date passed</label><input id="ga-cur" value="4th Kyu · 13 Mar 2026" readonly></div>
+            <div class="fld"><label for="ga-target">Grading for</label><select id="ga-target"><option>3rd Kyu (Brown)</option></select></div>
+            <div class="fld"><label for="ga-book">Membership book photo</label><input id="ga-book" type="file" accept="image/*"><span class="hint">Pages showing your session stamps</span></div>
+            <div class="fld full"><div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Submit at least two weeks before grading; late applications carry an admin charge. 2nd Kyu and above must also meet weapons requirements. Members aged 5–12 take the Children's grading.</span></div></div>
+            <div class="fld full"><button class="btn btn-dark arrow" type="submit" disabled>Submit application<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Student · Payments -->
+      <section class="page" data-page="payments">
+        <div class="page-h"><div><h1>Payments</h1><p>Every charge on your account, with receipts.</p></div></div>
+        <div class="tbl-wrap ac"><table class="tbl"><thead><tr><th>Item</th><th>Date</th><th>Method</th><th>Amount</th><th>Status</th><th></th></tr></thead><tbody id="payRows"></tbody></table></div>
+      </section>
+
+      <!-- Student · Profile -->
+      <section class="page" data-page="profile">
+        <div class="page-h"><div><h1>Profile</h1><p>Keep your contact and emergency details up to date.</p></div></div>
+        <div class="g-side">
+          <form class="card white grid2" id="profileForm" novalidate>
+            <div class="fld full"><label for="p-name">Name</label><input id="p-name" value="Lervyn Wong"></div>
+            <div class="fld"><label for="p-email">Email</label><input id="p-email" type="email" value="lervyn@email.com"></div>
+            <div class="fld"><label for="p-phone">Mobile</label><input id="p-phone" value="9123 4567"></div>
+            <div class="fld"><label for="p-ec">Emergency contact</label><input id="p-ec" value="May Wong (Parent)"></div>
+            <div class="fld"><label for="p-ecp">Emergency mobile</label><input id="p-ecp" value="9876 5432"></div>
+            <div class="fld full"><button class="sbtn dark" type="submit"><svg class="ic"><use href="#i-check"/></svg>Save changes</button></div>
+          </form>
+          <div class="card">
+            <div class="card-h"><h3>Membership</h3></div>
+            <div class="kv" style="border-top:1px solid var(--line)">
+              <div><span>Membership no.</span><span class="num">ASK-2025-1834</span></div>
+              <div><span>Date joined</span><span>14 Jun 2025</span></div>
+              <div><span>Principal dojo</span><span>HQ · Thomson</span></div>
+              <div><span>Grade</span><span>4th Kyu (Brown)</span></div>
+              <div><span>Annual dues</span><span>Paid to Jan 2027</span></div>
+            </div>
+            <button class="sbtn" style="margin-top:16px" id="pwBtn"><svg class="ic"><use href="#i-lock"/></svg>Change password</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================
+     VIEW 5 — INSTRUCTOR PORTAL
+     ============================================================ -->
+<div class="view" id="v-instructor">
+  <div class="shell">
+    <aside class="rail">
+      <div class="rail-top"><a class="brand" href="#home"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt=""><span class="t">SHINJU-KAI</span></a><button class="rail-toggle" data-rail-toggle aria-label="Collapse sidebar" aria-expanded="true"><svg class="ic"><use href="#i-left"/></svg></button></div>
+      <div class="rail-role">Instructor</div>
+      <nav data-portal="instructor">
+        <button data-page="today" class="on"><svg class="ic"><use href="#i-home"/></svg>Today</button>
+        <button data-page="students"><svg class="ic"><use href="#i-users"/></svg>My students</button>
+        <button data-page="timetable"><svg class="ic"><use href="#i-cal"/></svg>Timetable</button>
+        <button data-page="grading"><svg class="ic"><use href="#i-award"/></svg>Grading<span class="cnt">3</span></button>
+        <button data-page="profile"><svg class="ic"><use href="#i-user"/></svg>Profile</button>
+      </nav>
+      <div class="rail-me"><span class="av">BT</span><div><b>Bob Tan Sensei</b><span>6th Dan · HQ Dojo</span></div><button data-go="home" aria-label="Log out"><svg class="ic"><use href="#i-logout"/></svg></button></div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <button class="sbtn mobile-menu" data-sm-open><svg class="ic"><use href="#i-plus"/></svg>Menu</button>
+        <span class="crumb">Instructor · <b data-crumb>Today</b></span>
+        <span class="sp"></span>
+        <label class="search"><svg class="ic"><use href="#i-search"/></svg><input placeholder="Search students" aria-label="Search students"></label>
+        <button class="icon-btn" data-notif aria-label="Notifications"><svg class="ic"><use href="#i-bell"/></svg><span class="badge-dot"></span></button>
+      </div>
+
+      <section class="page on" data-page="today">
+        <div class="page-h"><div><h1>Today · Mon 3 Nov</h1><p>Attendance opens 30 minutes before each class.</p></div></div>
+        <div class="g-side">
+          <div class="live-card ac">
+            <span class="tag">Active now</span>
+            <h2>Adults · 7:00 – 8:00 PM</h2>
+            <div class="meta"><span>HQ Dojo, Mat A</span><span><b id="presentCount">0</b> of 14 checked in</span></div>
+            <div class="code"><svg class="ic"><use href="#i-nfc"/></svg>Session code <b>HQ-7PM-4821</b></div>
+            <div><button class="sbtn" data-inst-tab="roster">Open roster</button></div>
+          </div>
+          <div class="card ac">
+            <div class="card-h"><h3>Your day</h3></div>
+            <div class="rows" id="dayList"></div>
+          </div>
+        </div>
+        <div class="card white ac">
+          <div class="card-h"><div><h3>Roster · Adults 7 PM</h3><span class="sub">Tap to mark present. Students tapping the NFC tag are marked automatically.</span></div><button class="sbtn" id="markAll"><svg class="ic"><use href="#i-check"/></svg>Mark all present</button></div>
+          <div class="rows" id="roster"></div>
+        </div>
+      </section>
+
+      <section class="page" data-page="students">
+        <div class="page-h"><div><h1>My students</h1><p>Everyone who trains in your classes.</p></div></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between">
+          <div class="filters" id="stuFilter"></div>
+          <label class="search" style="width:min(280px,100%)"><svg class="ic"><use href="#i-search"/></svg><input id="stuSearch" placeholder="Search by name" aria-label="Search students"></label>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Student</th><th>Grade</th><th>Sessions</th><th>Last seen</th><th>Status</th></tr></thead><tbody id="stuRows"></tbody></table></div>
+      </section>
+
+      <section class="page" data-page="timetable">
+        <div class="page-h"><div><h1>Timetable</h1><p>Week of 3 Nov 2026 · tap a class to see its roster.</p></div></div>
+        <div class="tt"><div class="tt-grid" id="instGrid"></div></div>
+      </section>
+
+      <section class="page" data-page="grading">
+        <div class="page-h"><div><h1>Grading · 13 Dec</h1><p>Record results, then sign and send the promotion proposal to HQ.</p></div></div>
+        <div class="rows card white" id="gradeList"></div>
+      </section>
+
+      <section class="page" data-page="profile">
+        <div class="page-h"><div><h1>Profile</h1></div></div>
+        <div class="card white" style="max-width:560px">
+          <div class="kv" style="border-top:0;margin:0">
+            <div><span>Name</span><span>Bob Tan Sensei</span></div>
+            <div><span>Rank</span><span>6th Dan</span></div>
+            <div><span>Roles</span><span>General Affairs Council · IAD Senior Director</span></div>
+            <div><span>Primary dojo</span><span>HQ · Thomson</span></div>
+            <div><span>Email</span><span>bob.tan@aikidoshinjukai.com.sg</span></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================
+     VIEW 6 — ADMIN PORTAL
+     ============================================================ -->
+<div class="view" id="v-admin">
+  <div class="shell">
+    <aside class="rail">
+      <div class="rail-top"><a class="brand" href="#home"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt=""><span class="t">SHINJU-KAI</span></a><button class="rail-toggle" data-rail-toggle aria-label="Collapse sidebar" aria-expanded="true"><svg class="ic"><use href="#i-left"/></svg></button></div>
+      <div class="rail-role">HQ Admin</div>
+      <nav data-portal="admin">
+        <button data-page="dashboard" class="on"><svg class="ic"><use href="#i-home"/></svg>Overview</button>
+        <button data-page="applications"><svg class="ic"><use href="#i-inbox"/></svg>Applications<span class="cnt" id="appCount">4</span></button>
+        <button data-page="members"><svg class="ic"><use href="#i-users"/></svg>Members</button>
+        <button data-page="sessions"><svg class="ic"><use href="#i-cal"/></svg>Sessions</button>
+        <button data-page="grading"><svg class="ic"><use href="#i-award"/></svg>Grading</button>
+        <button data-page="payments"><svg class="ic"><use href="#i-card"/></svg>Payments</button>
+        <button data-page="notify"><svg class="ic"><use href="#i-mega"/></svg>Notifications</button>
+        <button data-page="reports"><svg class="ic"><use href="#i-chart"/></svg>Reports</button>
+      </nav>
+      <div class="rail-me"><span class="av">HQ</span><div><b>HQ Office</b><span>Administrator</span></div><button data-go="home" aria-label="Log out"><svg class="ic"><use href="#i-logout"/></svg></button></div>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <button class="sbtn mobile-menu" data-sm-open><svg class="ic"><use href="#i-plus"/></svg>Menu</button>
+        <span class="crumb">Admin · <b data-crumb>Overview</b></span>
+        <span class="sp"></span>
+        <label class="search"><svg class="ic"><use href="#i-search"/></svg><input placeholder="Search members, sessions" aria-label="Search"></label>
+        <button class="icon-btn" data-notif aria-label="Notifications"><svg class="ic"><use href="#i-bell"/></svg><span class="badge-dot"></span></button>
+      </div>
+
+      <section class="page on" data-page="dashboard">
+        <div class="page-h"><div><h1>Overview</h1><p>All dojos · Mon 3 Nov 2026</p></div></div>
+        <div class="g4 ac" data-stagger>
+          <div class="stat"><span class="l">Active members</span><span class="v"><span data-count="1248" data-sep>0</span></span><span class="h up">+14 this month</span></div>
+          <div class="stat alert"><span class="l">Need approval</span><span class="v"><span data-count="4" id="statPending">0</span></span><span class="h">Membership applications</span></div>
+          <div class="stat"><span class="l">Lapsed</span><span class="v"><span data-count="7">0</span></span><span class="h dn">Dues unpaid past 365 days</span></div>
+          <div class="stat dark"><span class="l">Grading applications</span><span class="v"><span data-count="23">0</span></span><span class="h">For 13 Dec</span></div>
+        </div>
+        <div class="g-wide">
+          <div class="card ac"><div class="card-h"><div><h3>Most booked sessions</h3><span class="sub">This week, by bookings</span></div></div><div class="bars" id="trendBars"></div></div>
+          <div class="card ac"><div class="card-h"><h3>Waiting on you</h3></div>
+            <div class="rows">
+              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-inbox"/></svg></span><div class="grow"><div class="t">Membership applications</div><div class="d">Paid, waiting for approval</div></div><button class="sbtn" data-page-link="applications">Review</button></div>
+              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-award"/></svg></span><div class="grow"><div class="t">Promotion proposals</div><div class="d">Signed by instructors</div></div><button class="sbtn" data-page-link="grading">Review</button></div>
+              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-flag"/></svg></span><div class="grow"><div class="t">Low attendance flags</div><div class="d">5 students not seen in 14+ days</div></div><button class="sbtn" data-page-link="members">View</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" data-page="applications">
+        <div class="page-h"><div><h1>Membership applications</h1><p>Approve to activate the student account and print the student card.</p></div></div>
+        <div class="card white"><div class="rows" id="appRows"></div></div>
+      </section>
+
+      <section class="page" data-page="members">
+        <div class="page-h"><div><h1>Members</h1><p>1,248 active across 60+ dojos.</p></div><div class="acts"><button class="sbtn" data-export="members"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button></div></div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between">
+          <div class="filters" id="memFilter"></div>
+          <label class="search" style="width:min(300px,100%)"><svg class="ic"><use href="#i-search"/></svg><input id="memSearch" placeholder="Search name or member no." aria-label="Search members"></label>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Member</th><th>Grade</th><th>Dojo</th><th>Hours</th><th>Membership</th></tr></thead><tbody id="memRows"></tbody></table></div>
+      </section>
+
+      <section class="page" data-page="sessions">
+        <div class="page-h"><div><h1>Sessions</h1><p>Recurring classes. Each session gets a code written to its dojo's NFC tag.</p></div><div class="acts"><button class="sbtn dark" id="newSession"><svg class="ic"><use href="#i-plus"/></svg>New session</button></div></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Class</th><th>When</th><th>Dojo</th><th>Instructor</th><th>Booked</th><th>Code</th><th></th></tr></thead><tbody id="sesRows"></tbody></table></div>
+      </section>
+
+      <section class="page" data-page="grading">
+        <div class="page-h"><div><h1>Grading</h1><p>Schedule applicants, then approve instructor proposals to promote.</p></div></div>
+        <div class="filters" id="gradTabs"><button class="fpill on" data-g="apps">Applications <span class="n">3</span></button><button class="fpill" data-g="props">Promotion proposals <span class="n">2</span></button></div>
+        <div class="card white"><div class="rows" id="gradRows"></div></div>
+      </section>
+
+      <section class="page" data-page="payments">
+        <div class="page-h"><div><h1>Payments</h1><p>Stripe · November 2026</p></div></div>
+        <div class="g3 ac" data-stagger>
+          <div class="stat dark"><span class="l">Revenue this month</span><span class="v">S$<span data-count="42600" data-sep>0</span></span><span class="h">+8% on October</span></div>
+          <div class="stat alert"><span class="l">Lapsed accounts</span><span class="v"><span data-count="7">0</span></span><span class="h">Booking locked</span></div>
+          <div class="stat"><span class="l">Processing</span><span class="v"><span data-count="3">0</span></span><span class="h">Pending on Stripe</span></div>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Member</th><th>Item</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody id="adminPayRows"></tbody></table></div>
+      </section>
+
+      <section class="page" data-page="notify">
+        <div class="page-h"><div><h1>Notifications</h1><p>Send to everyone, one dojo, a grade, or a single student.</p></div></div>
+        <div class="g-side">
+          <form class="card white composer" id="notifyForm" novalidate>
+            <div class="fld"><span class="lbl">Send to</span><div class="seg" id="audSeg">
+              <input type="radio" name="aud" id="a1" value="All members" checked><label for="a1">All members</label>
+              <input type="radio" name="aud" id="a2" value="One dojo"><label for="a2">One dojo</label>
+              <input type="radio" name="aud" id="a3" value="By grade"><label for="a3">By grade</label>
+              <input type="radio" name="aud" id="a4" value="One student"><label for="a4">One student</label></div></div>
+            <div class="fld" id="audExtra" hidden><label for="n-target" id="audLabel">Dojo</label><select id="n-target"></select></div>
+            <div class="fld"><label for="n-title">Title</label><input id="n-title" maxlength="60" placeholder="e.g. HQ closed on Deepavali"></div>
+            <div class="fld"><label for="n-body">Message</label><textarea id="n-body" maxlength="240" placeholder="Keep it short. It shows as a push notification and in the portal."></textarea><span class="hint"><span id="nCount">0</span>/240</span></div>
+            <label class="check"><input type="checkbox" id="n-email" checked><span>Also send by email</span></label>
+            <button class="btn btn-red arrow" type="submit" style="justify-self:start">Send notification<span class="dot"><svg class="ic"><use href="#i-send"/></svg></span></button>
+          </form>
+          <div class="card"><div class="card-h"><h3>Preview</h3><span class="sub" id="audPreview">All members · 1,248</span></div>
+            <div class="preview-phone"><div class="push"><small><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI · now</small><b id="pvTitle">Your title</b><span id="pvBody" style="color:rgba(255,255,255,.75)">Your message appears here.</span></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" data-page="reports">
+        <div class="page-h"><div><h1>Reports</h1><p>Export for meetings and audits.</p></div></div>
+        <div class="g3 ac" data-stagger>
+          <div class="card white"><div class="card-h"><h3>Attendance</h3></div><p style="color:var(--muted);font-size:14px">By dojo, class or date range.</p><svg class="spark" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 60 L30 52 L60 56 L90 40 L120 44 L150 30 L180 34 L210 22 L240 28 L270 16 L300 20" fill="none" stroke="#16213B" stroke-width="2.5"/><path d="M0 60 L30 52 L60 56 L90 40 L120 44 L150 30 L180 34 L210 22 L240 28 L270 16 L300 20 L300 80 L0 80Z" fill="rgba(22,33,59,.06)"/><circle cx="300" cy="20" r="4" fill="#C1272D"/></svg><button class="sbtn" data-export="attendance"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button></div>
+          <div class="card white"><div class="card-h"><h3>Student progression</h3></div><p style="color:var(--muted);font-size:14px">Grades, hours and grading history.</p><svg class="spark" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 L50 62 L100 58 L150 46 L200 38 L250 30 L300 18" fill="none" stroke="#16213B" stroke-width="2.5"/><path d="M0 70 L50 62 L100 58 L150 46 L200 38 L250 30 L300 18 L300 80 L0 80Z" fill="rgba(22,33,59,.06)"/><circle cx="300" cy="18" r="4" fill="#C1272D"/></svg><button class="sbtn" data-export="progression"><svg class="ic"><use href="#i-download"/></svg>Export PDF</button></div>
+          <div class="card white"><div class="card-h"><h3>Payment status</h3></div><p style="color:var(--muted);font-size:14px">Active, lapsed and overdue accounts.</p><svg class="spark" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 L50 36 L100 44 L150 34 L200 38 L250 30 L300 32" fill="none" stroke="#16213B" stroke-width="2.5"/><path d="M0 40 L50 36 L100 44 L150 34 L200 38 L250 30 L300 32 L300 80 L0 80Z" fill="rgba(22,33,59,.06)"/><circle cx="300" cy="32" r="4" fill="#C1272D"/></svg><button class="sbtn" data-export="payments"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button></div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- ============================================================
+     VIEW 7 — ABOUT
+     ============================================================ -->
+<div class="view" id="v-about">
+  <div class="ab-hero">
+    <div class="ab-hero-card">
+      <div class="bg" role="img" aria-label="Weapons class at Shinju-Kai"></div>
+      <div class="ab-hero-in">
+        <div>
+          <span class="eyebrow on-dark">About Aikido Shinju-Kai</span>
+          <h1>The art of love<br>and harmony</h1>
+          <p>Founded in 1988 by Philip Lee Shihan and recognised by Aikikai, the Aikido World Headquarters in Japan. Today we are South-East Asia's most active Aikido organisation.</p>
+        </div>
+        <div class="kanji" aria-hidden="true">合気道心柔会</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="ab-nav wrap" aria-label="About sections">
+    <div class="ab-nav-in" id="abNav">
+      <a href="#about-benefits" data-sec="benefits">Benefits</a>
+      <a href="#about-history" data-sec="history">History</a>
+      <a href="#about-vision" data-sec="vision">Vision &amp; Mission</a>
+      <a href="#about-shihan" data-sec="shihan">Philip Lee Shihan</a>
+      <a href="#about-instructors" data-sec="instructors">Instructors</a>
+      <a href="#about-overseas" data-sec="overseas">Overseas</a>
+      <a href="#about-family" data-sec="family">Extended Family</a>
+      <a href="#about-life" data-sec="life">Life Members</a>
+      <a href="#about-careers" data-sec="careers">Careers</a>
+    </div>
+  </nav>
+
+  <main class="wrap">
+    <section class="ab-sec" id="ab-benefits">
+      <div class="ab-h ac">
+        <div><span class="eyebrow">Benefits of Aikido</span><h2>A martial way, not a contest</h2></div>
+        <div class="lead">
+          <p>Aikido is a Japanese martial art of throws, joint locks and pins, trained alongside the sword, staff and knife. Founder Morihei Ueshiba, known as O Sensei, built it from years of studying older martial systems.</p>
+          <p>There are no tournaments. You are promoted by showing understanding of the techniques, which grow more demanding with each grade. Partners blend with an attack and redirect its energy, aiming to resolve conflict without harm.</p>
+          <p><b>What sets Shinju-Kai apart:</b> strong technique, certified instructors and Philip Lee Shihan's clear teaching method, with standard grading requirements, seminars and instructor certification across every dojo.</p>
+        </div>
+      </div>
+      <div class="ben-grid ac" data-stagger>
+        <article class="ben-card"><span class="k">体</span><h3>Physical</h3><p>All-round fitness, flexibility and relaxation. Whole-body movement instead of isolated muscles.</p></article>
+        <article class="ben-card"><span class="k">心</span><h3>Psychological</h3><p>Body and mind are trained together. Physical calm becomes mental calm; confidence shows in how you move.</p></article>
+        <article class="ben-card"><span class="k">護</span><h3>Self-defence</h3><p>Techniques scale from gentle control to firm counters, so they fit a wide range of real situations.</p></article>
+        <article class="ben-card"><span class="k">道</span><h3>Daily life</h3><p>Facing conflict on the mat teaches you to meet everyday challenges calmly and constructively.</p></article>
+      </div>
+    </section>
+
+    <section class="ab-sec" id="ab-history">
+      <div class="ab-h ac">
+        <div><span class="eyebrow">Our history</span><h2>From one dojo at SAFRA Tampines</h2></div>
+        <div class="lead"><p>Shinju-Kai began in 1988 with a single dojo and four pioneer instructors. It now runs a permanent headquarters, dozens of local dojos and affiliated dojos in China, Malaysia and Indonesia.</p></div>
+      </div>
+      <div class="timeline ac" id="timeline"></div>
+      <div class="tl-more"><button class="sbtn" id="tlMore"><svg class="ic"><use href="#i-chev"/></svg>Show earlier years</button></div>
+    </section>
+
+    <section class="ab-sec" id="ab-vision">
+      <div class="ab-h ac"><div><span class="eyebrow">Vision &amp; mission</span><h2>What we work towards</h2></div><div class="lead"><p>Everything from instructor certification to children's programmes follows from these.</p></div></div>
+      <div class="vm ac" data-stagger>
+        <article class="vm-card v"><span class="eyebrow on-dark">Vision</span><h3>To be recognised as the leading Aikido organisation in South-East Asia.</h3></article>
+        <article class="vm-card m"><span class="eyebrow">Mission</span><ol><li>Provide Aikido instruction of the highest quality.</li><li>Spread Aikido to all walks of life.</li><li>Bring out the best in each person, so they find greater satisfaction in life.</li></ol></article>
+      </div>
+    </section>
+
+    <section class="ab-sec" id="ab-shihan">
+      <div class="ab-h ac"><div><span class="eyebrow">Founder &amp; Chief Instructor</span><h2>Philip Lee Shihan</h2></div><div class="lead"><p>Born in Singapore in 1954 and one of the five founding fathers of Aikido in Singapore. He started Aikido at 17 and trained as a live-in student at the Aikido World Headquarters under the second Doshu.</p></div></div>
+      <div class="shihan ac">
+        <div class="shihan-photo"><img src="https://aikidoshinjukai.com.sg/images/instructors/philip-lee.png" alt="Philip Lee Shihan" onerror="this.remove()"><span class="ini">PL</span><span class="tag"><b>师范李馥全</b>7th Dan · Shihan</span></div>
+        <div class="miles" id="miles"></div>
+      </div>
+    </section>
+
+    <section class="ab-sec" id="ab-instructors">
+      <div class="ab-h ac"><div><span class="eyebrow">Our instructors</span><h2>70 instructors, one standard</h2></div><div class="lead"><p>Every instructor is graded through Shinju-Kai and certified to teach. Assistant instructors hold 2nd Dan and support classes across our dojos.</p></div></div>
+      <div id="insGroups"></div>
+    </section>
+
+    <section class="ab-sec" id="ab-overseas">
+      <div class="ab-h ac"><div><span class="eyebrow">Overseas instructors</span><h2>Teaching beyond Singapore</h2></div><div class="lead"><p>Instructors at affiliated dojos in China, Indonesia and Malaysia follow the same syllabus and grading.</p></div></div>
+      <div class="countries ac" data-stagger id="countries"></div>
+    </section>
+
+    <section class="ab-sec" id="ab-family">
+      <div class="ab-h ac"><div><span class="eyebrow">Our extended family</span><h2>Affiliated dojos abroad</h2></div><div class="lead"><p>We welcome Aikido organisations around the world to join the Shinju-Kai umbrella. For enquiries about an affiliated dojo, contact the International Affairs Department at <b>iad@aikidoshinjukai.com.sg</b>.</p></div></div>
+      <div class="countries ac" data-stagger>
+        <article class="country"><h3>China <small>Since 2002</small></h3><p style="color:var(--muted);font-size:14px">Shanghai headquarters opened in 2017. Affiliated dojos in Shanghai, Beijing and beyond.</p></article>
+        <article class="country"><h3>Malaysia <small>Since 2005</small></h3><p style="color:var(--muted);font-size:14px">First dojo in Johor Bahru. Affiliated with Hibana Bushidoo.</p></article>
+        <article class="country"><h3>Indonesia <small>Since 2005</small></h3><p style="color:var(--muted);font-size:14px">First dojo in Batam. Affiliated with Shinkenryukai and Seiki Kai Indonesia.</p></article>
+      </div>
+    </section>
+
+    <section class="ab-sec" id="ab-life">
+      <div class="ab-h ac"><div><span class="eyebrow">Life members</span><h2>Family who helped build the HQ</h2></div><div class="lead"><p>Life Membership is by invitation from the Chief Instructor or the Shinju-Kai General Affairs Council. The pioneer batch in 2003 helped make the first headquarters possible. Ask any council member if you'd like to contribute.</p></div></div>
+      <div class="life ac" data-stagger>
+        <div class="card"><h3>Founding life members · 2003</h3><div class="name-chips" id="lifeFounding"></div></div>
+        <div class="card"><h3>Life members since</h3><div id="lifeYears"></div></div>
+      </div>
+    </section>
+
+    <section class="ab-sec" id="ab-careers">
+      <div class="ab-h ac"><div><span class="eyebrow">Careers</span><h2>The Deshi programme</h2></div><div class="lead"><p>A Deshi (disciple) trains at the HQ daily, usually two classes a day, and helps run the dojo. Deshis train about three times as much as regular students and learn teaching and administration along the way.</p></div></div>
+      <div class="deshi ac" data-stagger>
+        <div class="card"><h3 style="font-size:17px;margin-bottom:14px">Who can apply</h3><ul>
+          <li><svg class="ic"><use href="#i-check"/></svg>Men and women aged 18 to 40</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Healthy and able to train daily</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Own health insurance in good standing</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Able to support yourself for the term</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>At least 1st Kyu (black-gold belt)</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Recommendation from your instructor</li></ul></div>
+        <div class="card"><h3 style="font-size:17px;margin-bottom:14px">What you'll do</h3><ul>
+          <li><svg class="ic"><use href="#i-check"/></svg>Train at least twice a day at HQ</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Assist instructors in class</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Look after the training halls</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Help with admin and projects</li>
+          <li><svg class="ic"><use href="#i-check"/></svg>Represent Shinju-Kai at events</li></ul></div>
+        <div class="card" style="background:var(--navy);color:#fff"><h3 style="font-size:17px;margin-bottom:14px">How to apply</h3><p style="font-size:14px;color:rgba(255,255,255,.75)">Email the International Affairs Department with a cover letter, your grade and training history, your instructor's recommendation and how long you'd like to train.</p><p style="margin-top:16px;font-weight:600">iad@aikidoshinjukai.com.sg</p></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================================
+     VIEW 8 — TRIAL & GUEST PASS CHECKOUT
+     ============================================================ -->
+<div class="view" id="v-pass">
+  <div class="reg">
+    <aside class="reg-side pass-side">
+      <div class="bg"></div>
+      <a class="brand" href="#home"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">AIKIDO SHINJU-KAI</a>
+      <div class="pass-sum" aria-live="polite">
+        <span class="nm" id="psName">Trial session</span>
+        <div class="big" id="psPrice">S$29</div>
+        <ul id="psList"></ul>
+        <div class="when" id="psWhen"><span>Pick a dojo and date to see classes.</span></div>
+      </div>
+    </aside>
+    <main class="reg-main">
+      <div class="reg-top"><button class="sbtn ghost" data-go="home"><svg class="ic"><use href="#i-back"/></svg>Back to site</button><span class="mobile-steps" id="psMobile">Trial · S$29</span></div>
+      <form id="passForm" novalidate>
+        <section class="rstep on" data-pstep="1">
+          <h2>Book a trial or guest pass</h2>
+          <p class="lead">No membership needed. Pay now and get your booking by email straight away.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <div class="q"><h3>Choose a pass<span class="req">*</span></h3><label class="toggle"><input type="checkbox" id="overseas">Visiting from overseas</label></div>
+              <div class="choices grid2" id="passChoices"></div>
+              <div class="fld" id="f-pass"><span class="err">Choose a pass.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Your details</h3>
+              <div class="grid2">
+                <div class="fld full"><label for="g-name">Name<span class="req">*</span></label><input id="g-name" autocomplete="name"><span class="err">Enter your name.</span></div>
+                <div class="fld"><label for="g-email">Email<span class="req">*</span></label><input id="g-email" type="email" autocomplete="email" placeholder="you@example.com"><span class="err">Enter a valid email. Your booking is sent here.</span></div>
+                <div class="fld"><label for="g-phone">Mobile<span class="req">*</span></label><input id="g-phone" type="tel" inputmode="tel" placeholder="9123 4567"><span class="err">Enter a mobile number.</span></div>
+                <div class="fld"><span class="lbl">Who is training?<span class="req">*</span></span><div class="seg"><input type="radio" name="gwho" id="gw-a" value="Adult" checked><label for="gw-a">Adult (13+)</label><input type="radio" name="gwho" id="gw-c" value="Child"><label for="gw-c">Child (4–12)</label></div></div>
+                <div class="fld" id="f-guardian" hidden><label for="g-guardian">Parent or guardian name<span class="req">*</span></label><input id="g-guardian"><span class="err">A parent or guardian must book for a child.</span></div>
+              </div>
+            </div>
+
+            <div class="rgroup">
+              <h3>When &amp; where</h3>
+              <div class="grid2">
+                <div class="fld"><label for="g-dojo">Dojo<span class="req">*</span></label><select id="g-dojo"></select><span class="err">Choose a dojo.</span></div>
+                <div class="fld"><label for="g-date">Date<span class="req">*</span></label><input id="g-date" type="text" data-dp="future" placeholder="DD / MM / YYYY" inputmode="numeric"><span class="hint">Book at least 1 day ahead, up to 30 days.</span><span class="err" id="gDateErr">Pick a date from tomorrow to 30 days ahead.</span></div>
+              </div>
+              <div class="fld"><span class="lbl" id="sessLbl">Class<span class="req">*</span></span><div class="sess-pick" id="sessPick"></div><span class="err">Choose a class.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <div class="q"><div class="qt">Any injuries or medical conditions we should know about?<span class="req">*</span></div><div class="yn"><input type="radio" name="gmed" id="gm-y" value="Yes"><label for="gm-y">Yes</label><input type="radio" name="gmed" id="gm-n" value="No"><label for="gm-n">No</label></div></div>
+              <div class="fld" id="f-gmed"><span class="err">Choose Yes or No.</span></div>
+              <div class="reveal" id="gmedReveal"><div><div class="fld"><label for="g-med">Please specify<span class="req">*</span></label><textarea id="g-med"></textarea><span class="err">Tell us about it so the instructor can adjust.</span></div></div></div>
+              <label class="check"><input type="checkbox" id="g-waiver"><span>I accept the training waiver<span class="req">*</span><small>I train at my own risk, am fit to take part, and allow emergency first aid. Fees are non-refundable.</small></span></label>
+              <div class="fld" id="f-waiver"><span class="err">Accept the waiver to continue.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Payment</h3>
+              <div class="fees" id="gFees"></div>
+              <div class="card-mock"><span class="brand-chip">STRIPE</span><span class="grow">Card payment · Visa •••• 4242</span><svg class="ic" style="color:var(--ok)"><use href="#i-lock"/></svg></div>
+              <div class="slide" id="passSlide"><div class="fill"></div><div class="lbl"><em id="passSlideLbl">Slide to pay S$29</em></div><div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg class="ic"><use href="#i-arrow"/></svg></div></div>
+              <span class="hint" style="font-size:12px;color:var(--muted)">We check the form when you slide. Anything missing is highlighted.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="rstep" data-pstep="2">
+          <div class="done-hero" style="margin-bottom:28px"><div class="seal" aria-hidden="true">道</div><div><span class="eyebrow">You're booked</span><h2 style="font-size:clamp(28px,3.4vw,40px);margin-top:10px" id="gDoneTitle">See you on the mat</h2><p style="color:var(--muted);margin-top:6px" id="gDoneSub">Confirmation and receipt sent.</p></div></div>
+          <div class="ticket" id="ticket"></div>
+          <div class="done-grid">
+            <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-clock"/></svg></span><b>Arrive 15 minutes early</b><p>Check in at the front desk and meet your instructor.</p></div>
+            <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-user"/></svg></span><b>Wear comfortable clothes</b><p>T-shirt and track pants are fine. No dogi needed yet.</p></div>
+            <div class="done-item key"><span class="ib"><svg class="ic"><use href="#i-award"/></svg></span><b>Liked it?</b><p>Register as a member online in about 6 minutes.</p></div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" id="passAgain">Book another</button><button type="button" class="btn btn-red arrow" data-go="join">Become a member<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+      </form>
+    </main>
+  </div>
+</div>
+
+<!-- shared public footer -->
+  <footer class="site-foot">
+    <div class="foot">
+      <div class="foot-top">
+        <div class="about"><a class="brand" href="#home"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">AIKIDO SHINJU-KAI</a><p>Honouring tradition and leading the future of Aikido in Singapore since 1988. Recognised by Aikido World Headquarters, Japan.</p></div>
+        <div><h4>Train</h4><ul><li><a href="#about">About us</a></li><li><a href="#classes">Class types</a></li><li><a href="#find">Our dojos</a></li><li><a href="#instructors">Instructors</a></li><li><a href="#faq">Grading</a></li></ul></div>
+        <div><h4>Membership</h4><ul><li><a href="#join">Register</a></li><li><a href="#pricing">Fees</a></li><li><a href="#pass-trial">Book a trial</a></li><li><a href="#login">Member log in</a></li></ul></div>
+        <div><h4>Contact</h4><ul class="num"><li>+65 6513 1588</li><li>+65 6256 0111</li><li>hq@aikidoshinjukai.com.sg</li></ul></div>
+        <div><h4>Office hours</h4><ul><li>Mon–Fri · 10 AM – 9 PM</li><li>Sat–Sun · 8 AM – 6 PM</li></ul></div>
+      </div>
+      <div class="foot-big" aria-hidden="true">SHINJU-KAI 合気道</div>
+      <div class="foot-bot"><span>© 2026 Aikido Shinju-Kai. Student project concept.</span><span>Privacy · Terms · Accessibility</span></div>
+    </div>
+  </footer>
+
+<!-- ============================================================
+     SHARED LAYERS
+     ============================================================ -->
+
+<!-- StaggeredMenu (public + portal mobile nav) -->
+<div class="sm" id="sm" aria-hidden="true">
+  <div class="sm-scrim" data-sm-close></div>
+  <div class="sm-layer l1"></div><div class="sm-layer l2"></div>
+  <aside class="sm-panel" aria-label="Menu">
+    <div class="sm-head"><span class="brand"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><button class="icon-btn" data-sm-close aria-label="Close menu"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <ul class="sm-list" id="smList"></ul>
+    <div class="sm-foot"><small>Shinju-Kai</small><div class="links"><a href="#home">Website</a><a href="#login">Log in</a><a href="#join">Join</a></div></div>
+  </aside>
+</div>
+
+<!-- generic modal -->
+<div class="overlay" id="modal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button class="icon-btn modal-x" data-close aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<!-- generic drawer -->
+<div class="drawer-ov" id="drawerOv"></div>
+<aside class="drawer" id="drawer" aria-hidden="true" role="dialog" aria-labelledby="drawerTitle">
+  <div class="drawer-h"><h3 id="drawerTitle">Details</h3><button class="icon-btn" data-drawer-close aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="drawer-b" id="drawerBody"></div>
+  <div class="drawer-f" id="drawerFoot"></div>
+</aside>
+
+<!-- Ben chatbot -->
+<button class="ben-fab" id="benFab" aria-expanded="false" aria-controls="benPanel"><span class="ben-av"><img src="ben.gif" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></span><span class="ping"></span><span class="label">Ask Ben</span></button>
+<div class="ben-panel" id="benPanel" role="dialog" aria-label="Chat with Ben">
+  <div class="bp-head"><span class="ben-av"><img src="ben.gif" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></span><div><b>Ben</b><small>Shinju-Kai assistant · online</small></div><button id="benClose" aria-label="Close chat"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="bp-body" id="benBody"></div>
+  <form class="bp-in" id="benForm"><input id="benInput" placeholder="Ask about classes, fees, grading" autocomplete="off" aria-label="Message Ben"><button aria-label="Send"><svg class="ic"><use href="#i-send"/></svg></button></form>
+</div>
+
+<!-- prototype switcher -->
+<div class="demo" id="demo"><span>VIEW</span><button data-go="home">Site</button><button data-go="about">About</button><button data-go="pass">Trial</button><button data-go="join">Register</button><button data-go="student">Student</button><button data-go="instructor">Instructor</button><button data-go="admin">Admin</button></div>
+
+<script src="main.js"></script>
+</body>
+</html>
