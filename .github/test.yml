@@ -1,19 +1,43 @@
-name: Test Project
+
+name: CI Pipeline
 
 on:
-  pull_requests:
+  pull_request:
     branches:
-      -main 
+      - main
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   test:
-    runs-on: windows-latest 
-    container:
-      image: node:20
+    runs-on: windows-latest
+
     steps:
-      -uses: actions/checkout@v3
-      with:
-        node-version: v25
-      -run: npm ci
-      -run: npm test
-      -run: npm run
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js 25
+        uses: actions/setup-node@v4
+        with:
+          node-version: 25
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+  auto-merge:
+    needs: test
+    runs-on: windows-latest
+    if: success()
+
+    steps:
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr merge $env:PR_NUMBER --squash --auto --repo $env:GITHUB_REPOSITORY
