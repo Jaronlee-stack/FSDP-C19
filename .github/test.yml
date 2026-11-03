@@ -1,43 +1,43 @@
 
-name: CI Pipeline
+name: Node.js CI Pipeline
 
 on:
   pull_request:
     branches:
       - main
-    types: [opened, synchronize, reopened]
 
 permissions:
   contents: write
   pull-requests: write
 
 jobs:
-  test:
+  ci:
+    name: CI - Jest and Express
     runs-on: windows-latest
 
     steps:
+      # 1. Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup Node.js 25
+      # 2. Set up Node.js 25
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 25
 
+      # 3. Install dependencies
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests
-        run: npm test
+      # 4. Run Jest tests
+      - name: Run Jest tests
+        run: npm test -- --runInBand
 
-  auto-merge:
-    needs: test
-    runs-on: windows-latest
-    if: success()
-
-    steps:
-      - name: Enable auto-merge
+      # 5. Enable automatic merge
+      - name: Enable automatic merge
+        if: success()
         env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: gh pr merge $env:PR_NUMBER --squash --auto --repo $env:GITHUB_REPOSITORY
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge "$env:PR_URL" --auto --squash
