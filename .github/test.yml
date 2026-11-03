@@ -1,0 +1,19 @@
+name: Test Project
+
+on:
+  pull_requests:
+    branches:
+      -main 
+
+jobs:
+  test:
+    runs-on: windows-latest 
+    container:
+      image: node:20
+    steps:
+      -uses: actions/checkout@v3
+      with:
+        node-version: v25
+      -run: npm ci
+      -run: npm test
+      -run: npm run
