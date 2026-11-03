@@ -1,6 +1,6 @@
 name: Node.js CI Pipeline
 
-on:
+'on':
   pull_request:
     branches:
       - main
