@@ -57,9 +57,10 @@
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
     <symbol id="i-sign" viewBox="0 0 24 24"><path d="M3 17c3 0 4-6 6-6s1 5 3 5 2-3 4-3 2 2 5 2"/><path d="M3 21h18"/></symbol>
     <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
     <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></symbol>
 
-    <!-- Ben fallback mascot (shows only if ben.gif is missing) -->
+    <!-- Ben fallback mascot (shows only if mascot-still.webp is missing) -->
     <symbol id="ben" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="60" fill="#C1272D"/>
       <path d="M22 120c2-22 18-34 38-34s36 12 38 34z" fill="#fff"/>
@@ -97,7 +98,23 @@
             <a href="#about-careers">Careers<svg class="ic"><use href="#i-arrow"/></svg></a>
           </div>
         </div>
-        <a href="#classes">Classes</a>
+        <div class="dd">
+          <a href="#class">Classes<svg class="ic"><use href="#i-chev"/></svg></a>
+          <div class="dd-menu">
+            <a href="#class-adult">Adult Class<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-children">Children Class<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-mixed">Mixed Class (Adults &amp; Children)<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-ladies">Ladies Class<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-senior">Senior SG50 Class<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-weapon">Weapon Class<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-advanced">Advanced Class<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-instructional">Instructional Class<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-private">Private Class<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-sep">Sports Education Programme (SEP)<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-corporate">Corporate Programme<svg class="ic"><use href="#i-arrow"/></svg></a>
+            <a href="#class-academy">Shinju-Kai Academy<svg class="ic"><use href="#i-arrow"/></svg></a>
+          </div>
+        </div>
         <a href="#pricing">Fees</a>
         <a href="#about-instructors">Instructors</a>
         <a href="#find">Dojos</a>
@@ -152,17 +169,21 @@
     <section class="sec wrap" id="classes">
       <div class="sec-head ac">
         <div><span class="eyebrow">Class types</span><h2>One hour on the mat, every class</h2></div>
-        <p>Every class is 60 minutes. Beginners start at white belt and are placed by age and grade, not by experience.</p>
+        <p>Twelve ways to train, from children and seniors to instructor and academy programmes. Beginners start at white belt and are placed by age and grade.</p>
       </div>
       <div class="classes ac" data-stagger>
-        <article class="cls"><span class="k">大</span><span class="tag">13 yrs &amp; above</span><h3>Adults</h3><p class="d">All grades. The core class at every dojo.</p></article>
-        <article class="cls"><span class="k">子</span><span class="tag">Ages 4–12</span><h3>Children Beginners</h3><p class="d">7th Kyu and above. Ukemi, etiquette, focus.</p></article>
-        <article class="cls"><span class="k">幼</span><span class="tag">Ages 4–6</span><h3>Children Juniors</h3><p class="d">All grades. Play-based movement and balance.</p></article>
-        <article class="cls"><span class="k">和</span><span class="tag">All grades &amp; ages</span><h3>Mixed</h3><p class="d">Train alongside family and friends.</p></article>
-        <article class="cls"><span class="k">剣</span><span class="tag">Weapons</span><h3>Bokken &amp; Jo</h3><p class="d">Required before 2nd Kyu grading.</p></article>
-        <article class="cls"><span class="k">中</span><span class="tag">4th Kyu &amp; above</span><h3>Intermediate</h3><p class="d">Faster pace, wider technique set.</p></article>
-        <article class="cls"><span class="k">上</span><span class="tag">1st Kyu &amp; above</span><h3>Advanced</h3><p class="d">Yudansha preparation and freestyle.</p></article>
-        <article class="cls"><span class="k">女</span><span class="tag">Ladies only</span><h3>Ladies</h3><p class="d">Women-only class with women instructors.</p></article>
+        <a class="cls" id="cls-adult" href="#class-adult"><span class="k">大</span><span class="tag">Ages 12 &amp; above</span><h3>Adult Class</h3><p class="d">All grades. Fitness, confidence and self-defence through circular, flowing technique.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-children" href="#class-children"><span class="k">子</span><span class="tag">Ages 5–12</span><h3>Children Class</h3><p class="d">All grades. Safe falling, focus, reflexes and motor skills, with a path into the adult class.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-mixed" href="#class-mixed"><span class="k">和</span><span class="tag">All ages &amp; fitness levels</span><h3>Mixed Class (Adults &amp; Children)</h3><p class="d">Parents and children train together; instructors adapt each technique to age and ability.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-ladies" href="#class-ladies"><span class="k">女</span><span class="tag">Women</span><h3>Ladies Class</h3><p class="d">Soft, circular self-defence against a larger opponent, plus focus and confidence.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-senior" href="#class-senior"><span class="k">寿</span><span class="tag">Ages 50 &amp; above</span><h3>Senior SG50 Class</h3><p class="d">Gentle, low-strain movement for balance, coordination, flexibility and basic self-defence.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-weapon" href="#class-weapon"><span class="k">剣</span><span class="tag">Jo · Bokken · Tanto</span><h3>Weapon Class</h3><p class="d">Staff, wooden sword and knife work to sharpen ma-ai (distance) and timing.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-advanced" href="#class-advanced"><span class="k">上</span><span class="tag">Experienced students</span><h3>Advanced Class</h3><p class="d">Complex throws and locks, multiple attackers and weapons; prepares you for black belt grading.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-instructional" href="#class-instructional"><span class="k">師</span><span class="tag">Aspiring instructors</span><h3>Instructional Class</h3><p class="d">Teaching method, class management and mentorship towards instructor certification.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-private" href="#class-private"><span class="k">個</span><span class="tag">Members &amp; non-members</span><h3>Private Class</h3><p class="d">One-to-one lessons at HQ on a flexible schedule, for beginners or grading preparation. S$120 per hour.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-sep" href="#class-sep"><span class="k">学</span><span class="tag">MOE schools</span><h3>Sports Education Programme (SEP)</h3><p class="d">Aikido in Singapore schools; Shinju-Kai has been the sole SEP Aikido provider since 2006.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-corporate" href="#class-corporate"><span class="k">社</span><span class="tag">Companies &amp; teams</span><h3>Corporate Programme</h3><p class="d">Customised team-building: communication, conflict resolution and leadership. No experience needed.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-academy" href="#class-academy"><span class="k">塾</span><span class="tag">Dedicated students</span><h3>Shinju-Kai Academy</h3><p class="d">Intensive curriculum with Shihan mentorship, priority seminars and a path to instructor certification.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
       </div>
     </section>
 
@@ -269,7 +290,7 @@
     <section class="wrap" style="padding-bottom:96px">
       <div class="cta ac">
         <div class="cta-l">
-          <div class="ben-big ben-av"><img src="ben.gif" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></div>
+          <div class="ben-big ben-av"><img src="mascot-still.webp" data-anim="mascot.webp" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></div>
           <div><span class="eyebrow">Still curious?</span><h2>Ask Ben, our dojo assistant</h2><p>Ben answers questions about class types, fees, dojo locations and grading at any hour.</p></div>
         </div>
         <button class="btn btn-red" data-ben-open>Chat with Ben<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></button>
@@ -621,7 +642,7 @@
 
       <!-- Student · Home -->
       <section class="page on" data-page="home">
-        <div class="g-side">
+        <div class="g-side g-card">
           <div class="hello ac">
             <div>
               <h1><span class="shiny on-dark" id="greet">Good evening, Lervyn.</span></h1>
@@ -648,7 +669,7 @@
           </div>
         </div>
 
-        <div class="g4 ac" data-stagger>
+        <div class="g4 g4-card ac" data-stagger>
           <div class="stat"><span class="l">Lessons remaining</span><span class="v"><span data-count="18">0</span></span><span class="h">25-lesson pack · expires Apr 2027</span></div>
           <div class="stat"><span class="l">Sessions to 3rd Kyu</span><span class="v"><span data-count="29">0</span><small>/36</small></span><span class="h up">7 to go</span></div>
           <div class="stat"><span class="l">Membership</span><span class="v" style="font-size:28px">Active</span><span class="h">Annual dues paid · Jan 2027</span></div>
@@ -704,21 +725,31 @@
         <div class="pkgs" id="pkgAdult"></div>
         <div class="card-h" style="margin:8px 4px 0"><h3>Children packages</h3><span class="sub">For members aged 4 to 12</span></div>
         <div class="pkgs" id="pkgKids"></div>
+
+        <!-- MC pass extension (SSP-11) -->
+        <div class="card white ac" id="mcCard">
+          <div class="card-h"><div><h3>Request a pass extension</h3><span class="sub">Sick or injured? Upload your medical certificate and HQ can extend your pass by up to 14 days.</span></div></div>
+          <form class="grid2" id="mcForm" novalidate>
+            <div class="fld full"><label for="mc-pass">Pass to extend</label><select id="mc-pass"><option value="a25">25-lesson pack · 18 lessons left</option></select></div>
+            <div class="fld"><label for="mc-from">MC start date<span class="req">*</span></label><input id="mc-from" type="text" data-dp="recent" placeholder="DD / MM / YYYY" inputmode="numeric"><span class="err">Enter the first day on your MC.</span></div>
+            <div class="fld"><label for="mc-to">MC end date<span class="req">*</span></label><input id="mc-to" type="text" data-dp="recent" placeholder="DD / MM / YYYY" inputmode="numeric"><span class="err" id="mcToErr">Enter the last day on your MC.</span></div>
+            <div class="fld full"><label for="mc-file">Medical certificate<span class="req">*</span></label><input id="mc-file" type="file" accept="image/*,application/pdf"><span class="hint">Photo or PDF, up to 10 MB</span><span class="err" id="mcFileErr">Upload a photo or PDF of your MC.</span></div>
+            <div class="fld full"><label for="mc-note">Note for HQ<span class="opt">Optional</span></label><textarea id="mc-note" placeholder="e.g. Sprained ankle, doctor advised 10 days of rest"></textarea></div>
+            <div class="fld full"><div class="note"><svg class="ic"><use href="#i-info"/></svg><span id="mcDays">Pick your MC dates to see how many days you can get back.</span></div></div>
+            <div class="fld full"><button class="sbtn dark" type="submit" id="mcSubmit" style="justify-self:start"><svg class="ic"><use href="#i-upload"/></svg>Submit request</button></div>
+          </form>
+          <div class="rows" id="mcRows"></div>
+        </div>
       </section>
 
       <!-- Student · Grading -->
       <section class="page" data-page="grading">
-        <div class="page-h"><div><h1>Grading</h1><p>Eligibility is worked out from your sessions and time in rank.</p></div><span class="pill warn">Not yet eligible</span></div>
+        <div class="page-h"><div><h1>Grading</h1><p>Eligibility is worked out from your sessions and time in rank.</p></div><span class="pill warn" id="gaStatus">Not yet eligible</span></div>
         <div class="g-wide">
           <div class="card ac">
             <div class="card-h"><h3>Checklist · 3rd Kyu</h3><span class="sub">Adult grading · 13 Dec 2026</span></div>
-            <div class="checks">
-              <div><span class="cb"><svg class="ic"><use href="#i-check"/></svg></span><span class="t">Member for at least 3 months</span><span class="v">17 months</span></div>
-              <div><span class="cb"><svg class="ic"><use href="#i-check"/></svg></span><span class="t">6 months at current grade</span><span class="v">7 months</span></div>
-              <div><span class="cb no"><svg class="ic"><use href="#i-clock"/></svg></span><span class="t">36 sessions at current grade</span><span class="v">29 / 36</span></div>
-              <div><span class="cb"><svg class="ic"><use href="#i-check"/></svg></span><span class="t">No outstanding membership fees</span><span class="v">Paid</span></div>
-              <div><span class="cb no"><svg class="ic"><use href="#i-clock"/></svg></span><span class="t">Instructor marks you Qualified</span><span class="v">Pending</span></div>
-            </div>
+            <div class="checks" id="gaChecks"></div>
+            <p id="gaDemoWrap" style="font-size:12px;color:var(--muted);margin-top:12px">Prototype: <button type="button" id="gaDemo" style="border:0;background:none;padding:0;color:var(--red);font-weight:600;font-size:12px">Simulate all requirements met</button></p>
           </div>
           <div class="card ac">
             <div class="card-h"><h3>Grading calendar</h3></div>
@@ -729,15 +760,23 @@
             </div>
           </div>
         </div>
+
+        <!-- Curriculum tree (SSP-03) -->
         <div class="card white ac">
-          <div class="card-h"><div><h3>Grading application</h3><span class="sub">Unlocks when every item on the checklist is met</span></div><span class="pill plain"><svg class="ic" style="width:13px;height:13px"><use href="#i-lock"/></svg>Locked</span></div>
+          <div class="card-h"><div><h3>Curriculum · 3rd Kyu</h3><span class="sub">Techniques for your next grading. Tap one to watch the demonstration.</span></div><button type="button" class="sbtn" id="ctToggle">Expand all</button></div>
+          <div class="ctree" id="ctree"></div>
+        </div>
+
+        <div class="card white ac">
+          <div class="card-h"><div><h3>Grading application</h3><span class="sub" id="gaSub">Unlocks when every item on the checklist is met</span></div><span class="pill plain" id="gaLock"><svg class="ic" style="width:13px;height:13px"><use href="#i-lock"/></svg>Locked</span></div>
           <form class="grid2" id="gradeForm" novalidate>
             <div class="fld"><label for="ga-dojo">Principal dojo</label><input id="ga-dojo" value="HQ Dojo · Thomson V One" readonly></div>
             <div class="fld"><label for="ga-cur">Current grade &amp; date passed</label><input id="ga-cur" value="4th Kyu · 13 Mar 2026" readonly></div>
             <div class="fld"><label for="ga-target">Grading for</label><select id="ga-target"><option>3rd Kyu (Brown)</option></select></div>
-            <div class="fld"><label for="ga-book">Membership book photo</label><input id="ga-book" type="file" accept="image/*"><span class="hint">Pages showing your session stamps</span></div>
+            <div class="fld"><label for="ga-book">Membership book photo</label><input id="ga-book" type="file" accept="image/*"><span class="hint">Pages showing your session stamps</span><span class="err" id="gaBookErr">Upload a photo of your stamp pages.</span></div>
+            <div class="fld full"><div class="fees" id="gaFees"></div></div>
             <div class="fld full"><div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Submit at least two weeks before grading; late applications carry an admin charge. 2nd Kyu and above must also meet weapons requirements. Members aged 5–12 take the Children's grading.</span></div></div>
-            <div class="fld full"><button class="btn btn-dark arrow" type="submit" disabled>Submit application<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+            <div class="fld full"><button class="btn btn-dark arrow" type="submit" id="gaSubmit" disabled>Submit application<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
           </form>
         </div>
       </section>
@@ -1101,6 +1140,53 @@
 </div>
 
 <!-- ============================================================
+     VIEW — CLASS PAGES  (#class-adult, #class-children, ...)
+     ============================================================ -->
+<div class="view" id="v-class">
+  <div class="ab-hero">
+    <div class="ab-hero-card cp-hero">
+      <div class="bg" id="cpBg" role="img" aria-label=""></div>
+      <div class="ab-hero-in">
+        <div>
+          <span class="eyebrow on-dark" id="cpEyebrow">Classes</span>
+          <h1 id="cpTitle">Class</h1>
+          <p id="cpIntro"></p>
+          <div class="cp-acts">
+            <a class="btn btn-light" href="#pass-trial">Book a Trial · S$29<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+            <a class="btn btn-ghost" href="#join" id="cpJoin">Register Online<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+          </div>
+        </div>
+        <div class="kanji" aria-hidden="true" id="cpKanji">大</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="ab-nav wrap" aria-label="All classes">
+    <div class="ab-nav-in" id="cpNav"></div>
+  </nav>
+
+  <main class="wrap">
+    <section class="ab-sec">
+      <div class="ab-h ac"><div><span class="eyebrow" id="cpWhoTag">Who it's for</span><h2 id="cpWho"></h2></div><div class="lead" id="cpAbout"></div></div>
+      <div class="cp-facts ac" id="cpFacts" data-stagger></div>
+    </section>
+
+    <section class="ab-sec">
+      <div class="ab-h ac"><div><span class="eyebrow">What you'll gain</span><h2 id="cpGainH">Benefits</h2></div><div class="lead"><p id="cpGainLead"></p></div></div>
+      <div class="ben-grid ac" id="cpGain" data-stagger></div>
+    </section>
+
+    <section class="ab-sec">
+      <div class="cp-cta ac">
+        <div><span class="eyebrow on-dark">Get started</span><h2 id="cpCtaH">Try your first class</h2><p id="cpCtaP">First-time visitors can try one session for S$29 at any dojo. No uniform needed.</p></div>
+        <div class="cp-cta-acts" id="cpCtaActs"></div>
+      </div>
+      <div class="cp-pn" id="cpPN"></div>
+    </section>
+  </main>
+</div>
+
+<!-- ============================================================
      VIEW 8 — TRIAL & GUEST PASS CHECKOUT
      ============================================================ -->
 <div class="view" id="v-pass">
@@ -1228,9 +1314,9 @@
 </aside>
 
 <!-- Ben chatbot -->
-<button class="ben-fab" id="benFab" aria-expanded="false" aria-controls="benPanel"><span class="ben-av"><img src="ben.gif" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></span><span class="ping"></span><span class="label">Ask Ben</span></button>
+<button class="ben-fab" id="benFab" aria-expanded="false" aria-controls="benPanel"><span class="ben-av"><img src="mascot-still.webp" data-anim="mascot.webp" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></span><span class="ping"></span><span class="label">Ask Ben</span></button>
 <div class="ben-panel" id="benPanel" role="dialog" aria-label="Chat with Ben">
-  <div class="bp-head"><span class="ben-av"><img src="ben.gif" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></span><div><b>Ben</b><small>Shinju-Kai assistant · online</small></div><button id="benClose" aria-label="Close chat"><svg class="ic"><use href="#i-x"/></svg></button></div>
+  <div class="bp-head"><span class="ben-av"><img src="mascot-still.webp" data-anim="mascot.webp" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></span><div><b>Ben</b><small>Shinju-Kai assistant · online</small></div><button id="benClose" aria-label="Close chat"><svg class="ic"><use href="#i-x"/></svg></button></div>
   <div class="bp-body" id="benBody"></div>
   <form class="bp-in" id="benForm"><input id="benInput" placeholder="Ask about classes, fees, grading" autocomplete="off" aria-label="Message Ben"><button aria-label="Send"><svg class="ic"><use href="#i-send"/></svg></button></form>
 </div>

@@ -44,6 +44,43 @@ function downloadCSV(name, rows) {
   toast(`${name} downloaded`);
 }
 
+function saveBlob(name, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+/* makePDF — builds a one-page A4 PDF with no library.
+   items: { text, value?, vx?, size?, bold?, color?, gap? } or { rule: true, gap? } */
+function makePDF(items) {
+  const clean = s => String(s ?? '').replace(/[•·]/g, '*').replace(/[–—]/g, '-').replace(/[^\x20-\x7E]/g, '').replace(/[\\()]/g, m => '\\' + m);
+  let y = 800, body = '';
+  items.forEach(it => {
+    y -= it.gap ?? 18;
+    if (it.rule) { body += `0.85 G 0.8 w 56 ${y} m 539 ${y} l S\n`; return; }
+    const font = it.bold ? 'F2' : 'F1', sz = it.size || 11, col = it.color || '0.08 0.09 0.11 rg';
+    body += `BT ${col} /${font} ${sz} Tf 56 ${y} Td (${clean(it.text)}) Tj ET\n`;
+    if (it.value !== undefined) body += `BT ${col} /${font} ${sz} Tf ${it.vx || 220} ${y} Td (${clean(it.value)}) Tj ET\n`;
+  });
+  const objs = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 5 0 R /F2 6 0 R >> >> /Contents 4 0 R >>',
+    `<< /Length ${body.length} >>\nstream\n${body}endstream`,
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>'
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offs = [];
+  objs.forEach((o, i) => { offs.push(pdf.length); pdf += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+  const xref = pdf.length;
+  pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n` + offs.map(o => String(o).padStart(10, '0') + ' 00000 n \n').join('');
+  pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return new Blob([pdf], { type: 'application/pdf' });
+}
+
 /* ---------- 2. DATA ---------- */
 const DOJOS = [
   { id: 'hq', name: 'ASK Headquarters Dojo', short: 'HQ', code: 'ASK HQ', region: 'Central', addr: 'Thomson V One, 9 Sin Ming Road, #B1-02, Singapore 575630' },
@@ -174,8 +211,54 @@ let CANDIDATES = [
   { n: 'Wei Jie Chua', from: '2nd Kyu', to: '1st Kyu', done: false }
 ];
 
+/* student payment history (Stripe transactions) */
+let PAYS = [
+  { item: '25 lessons', date: '15 Sep 2026', method: 'Visa •••• 4242', amt: 600, st: 'Paid', inv: 'INV-2041870' },
+  { item: 'Annual dues 2026', date: '2 Jan 2026', method: 'Visa •••• 4242', amt: 48, st: 'Paid', inv: 'INV-2042181' },
+  { item: '10 lessons', date: '20 Nov 2025', method: 'PayNow', amt: 270, st: 'Paid', inv: 'INV-2042492' },
+  { item: 'Registration, dogi and 10 lessons', date: '14 Jun 2025', method: 'Visa •••• 4242', amt: 375, st: 'Paid', inv: 'INV-2042803' }
+];
+const newInv = () => 'INV-' + String(Date.now()).slice(-7);
+
+/* grading eligibility for the logged-in student (3rd Kyu, adult grading) */
+const GRADE = {
+  target: '3rd Kyu', targetLabel: '3rd Kyu (Brown)',
+  date: new Date(2026, 11, 13), close: new Date(2026, 10, 29),
+  memberMonths: 17, monthsInRank: 7, needMonths: 6,
+  sessions: 29, needSessions: 36, feesPaid: true, qualified: false,
+  submitted: null
+};
+const GRADING_FEE = { '6th Kyu': 40, '5th Kyu': 40, '4th Kyu': 50, '3rd Kyu': 50, '2nd Kyu': 60, '1st Kyu': 60, '1st Dan': 120 };
+const LATE_FEE = 20;
+
+/* MC pass extension requests (mirrors the mc_extension_requests table) */
+const MC_REQUESTS = [];
+
+/* curriculum for the target rank. Leaf = [technique, YouTube id]; no id = video not uploaded yet.
+   The ids below are placeholder demonstrations; swap in HQ's own recordings. */
+const CURRICULUM = {
+  rank: '3rd Kyu',
+  groups: [
+    { t: 'Tachi-waza', s: 'Standing techniques', kids: [
+      { t: 'Shomenuchi', s: 'Overhead strike', kids: [['Ikkyo', '5yldXwoVv44'], ['Nikyo'], ['Sankyo'], ['Yonkyo'], ['Iriminage'], ['Kotegaeshi']] },
+      { t: 'Yokomenuchi', s: 'Diagonal strike to the side of the head', kids: [['Shihonage'], ['Iriminage'], ['Kotegaeshi']] },
+      { t: 'Katatedori', s: 'One-hand wrist grab', kids: [['Shihonage', 'eC_Uctj1CyE'], ['Kaitennage'], ['Kokyunage']] },
+      { t: 'Ryotedori', s: 'Two-hand wrist grab', kids: [['Tenchinage'], ['Shihonage']] },
+      { t: 'Chudan tsuki', s: 'Punch to the midsection', kids: [['Kotegaeshi'], ['Iriminage']] }
+    ] },
+    { t: 'Suwari-waza', s: 'Both partners kneeling', kids: [
+      { t: 'Shomenuchi', s: 'Overhead strike', kids: [['Ikkyo', 'tgOYPIPOn30'], ['Nikyo'], ['Sankyo']] },
+      { t: 'Ryotedori', s: 'Two-hand wrist grab', kids: [['Kokyuho']] }
+    ] },
+    { t: 'Hanmi-handachi', s: 'Kneeling against a standing partner', kids: [
+      { t: 'Katatedori', s: 'One-hand wrist grab', kids: [['Shihonage'], ['Kaitennage']] }
+    ] },
+    { t: 'Ukemi', s: 'Falling safely', kids: [['Mae ukemi'], ['Ushiro ukemi'], ['Tobi ukemi']] }
+  ]
+};
+
 /* ---------- 3. ROUTER ---------- */
-const VIEWS = ['home', 'about', 'pass', 'join', 'login', 'student', 'instructor', 'admin'];
+const VIEWS = ['home', 'about', 'class', 'pass', 'join', 'login', 'student', 'instructor', 'admin'];
 const inited = {};
 
 function go(view, page) {
@@ -198,8 +281,11 @@ function route() {
   if (!inited[view]) { inited[view] = true; (INIT[view] || (() => {}))(); }
   if (['student', 'instructor', 'admin'].includes(view)) showPage(view, page || defaultPage[view]);
   if (view === 'pass') passPreset(page);
+  if (view !== 'class') document.title = 'Aikido Shinju-Kai';
+  if (view === 'class') { if (!CLASS_PAGES.some(c => c.id === page)) { location.replace('#class-adult'); return; } renderClass(page); }
 
   const scroller = () => {
+    if (view === 'class') { window.scrollTo(0, 0); return; }
     if (anchor) { const el = document.getElementById(anchor); if (el) { el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); } }
     else window.scrollTo(0, 0);
   };
@@ -250,6 +336,7 @@ function closeModal() {
   if (!$('#modal').classList.contains('open')) return;
   $('#modal').classList.remove('open');
   $('#modal').setAttribute('aria-hidden', 'true');
+  $$('#modalBody iframe').forEach(f => f.remove()); // stop any playing video
   lastFocus && lastFocus.focus && lastFocus.focus();
 }
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal' || e.target.closest('[data-close]')) closeModal(); });
@@ -510,7 +597,7 @@ function codeSlots(root, onSuccess) {
 /* endless instructor carousel (right → left, slows on hover) */
 function marquee(root, track) {
   const B = 'https://aikidoshinjukai.com.sg/images/instructors/';
-  const card = ([n, d, img, shihan]) => `<article class="ins${shihan ? ' shihan' : ''}"><div class="ph"><img src="${B + img}" alt="${esc(n)}" loading="lazy" onerror="this.remove()"><span class="ini" aria-hidden="true">${initials(n)}</span></div><div class="meta"><span class="nm">${esc(n)}</span><span class="dan">${d}</span></div></article>`;
+  const card = ([n, d, img, shihan]) => `<article class="ins${shihan ? ' ins-lead' : ''}"><div class="ph"><img src="${B + img}" alt="${esc(n)}" loading="lazy" onerror="this.remove()"><span class="ini" aria-hidden="true">${initials(n)}</span></div><div class="meta"><span class="nm">${esc(n)}</span><span class="dan">${d}</span></div></article>`;
   const html = INSTRUCTORS.map(card).join('');
   track.innerHTML = html + html;
   $$('.ins', track).forEach((el, i) => { if (i >= INSTRUCTORS.length) el.setAttribute('aria-hidden', 'true'); });
@@ -857,18 +944,13 @@ function initStudent() {
   $('#v-student').addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) openBuy(b.dataset.buy); });
 
   // payments
-  const pays = [
-    ['25 lessons', '15 Sep 2026', 'Visa •••• 4242', 600, 'Paid'],
-    ['Annual dues 2026', '2 Jan 2026', 'Visa •••• 4242', 48, 'Paid'],
-    ['10 lessons', '20 Nov 2025', 'PayNow', 270, 'Paid'],
-    ['Registration, dogi and 10 lessons', '14 Jun 2025', 'Visa •••• 4242', 375, 'Paid']
-  ];
-  $('#payRows').innerHTML = pays.map((p, i) => `<tr><td><b>${p[0]}</b></td><td>${p[1]}</td><td>${p[2]}</td><td class="num">${money(p[3])}</td><td><span class="pill ok">${p[4]}</span></td><td><button class="sbtn" data-rcpt="${i}">${icon('receipt')}Receipt</button></td></tr>`).join('');
+  renderPays();
   $('#payRows').addEventListener('click', e => {
     const b = e.target.closest('[data-rcpt]'); if (!b) return;
-    const p = pays[+b.dataset.rcpt];
-    openModal(`<h3 id="modalTitle">Receipt</h3><p class="sub">${p[0]}</p><div class="kv"><div><span>Receipt no.</span><span class="num">INV-${2041870 + +b.dataset.rcpt * 311}</span></div><div><span>Date</span><span>${p[1]}</span></div><div><span>Member</span><span>${ME.name} · ${ME.no}</span></div><div><span>Paid by</span><span>${p[2]}</span></div><div><span>Amount</span><span>${money(p[3])}</span></div></div><div class="acts"><button class="sbtn dark" data-close>${icon('download')}Save PDF</button></div>`);
+    const i = +b.dataset.rcpt, p = PAYS[i];
+    openModal(`<h3 id="modalTitle">Receipt</h3><p class="sub">${esc(p.item)}</p><div class="kv"><div><span>Receipt no.</span><span class="num">${p.inv}</span></div><div><span>Date</span><span>${p.date}</span></div><div><span>Member</span><span>${ME.name} · ${ME.no}</span></div><div><span>Paid by</span><span>${p.method}</span></div><div><span>Amount</span><span>${money(p.amt)}</span></div></div><div class="acts"><button class="sbtn dark" data-pdf="${i}" data-close>${icon('download')}Save PDF</button></div>`);
   });
+  document.addEventListener('click', e => { const b = e.target.closest('[data-pdf]'); if (b) downloadReceipt(+b.dataset.pdf); });
 
   $('#profileForm').addEventListener('submit', e => { e.preventDefault(); toast('Profile saved'); });
   $('#pwBtn').addEventListener('click', () => openModal(`<h3 id="modalTitle">Change password</h3><p class="sub">Use at least 8 characters.</p><form id="pwForm" style="display:grid;gap:14px;margin-top:18px" novalidate><div class="fld"><label for="pw1">Current password</label><input id="pw1" type="password" autofocus></div><div class="fld"><label for="pw2">New password</label><input id="pw2" type="password"><span class="err">At least 8 characters.</span></div><button class="sbtn dark" type="submit" style="justify-self:start">Update password</button></form>`));
@@ -879,7 +961,10 @@ function initStudent() {
   });
 
   $('#v-student').addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
-  $('#gradeForm').addEventListener('submit', e => e.preventDefault());
+
+  initGradingApp();
+  initCurriculum();
+  initMC();
 }
 
 function renderUpcoming() {
@@ -955,8 +1040,218 @@ function openBuy(id) {
   slideCommit($('#buySlide'), () => {
     stu.credits = p.lessons === Infinity ? Infinity : (stu.credits === Infinity ? Infinity : stu.credits + p.lessons);
     syncCredits();
+    PAYS.unshift({ item: p.lessons === Infinity ? 'Unlimited · 2 weeks' : p.t, date: fmtDate(new Date()), method: 'Visa •••• 4242', amt: p.amt, st: 'Paid', inv: newInv() });
+    renderPays();
     setTimeout(() => { closeModal(); toast(`${p.t} added. Receipt sent by email.`); }, 500);
   });
+}
+
+/* --- payment history + PDF receipts (SSP-14) --- */
+function renderPays() {
+  $('#payRows').innerHTML = PAYS.map((p, i) => `<tr><td><b>${esc(p.item)}</b></td><td>${p.date}</td><td>${p.method}</td><td class="num">${money(p.amt)}</td><td><span class="pill ok">${p.st}</span></td><td><div style="display:flex;gap:6px;justify-content:flex-end"><button class="sbtn" data-rcpt="${i}">${icon('receipt')}Receipt</button><button class="sbtn ghost" data-pdf="${i}" aria-label="Download PDF receipt ${p.inv}">${icon('download')}</button></div></td></tr>`).join('');
+}
+
+function downloadReceipt(i) {
+  const p = PAYS[i]; if (!p) return;
+  const NAVY = '0.086 0.129 0.231 rg', RED = '0.757 0.153 0.176 rg', GREY = '0.365 0.376 0.412 rg';
+  const blob = makePDF([
+    { text: 'AIKIDO SHINJU-KAI', size: 18, bold: true, color: NAVY, gap: 0 },
+    { text: 'Thomson V One, 9 Sin Ming Road, #B1-02, Singapore 575630', size: 9, color: GREY, gap: 18 },
+    { text: 'hq@aikidoshinjukai.com.sg  |  +65 6513 1588', size: 9, color: GREY, gap: 13 },
+    { text: 'RECEIPT', size: 12, bold: true, color: RED, gap: 42 },
+    { rule: true, gap: 12 },
+    { text: 'Receipt no.', value: p.inv, color: GREY, gap: 22 },
+    { text: 'Date', value: p.date, color: GREY },
+    { text: 'Member', value: `${ME.name} (${ME.no})`, color: GREY },
+    { text: 'Paid by', value: `${p.method} (Stripe)`, color: GREY },
+    { text: 'Status', value: p.st, color: GREY },
+    { rule: true, gap: 16 },
+    { text: 'Item', value: 'Amount', vx: 460, bold: true, size: 10, gap: 22 },
+    { text: p.item, value: money(p.amt), vx: 460, gap: 20 },
+    { rule: true, gap: 14 },
+    { text: 'Total paid', value: money(p.amt), vx: 460, bold: true, size: 13, gap: 24 },
+    { text: 'Registration and membership fees are non-refundable. Thank you for training with Shinju-Kai.', size: 9, color: GREY, gap: 48 }
+  ]);
+  saveBlob(`shinjukai-receipt-${p.inv}.pdf`, blob);
+  toast(`Receipt ${p.inv} downloaded`);
+}
+
+/* --- grading application (SSP-12 / SSP-13) --- */
+const gradeChecks = () => [
+  ['Member for at least 3 months', `${GRADE.memberMonths} months`, GRADE.memberMonths >= 3],
+  [`${GRADE.needMonths} months at current grade`, `${GRADE.monthsInRank} months`, GRADE.monthsInRank >= GRADE.needMonths],
+  [`${GRADE.needSessions} sessions at current grade`, `${GRADE.sessions} / ${GRADE.needSessions}`, GRADE.sessions >= GRADE.needSessions],
+  ['No outstanding membership fees', GRADE.feesPaid ? 'Paid' : 'Overdue', GRADE.feesPaid],
+  ['Instructor marks you Qualified', GRADE.qualified ? 'Qualified' : 'Pending', GRADE.qualified]
+];
+const gradeEligible = () => gradeChecks().every(c => c[2]);
+function gradeFee() {
+  const lines = [[`Grading fee · ${GRADE.target}`, `Adult grading · ${fmtDate(GRADE.date)}`, GRADING_FEE[GRADE.target] || 50]];
+  if (TODAY > GRADE.close) lines.push(['Late submission charge', `Applications closed ${fmtDate(GRADE.close)}`, LATE_FEE]);
+  return { lines, total: lines.reduce((a, l) => a + l[2], 0) };
+}
+const feeHTML = ({ lines, total }) => lines.map(([t, s, a]) => `<div><span>${esc(t)}<small>${esc(s)}</small></span><span>${money(a)}</span></div>`).join('') + `<div class="total"><span>Total due</span><span>${money(total)}</span></div>`;
+
+function renderStuGrading() {
+  const ok = gradeEligible(), sub = GRADE.submitted;
+  $('#gaChecks').innerHTML = gradeChecks().map(([t, v, met]) => `<div><span class="cb${met ? '' : ' no'}">${icon(met ? 'check' : 'clock')}</span><span class="t">${t}</span><span class="v">${v}</span></div>`).join('');
+  const st = $('#gaStatus');
+  st.className = 'pill ' + (sub ? 'navy' : ok ? 'ok' : 'warn');
+  st.textContent = sub ? 'Application submitted' : ok ? 'Eligible' : 'Not yet eligible';
+  const lock = $('#gaLock');
+  lock.className = 'pill ' + (ok || sub ? 'ok' : 'plain');
+  lock.innerHTML = sub ? `Submitted · ${sub.ref}` : ok ? 'Open' : '<svg class="ic" style="width:13px;height:13px"><use href="#i-lock"/></svg>Locked';
+  $('#gaSub').textContent = sub ? `Paid ${money(sub.total)} on ${sub.date}. HQ will email your grading slot.` : ok ? 'All requirements met. Upload your membership book and pay the grading fee.' : 'Unlocks when every item on the checklist is met';
+  $('#ga-book').disabled = !ok || !!sub;
+  $('#gaSubmit').disabled = !ok || !!sub;
+  $('#gaFees').innerHTML = feeHTML(gradeFee());
+  $('#gaDemoWrap').hidden = ok || !!sub;
+}
+
+function initGradingApp() {
+  $('#ga-book').addEventListener('change', () => fldOf($('#ga-book')).classList.remove('invalid'));
+  $('#gaDemo').addEventListener('click', () => {
+    GRADE.sessions = GRADE.needSessions; GRADE.qualified = true;
+    const s = STUDENTS.find(x => x.n === ME.name); if (s) { s.s = Math.max(s.s, s.need); s.st = 'Qualified'; }
+    if (inited.instructor) renderStudents();
+    renderStuGrading();
+    toast('Prototype: requirements marked as met', 'info');
+  });
+  $('#gradeForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if (!gradeEligible() || GRADE.submitted) return;
+    const f = $('#ga-book').files[0];
+    const err = !f ? 'Upload a photo of your stamp pages.' : !/^image\//.test(f.type) ? 'Use a photo (JPG or PNG) of your membership book.' : f.size > 10 * 1024 * 1024 ? 'Photo is over 10 MB. Try a smaller one.' : '';
+    $('#gaBookErr').textContent = err || 'Upload a photo of your stamp pages.';
+    fldOf($('#ga-book')).classList.toggle('invalid', !!err);
+    if (err) { toast(err, 'bad'); return; }
+    const fee = gradeFee();
+    openModal(`<h3 id="modalTitle">Pay grading fee</h3><p class="sub">${GRADE.targetLabel} · Adult grading · ${fmtDate(GRADE.date)}</p>
+      <div class="kv"><div><span>Principal dojo</span><span>${esc(dojoName(ME.dojo))}</span></div><div><span>Membership book</span><span>${esc(f.name)}</span></div><div><span>Pay with</span><span>Visa •••• 4242</span></div></div>
+      <div class="fees" style="margin-bottom:18px">${feeHTML(fee)}</div>
+      <div class="slide" id="gaSlide"><div class="fill"></div><div class="lbl"><em>Slide to pay ${money(fee.total)}</em></div><div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${icon('arrow')}</div></div>`);
+    slideCommit($('#gaSlide'), () => {
+      const date = fmtDate(new Date());
+      GRADE.submitted = { ref: 'GRD-' + String(Date.now()).slice(-6), total: fee.total, date, file: `grading-uploads/${ME.no}/${Date.now()}-${f.name.replace(/\s+/g, '-')}` };
+      GRAD_APPS.unshift({ n: ME.name, from: ME.grade, to: GRADE.target, dojo: ME.dojo, sub: `${TODAY.getDate()} ${MON[TODAY.getMonth()]}`, note: 'Membership book uploaded · fee paid', sched: null });
+      PAYS.unshift({ item: `Grading fee · ${GRADE.target}`, date, method: 'Visa •••• 4242', amt: fee.total, st: 'Paid', inv: newInv() });
+      renderPays(); renderStuGrading();
+      if (inited.admin) renderGrading();
+      setTimeout(() => { closeModal(); toast('Grading application submitted. Confirmation sent by email.'); }, 500);
+    });
+  });
+  renderStuGrading();
+}
+PAGE_HOOK['student-grading'] = () => renderStuGrading();
+
+/* --- curriculum tree (SSP-03) --- */
+function initCurriculum() {
+  const count = n => Array.isArray(n) ? 1 : n.kids.reduce((a, k) => a + count(k), 0);
+  const node = (n, path, depth) => {
+    if (Array.isArray(n)) return `<button type="button" class="ct-leaf" data-ct="${path}"><span class="play">${icon('play')}</span><span class="nm">${esc(n[0])}</span>${n[1] ? '' : '<span class="soon">Video soon</span>'}</button>`;
+    const open = depth === 0 && path === '0';
+    return `<div class="ct-node${open ? ' open' : ''}"><button type="button" class="ct-h" aria-expanded="${open}"><span class="ct-chev">${icon('chev')}</span><span class="ct-tt"><b>${esc(n.t)}</b><small>${esc(n.s)}</small></span><span class="pill plain">${count(n)}</span></button><div class="ct-kids"><div>${n.kids.map((k, i) => node(k, `${path}.${i}`, depth + 1)).join('')}</div></div></div>`;
+  };
+  $('#ctree').innerHTML = CURRICULUM.groups.map((g, i) => node(g, String(i), 0)).join('');
+  const sync = () => {
+    $$('#ctree .ct-node').forEach(n => $('.ct-h', n).setAttribute('aria-expanded', n.classList.contains('open')));
+    const all = $$('#ctree .ct-node').every(n => n.classList.contains('open'));
+    $('#ctToggle').textContent = all ? 'Collapse all' : 'Expand all';
+  };
+  $('#ctree').addEventListener('click', e => {
+    const h = e.target.closest('.ct-h');
+    if (h) { h.parentElement.classList.toggle('open'); sync(); return; }
+    const leaf = e.target.closest('.ct-leaf');
+    if (leaf) openTechnique(leaf.dataset.ct);
+  });
+  $('#ctToggle').addEventListener('click', () => {
+    const all = $$('#ctree .ct-node').every(n => n.classList.contains('open'));
+    $$('#ctree .ct-node').forEach(n => n.classList.toggle('open', !all));
+    sync();
+  });
+  sync();
+}
+
+function openTechnique(path) {
+  const idx = path.split('.').map(Number);
+  const group = CURRICULUM.groups[idx[0]];
+  const attack = idx.length === 3 ? group.kids[idx[1]] : null;
+  const [name, vid] = attack ? attack.kids[idx[2]] : group.kids[idx[1]];
+  const title = attack ? `${attack.t} ${name}` : name;
+  const sub = `${group.t} · ${attack ? attack.s + ' · ' : ''}${CURRICULUM.rank}`;
+  openModal(`<h3 id="modalTitle">${esc(title)}</h3><p class="sub">${esc(sub)}</p>
+    <div class="ct-video">${vid
+      ? `<iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${esc(title)} demonstration" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
+      : `<div class="ct-novid">${icon('play')}<b>Demonstration coming soon</b><span>HQ is recording this technique for the syllabus library.</span></div>`}</div>
+    ${vid ? '' : `<div class="acts"><a class="sbtn" href="https://www.youtube.com/results?search_query=${encodeURIComponent('aikido ' + title)}" target="_blank" rel="noopener">${icon('ur')}Find demonstrations</a></div>`}`, true);
+}
+
+/* --- MC pass extension (SSP-11) --- */
+function initMC() {
+  const from = $('#mc-from'), to = $('#mc-to'), file = $('#mc-file');
+  const dateOf = el => { const v = el.dataset.iso; if (!v) return null; const [y, m, d] = v.split('-').map(Number); return new Date(y, m - 1, d); };
+  const days = () => { const a = dateOf(from), b = dateOf(to); return a && b && b >= a ? Math.round((b - a) / 864e5) + 1 : 0; };
+  const sync = () => {
+    const n = days(), ext = Math.min(14, n);
+    $('#mcDays').innerHTML = n ? `Your MC covers <b>${n} day${n > 1 ? 's' : ''}</b>. You can request <b>${ext} extra day${ext > 1 ? 's' : ''}</b> on your pass${n > 14 ? ' (the maximum)' : ''}.` : 'Pick your MC dates to see how many days you can get back.';
+  };
+  $('#mcForm').addEventListener('change', e => { const f = fldOf(e.target); if (f && (e.target.dataset.iso || e.target === file)) f.classList.remove('invalid'); sync(); });
+  $('#mcForm').addEventListener('input', e => { const f = fldOf(e.target); if (f) f.classList.remove('invalid'); });
+
+  $('#mcForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const a = dateOf(from), b = dateOf(to), f = file.files[0];
+    let bad = 0;
+    if (!mark(fldOf(from), !a)) bad++;
+    $('#mcToErr').textContent = a && b && b < a ? 'End date must be on or after the start date.' : 'Enter the last day on your MC.';
+    if (!mark(fldOf(to), !b || (a && b < a))) bad++;
+    const ferr = !f ? 'Upload a photo or PDF of your MC.' : !/^image\/|^application\/pdf$/.test(f.type) ? 'Use a photo (JPG, PNG) or a PDF.' : f.size > 10 * 1024 * 1024 ? 'File is over 10 MB. Try a smaller one.' : '';
+    $('#mcFileErr').textContent = ferr || 'Upload a photo or PDF of your MC.';
+    if (!mark(fldOf(file), !!ferr)) bad++;
+    if (bad) { toast(bad === 1 ? 'One field needs your attention.' : `${bad} fields need your attention.`, 'bad'); return; }
+
+    const btn = $('#mcSubmit');
+    btn.disabled = true; btn.innerHTML = `${icon('upload')}Uploading…`;
+    setTimeout(() => {
+      const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      MC_REQUESTS.unshift({
+        id: 'MC-' + String(Date.now()).slice(-6),
+        student_id: ME.no,
+        pass_id: $('#mc-pass').value,
+        pass_label: $('#mc-pass').selectedOptions[0].textContent.split(' · ')[0],
+        mc_start: iso(a), mc_end: iso(b),
+        days_requested: Math.min(14, days()),
+        file_url: `mc-uploads/${ME.no}/${Date.now()}-${f.name.replace(/\s+/g, '-')}`,
+        preview: URL.createObjectURL(f), mime: f.type,
+        note: $('#mc-note').value.trim(),
+        status: 'PENDING',
+        created_at: new Date()
+      });
+      $('#mcForm').reset();
+      [from, to].forEach(el => { el.value = ''; el.dpSet && el.dpSet(null); });
+      sync(); renderMC();
+      btn.disabled = false; btn.innerHTML = `${icon('upload')}Submit request`;
+      toast('MC uploaded. HQ will review your extension request.');
+    }, 700);
+  });
+
+  $('#mcRows').addEventListener('click', e => {
+    const b = e.target.closest('[data-mc]'); if (!b) return;
+    const r = MC_REQUESTS[+b.dataset.mc];
+    const [ys, ms, ds] = r.mc_start.split('-').map(Number), [ye, me, de] = r.mc_end.split('-').map(Number);
+    openModal(`<h3 id="modalTitle">Extension request ${r.id}</h3><p class="sub">${esc(r.pass_label)} · ${r.days_requested} extra day${r.days_requested > 1 ? 's' : ''}</p>
+      <div class="kv"><div><span>MC dates</span><span>${fmtDate(new Date(ys, ms - 1, ds))} – ${fmtDate(new Date(ye, me - 1, de))}</span></div><div><span>Status</span><span>Pending HQ review</span></div><div><span>Submitted</span><span>${fmtDate(r.created_at)}</span></div>${r.note ? `<div><span>Note</span><span>${esc(r.note)}</span></div>` : ''}<div><span>Stored as</span><span style="overflow-wrap:anywhere">${esc(r.file_url)}</span></div></div>
+      <div class="mc-preview">${r.mime === 'application/pdf' ? `<iframe src="${r.preview}" title="Medical certificate"></iframe>` : `<img src="${r.preview}" alt="Uploaded medical certificate">`}</div>`, true);
+  });
+  sync();
+}
+
+function renderMC() {
+  $('#mcRows').innerHTML = MC_REQUESTS.map((r, i) => {
+    const [ys, ms, ds] = r.mc_start.split('-').map(Number), [ye, me, de] = r.mc_end.split('-').map(Number);
+    const range = `${ds} ${MON[ms - 1]} – ${de} ${MON[me - 1]} ${ye}`;
+    return `<div class="row"><span class="av">${icon('doc')}</span><div class="grow"><div class="t">${r.days_requested}-day extension · ${esc(r.pass_label)}</div><div class="d">MC ${range} · uploaded ${fmtDate(r.created_at)}</div></div><div class="acts"><span class="pill warn">Pending HQ review</span><button class="sbtn" data-mc="${i}">View MC</button></div></div>`;
+  }).join('');
 }
 
 function qrSVG(seed0 = 1834, size = 200) {
@@ -1065,7 +1360,9 @@ document.addEventListener('click', e => {
   if (q) {
     const s = STUDENTS[+q.dataset.qualify];
     if (s.s < s.need) { toast(`${s.n} needs ${s.need - s.s} more sessions first.`, 'bad'); return; }
-    s.st = 'Qualified'; closeDrawer(); renderStudents(); toast(`${s.n} is now Qualified for grading`);
+    s.st = 'Qualified';
+    if (s.n === ME.name) { GRADE.qualified = true; if (inited.student) renderStuGrading(); }
+    closeDrawer(); renderStudents(); toast(`${s.n} is now Qualified for grading`);
   }
 });
 
@@ -1257,6 +1554,7 @@ function renderGrading() {
     $('#gradRows').innerHTML = PROPOSALS.length ? PROPOSALS.map((p, i) => `<div class="row"><span class="av">${initials(p.n)}</span><div class="grow"><div class="t">${p.n} · ${p.result}</div><div class="d">${p.from} → ${p.to} · signed by ${p.by} · "${esc(p.fb)}"</div></div><div class="acts"><button class="sbtn dark" data-promote="${i}">${icon('award')}Approve promotion</button></div></div>`).join('') : '<p style="color:var(--muted)">No proposals waiting.</p>';
   }
 }
+PAGE_HOOK['admin-grading'] = () => renderGrading();
 
 function openSchedule(i) {
   const g = GRAD_APPS[i];
@@ -1275,6 +1573,121 @@ function promote(i) {
   const s = STUDENTS.find(x => x.n === p.n); if (s) { s.g = p.to; s.s = 0; s.st = 'Studying'; }
   renderGrading(); renderMembers();
   toast(`${p.n} promoted to ${p.to}`);
+}
+
+
+/* ---------- CLASS PAGES (content from aikidoshinjukai.com.sg/classes/…) ---------- */
+const CI = 'https://aikidoshinjukai.com.sg/images/classes/';
+const CLASS_PAGES = [
+  { id: 'adult', name: 'Adult Class', k: '大', img: 'adult/1.jpg',
+    intro: 'The core class at every Shinju-Kai dojo. Smooth, circular movements that redirect an attacker\'s force instead of meeting it head-on.',
+    who: 'Adults aged 12 and above, all grades',
+    about: ['Aikido is built for self-defence against someone larger or stronger. Instead of using strength, you learn to blend with an attack and lead it away.', 'The class is open to men and women of every grade above the age of 12, from first-day white belts to black belts.'],
+    facts: [['users', 'Who', 'Ages 12 & above', 'Men and women'], ['award', 'Grades', 'All grades', 'White belt to Dan'], ['clock', 'Length', '60 minutes', 'Daily across dojos'], ['card', 'Fees', 'Lesson packages', 'From S$270 for 10 lessons']],
+    gain: [['体', 'Fitness', 'Whole-body conditioning, flexibility and stamina.'], ['信', 'Self-confidence', 'Calm, assured movement on and off the mat.'], ['礼', 'Discipline & respect', 'Dojo etiquette and care for your training partners.'], ['和', 'Stress & friendship', 'A release after work and a community to train with.']] },
+  { id: 'children', name: 'Children Class', k: '子', img: 'children/1.jpg',
+    intro: 'Aikido for young students, grounded in harmony and mutual respect. Children learn to fall safely and protect themselves without relying on strength.',
+    who: 'Children aged 5 to 12, all grades',
+    about: ['Kids learn self-defence for everyday falls and slips as well as attacks, using soft, circular movements instead of force.', 'The class builds the foundations children need to move up to the Adult class when they are ready.'],
+    facts: [['users', 'Who', 'Ages 5 – 12', 'Boys and girls'], ['award', 'Grades', 'All grades', 'Children\'s kyu syllabus'], ['clock', 'Length', '60 minutes', 'Weekday & weekend slots'], ['card', 'Fees', 'Children packages', '1-month from S$150']],
+    gain: [['体', 'Fitness', 'Core strength, flexibility and stamina.'], ['集', 'Focus & reflexes', 'Attention and quick reactions through partner drills.'], ['動', 'Motor skills', 'Balance, coordination and safe falling (ukemi).'], ['礼', 'Confidence & respect', 'Discipline, etiquette and self-belief.']] },
+  { id: 'mixed', name: 'Mixed Class (Adults & Children)', k: '和', img: 'mixed/1.jpg',
+    intro: 'Parents, children and friends on the same mat. Instructors adapt each technique to every student\'s age and ability.',
+    who: 'All ages and fitness levels, training together',
+    about: ['A family-friendly class where students of different ages learn from each other.', 'Training side by side strengthens family bonds and makes it easier to keep a regular routine together.'],
+    facts: [['users', 'Who', 'All ages', 'Adults & children together'], ['award', 'Grades', 'All grades', 'Techniques adapted per student'], ['clock', 'Length', '60 minutes', 'See class schedules'], ['card', 'Fees', 'Standard packages', 'Adult or children rates']],
+    gain: [['家', 'Family time', 'Shared training that strengthens family bonds.'], ['学', 'Learn together', 'Different ages learning from each other.'], ['体', 'Fitness for all', 'Suitable for every fitness level.'], ['和', 'Harmony', 'Respect and cooperation between partners.']] },
+  { id: 'ladies', name: 'Ladies Class', k: '女', img: 'ladies/1.jpg',
+    intro: 'A women-only class. Aikido\'s soft, circular technique suits defending against a larger, stronger opponent.',
+    who: 'Women looking for confidence and a new way to work out',
+    about: ['Aikido does not rely on size or strength, which makes it well suited to women.', 'Alongside self-defence, the class trains mental focus, discipline and respect in a supportive setting.'],
+    facts: [['users', 'Who', 'Women only', 'Ages 12 & above'], ['award', 'Grades', 'All grades', 'Beginners welcome'], ['clock', 'Length', '60 minutes', 'See class schedules'], ['card', 'Fees', 'Lesson packages', 'Same as adult rates']],
+    gain: [['護', 'Self-defence', 'Techniques that work against a bigger attacker.'], ['信', 'Confidence', 'Assurance that carries into daily life.'], ['体', 'A new workout', 'Full-body exercise without heavy impact.'], ['心', 'Focus', 'Mental discipline and calm under pressure.']] },
+  { id: 'senior', name: 'Senior SG50 Class', k: '寿', img: 'seniors/1.jpg',
+    intro: 'Gentle Aikido for those aged 50 and above, including Class 3A elderly. Timing and body mechanics replace strength.',
+    who: 'Adults aged 50 and above',
+    about: ['Soft, smooth movements keep physical strain low while keeping you healthy and active.', 'Shinju-Kai is the only provider of Aikido classes for Class 3A elderly in Singapore.'],
+    facts: [['users', 'Who', 'Ages 50 & above', 'Incl. Class 3A elderly'], ['award', 'Grades', 'All grades', 'No experience needed'], ['clock', 'Length', '60 minutes', 'See class schedules'], ['shield', 'Intensity', 'Low strain', 'All fitness levels']],
+    gain: [['健', 'Stay active', 'Keep healthy with regular, gentle movement.'], ['衡', 'Balance', 'Better balance and coordination to prevent falls.'], ['柔', 'Flexibility', 'Soft movements that loosen joints.'], ['護', 'Basic self-defence', 'Practical skills for every fitness level.']] },
+  { id: 'weapon', name: 'Weapon Class', k: '剣', img: 'weapons/1.jpg',
+    intro: 'Traditional Japanese weapons — jo (staff), bokken (wooden sword) and tanto (knife) — to deepen your empty-hand Aikido.',
+    who: 'Students who want to deepen Aikido principles',
+    about: ['Weapons work sharpens ma-ai (distancing) and timing, the same principles behind every empty-hand technique.', 'It also connects you to the heritage of Japanese martial arts.'],
+    facts: [['shield', 'Weapons', 'Jo · Bokken · Tanto', 'Staff, sword, knife'], ['award', 'Grades', 'Kyu & Dan', 'Weapons appear in grading'], ['clock', 'Length', '60 minutes', 'See class schedules'], ['card', 'Fees', 'Lesson packages', 'Bring your own or borrow']],
+    gain: [['間', 'Ma-ai & timing', 'Distance and timing that improve every technique.'], ['動', 'Body movement', 'Posture and spatial awareness.'], ['伝', 'Heritage', 'A link to classical Japanese martial arts.'], ['心', 'Focus', 'Concentration and mental discipline.']] },
+  { id: 'advanced', name: 'Advanced Class', k: '上', img: 'adult/2.jpg',
+    intro: 'For experienced students ready to go further: complex throws and locks, multiple attackers and weapons work.',
+    who: 'Experienced students with a solid foundation',
+    about: ['The class goes deeper into advanced technique, teaching methodology and the philosophy of Aikido.', 'It is the main preparation for black belt (Shodan) grading.'],
+    facts: [['users', 'Who', 'Experienced students', 'Instructor recommended'], ['award', 'Grades', 'Senior kyu & Dan', 'Black belt preparation'], ['clock', 'Length', '60 minutes', 'See class schedules'], ['card', 'Fees', 'Lesson packages', 'Members only']],
+    gain: [['技', 'Advanced technique', 'Complex throws, locks and multiple attackers.'], ['剣', 'Weapons', 'Weapons work at a higher level.'], ['教', 'Teaching skills', 'How to explain and demonstrate technique.'], ['段', 'Dan preparation', 'Ready for black belt grading.']] },
+  { id: 'instructional', name: 'Instructional Class', k: '師', img: 'weapons/2.jpg',
+    intro: 'For senior students who want to become Shinju-Kai instructors. Learn to teach, run a class and carry an instructor\'s responsibilities.',
+    who: 'Senior students aspiring to become instructors',
+    about: ['Covers teaching methodology, class management and how to structure lessons and adapt them to different skill levels.', 'Senior instructors mentor you as you prepare for formal instructor certification.'],
+    facts: [['users', 'Who', 'Senior students', 'Aspiring instructors'], ['award', 'Outcome', 'Instructor certification', 'Formal Shinju-Kai pathway'], ['user', 'Mentors', 'Senior instructors', 'One-to-one guidance'], ['mail', 'Enquire', 'HQ office', 'hq@aikidoshinjukai.com.sg']],
+    gain: [['教', 'Teaching method', 'How to break down and teach technique.'], ['組', 'Class management', 'Structuring and running a safe class.'], ['導', 'Mentorship', 'Guidance from senior instructors.'], ['証', 'Certification', 'Preparation for formal instructor certification.']] },
+  { id: 'private', name: 'Private Class', k: '個', img: 'private/1.jpg',
+    intro: 'One-to-one instruction at HQ, built around your goals and your schedule. Open to members and non-members.',
+    who: 'Beginners, grading candidates, or anyone refining technique',
+    about: ['A complete beginner can get a strong start; a grading candidate can focus on exactly what the examiners will look for.', 'Lessons are personalised and scheduled flexibly at the Headquarters Dojo.'],
+    facts: [['users', 'Who', 'Members & non-members', 'Any level'], ['pin', 'Where', 'HQ Dojo', 'Thomson V One'], ['clock', 'Schedule', 'Flexible', 'Booked with the office'], ['card', 'Fees', 'S$120 per hour', 'One-to-one']],
+    gain: [['個', 'Personalised', 'Lessons built around your needs and goals.'], ['技', 'Specific skills', 'Focused work on the techniques you choose.'], ['段', 'Grading prep', 'Targeted preparation before your grading.'], ['時', 'Flexible timing', 'Train when it suits you.']] },
+  { id: 'sep', name: 'Sports Education Programme (SEP)', k: '学', img: 'children/2.jpg',
+    intro: 'Aikido in Singapore schools through the MOE Sports Education Programme. Shinju-Kai has been the sole Aikido SEP provider since 2006.',
+    who: 'Schools and their students across Singapore',
+    about: ['Students learn Aikido fundamentals in a structured, age-appropriate way, led by certified instructors.', 'The programme is recognised by the Singapore Sports Council and MOE.'],
+    facts: [['users', 'Who', 'MOE schools', 'Primary & secondary'], ['award', 'Since', '2006', 'Sole Aikido SEP provider'], ['shield', 'Recognised by', 'MOE & SSC', 'Certified instructors'], ['mail', 'Enquire', 'HQ office', 'hq@aikidoshinjukai.com.sg']],
+    gain: [['体', 'Fitness & coordination', 'Physical literacy for growing students.'], ['礼', 'Discipline & respect', 'Dojo values in a school setting.'], ['組', 'Teamwork', 'Partner practice builds cooperation.'], ['伝', 'Culture', 'Appreciation of Japanese martial arts.']] },
+  { id: 'corporate', name: 'Corporate Programme', k: '社', img: 'mixed/2.jpg',
+    intro: 'Team-building through Aikido for companies and organisations. Content, focus and duration are customised to your team.',
+    who: 'Companies and organisations',
+    about: ['Aikido\'s philosophy of blending with conflict translates directly to the workplace: communication, calm under pressure and leadership.', 'No martial arts experience is needed.'],
+    facts: [['users', 'Who', 'Companies & teams', 'Any size'], ['award', 'Experience', 'None needed', 'All fitness levels'], ['clock', 'Duration', 'Customised', 'One-off or series'], ['mail', 'Enquire', 'Corporate enquiry', 'Via Contact Us']],
+    gain: [['組', 'Team cohesion', 'Communication and trust between colleagues.'], ['和', 'Conflict resolution', 'Defuse tension instead of escalating it.'], ['静', 'Stress management', 'Stay calm under pressure.'], ['導', 'Leadership', 'Leadership grounded in Aikido philosophy.']] },
+  { id: 'academy', name: 'Shinju-Kai Academy', k: '塾', img: 'adult/3.jpg',
+    intro: 'An intensive, structured curriculum for dedicated students who want comprehensive Aikido education and faster development.',
+    who: 'Serious practitioners seeking accelerated development',
+    about: ['Academy students get priority access to classes and seminars and mentorship from senior Shihan-level instructors.', 'Outstanding students have a pathway to instructor certification. Apply through the HQ office.'],
+    facts: [['users', 'Who', 'Dedicated students', 'By application'], ['award', 'Mentors', 'Shihan-level', 'Senior instructors'], ['cal', 'Access', 'Priority', 'Classes & seminars'], ['mail', 'Apply', 'HQ office', 'hq@aikidoshinjukai.com.sg']],
+    gain: [['速', 'Accelerated growth', 'An intensive, structured curriculum.'], ['導', 'Shihan mentorship', 'Guidance from the most senior instructors.'], ['会', 'Exclusive events', 'International seminars and members-only events.'], ['証', 'Instructor pathway', 'Grading support and a route to certification.']] }
+];
+const CLASS_CTA = {
+  sep: ['Bring Aikido to your school', 'Talk to our HQ office about running SEP at your school.', [['Email HQ', 'mailto:hq@aikidoshinjukai.com.sg', 'mail'], ['Call +65 6513 1588', 'tel:+6565131588', 'phone']]],
+  corporate: ['Plan a session for your team', 'Tell us your team size, goals and dates and we\'ll design the programme.', [['Email HQ', 'mailto:hq@aikidoshinjukai.com.sg', 'mail'], ['Call +65 6513 1588', 'tel:+6565131588', 'phone']]],
+  academy: ['Apply to the Academy', 'Send your grade, training history and goals to the HQ office.', [['Email HQ', 'mailto:hq@aikidoshinjukai.com.sg', 'mail'], ['Register first', '#join', 'plus']]],
+  instructional: ['Ask about instructor training', 'Speak to your instructor or the HQ office about joining.', [['Email HQ', 'mailto:hq@aikidoshinjukai.com.sg', 'mail'], ['Grading info', '#student-grading', 'award']]],
+  private: ['Book a private class', 'S$120 per hour at HQ. Call or email to pick a time.', [['Buy a private class', '#pass-day', 'arrow'], ['Call +65 6513 1588', 'tel:+6565131588', 'phone']]]
+};
+function initClassPages() {
+  $('#cpNav').innerHTML = CLASS_PAGES.map(c => `<a href="#class-${c.id}" data-cls="${c.id}">${esc(({ sep: 'SEP', corporate: 'Corporate', academy: 'Academy' })[c.id] || c.name.replace(' Class', '').replace(' (Adults & Children)', ''))}</a>`).join('');
+}
+function renderClass(id) {
+  const i = CLASS_PAGES.findIndex(c => c.id === id), c = CLASS_PAGES[i];
+  document.title = `${c.name} · Aikido Shinju-Kai`;
+  $('#cpBg').style.backgroundImage = `url("${CI + c.img}")`;
+  $('#cpBg').setAttribute('aria-label', c.name);
+  $('#cpEyebrow').textContent = `Classes · ${String(i + 1).padStart(2, '0')} of ${CLASS_PAGES.length}`;
+  $('#cpTitle').textContent = c.name;
+  $('#cpIntro').textContent = c.intro;
+  $('#cpKanji').textContent = c.k;
+  $('#cpWho').textContent = c.who;
+  $('#cpAbout').innerHTML = c.about.map(p => `<p>${esc(p)}</p>`).join('');
+  $('#cpFacts').innerHTML = c.facts.map(([ic, l, b, s]) => `<div class="cp-fact"><span class="l">${icon(ic)}${esc(l)}</span><b>${esc(b)}</b><span>${esc(s)}</span></div>`).join('');
+  $('#cpGainH').textContent = `Why train in the ${c.name.replace(/ \(.*\)/, '')}`;
+  $('#cpGainLead').textContent = `What students get from ${c.name.replace(/ \(.*\)/, '')} at Shinju-Kai.`;
+  $('#cpGain').innerHTML = c.gain.map(([k, h, p]) => `<article class="ben-card"><span class="k">${k}</span><h3>${esc(h)}</h3><p>${esc(p)}</p></article>`).join('');
+  const cta = CLASS_CTA[c.id];
+  $('.cp-cta').dataset.k = c.k;
+  $('#cpCtaH').textContent = cta ? cta[0] : 'Try your first class';
+  $('#cpCtaP').textContent = cta ? cta[1] : 'First-time visitors can try one session for S$29 at any dojo. No uniform needed.';
+  const acts = cta ? cta[2] : [['Book a Trial · S$29', '#pass-trial', 'plus'], ['Register Online', '#join', 'arrow']];
+  $('#cpCtaActs').innerHTML = acts.map(([t, h, ic], n) => `<a class="btn ${n ? 'btn-ghost' : 'btn-light'}" href="${h}">${esc(t)}<span class="dot">${icon(ic)}</span></a>`).join('');
+  $('.cp-acts').hidden = !!cta && c.id !== 'private';
+  const prev = CLASS_PAGES[(i - 1 + CLASS_PAGES.length) % CLASS_PAGES.length], next = CLASS_PAGES[(i + 1) % CLASS_PAGES.length];
+  $('#cpPN').innerHTML = `<a href="#class-${prev.id}"><small>${icon('back')}Previous</small><b>${esc(prev.name)}</b></a><a class="next" href="#class-${next.id}"><small>Next${icon('arrow')}</small><b>${esc(next.name)}</b></a>`;
+  $$('#cpNav a').forEach(a => a.classList.toggle('on', a.dataset.cls === id));
+  const on = $('#cpNav a.on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'center' });
 }
 
 /* ---------- 11. BEN CHATBOT ---------- */
@@ -1315,11 +1728,19 @@ function initBen() {
   $('#benClose').addEventListener('click', closeBen);
   document.addEventListener('click', e => { if (e.target.closest('[data-ben-open]')) openBen(); });
   $('#benForm').addEventListener('submit', e => { e.preventDefault(); benAsk($('#benInput').value); $('#benInput').value = ''; });
-  // swap to the drawn Ben if ben.gif is missing
+  // swap to the drawn Ben if the mascot image is missing
   $$('.ben-av img').forEach(img => {
     const fail = () => img.parentElement.classList.add('fallback');
     if (img.complete && !img.naturalWidth) fail();
     img.addEventListener('error', fail);
+  });
+  // mascot stands still; hovering plays the kick from the start, leaving returns to the still pose
+  const still = 'mascot-still.webp';
+  if (!reduce) new Image().src = 'mascot.webp';
+  $$('.ben-av img[data-anim]').forEach(img => {
+    const host = img.closest('.ben-fab, .cta, .bp-head') || img;
+    host.addEventListener('mouseenter', () => { if (!reduce) img.src = img.dataset.anim + '#' + Date.now(); });
+    host.addEventListener('mouseleave', () => { img.src = still; });
   });
 }
 
@@ -1401,6 +1822,7 @@ function customSelect(sel) {
 const MONTHS_FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function dpPreset(kind) {
   if (kind === 'future') return { min: addDays(TODAY, 1), max: addDays(TODAY, 30), start: addDays(TODAY, 1), first: 'days' };
+  if (kind === 'recent') return { min: addDays(TODAY, -60), max: TODAY, start: TODAY, first: 'days' };
   if (kind === 'past') return { min: new Date(1988, 0, 1), max: TODAY, start: TODAY, first: 'years' };
   return { min: new Date(1920, 0, 1), max: TODAY, start: new Date(TODAY.getFullYear() - 20, 0, 1), first: 'years' };
 }
@@ -1494,7 +1916,7 @@ function datePicker(input, { min, max, start, first }) {
     else if ('clear' in ds) { input.value = ''; prev = ''; setDate(null); mode = 'days'; render(); }
     else if ('today' in ds) { setDate(new Date(TODAY)); close(); }
   });
-  input.dpSet = d => setDate(d);
+  input.dpSet = d => { if (!d) { input.value = ''; prev = ''; } setDate(d); };
 }
 
 /* ---------- 14. DEPTH CAROUSEL (React Bits port) ---------- */
@@ -1881,7 +2303,7 @@ function initRails() {
 }
 
 /* ---------- 12. BOOT ---------- */
-const INIT = { home: initHome, about: initAbout, pass: initPass, join: initJoin, student: initStudent, instructor: initInstructor, admin: initAdmin };
+const INIT = { class: initClassPages, home: initHome, about: initAbout, pass: initPass, join: initJoin, student: initStudent, instructor: initInstructor, admin: initAdmin };
 
 const ROLE_ID = {
   student: { label: 'Membership ID', demo: 'ASK-2025-1834', hint: 'On your student card and welcome email, e.g. ASK-2025-1834', re: /^ASK-\d{4}-\d{4}$/, note: 'Log in with your membership ID, or the Google account you registered with.' },
