@@ -181,9 +181,11 @@ runPage({
     if (a === 'One dojo') { $('#audLabel').textContent = 'Dojo'; $('#n-target').innerHTML = DOJOS.map(d => `<option>${d.name}</option>`).join(''); }
     if (a === 'By grade') { $('#audLabel').textContent = 'Grade'; $('#n-target').innerHTML = BELTS.map(b => `<option>${b.g}</option>`).join(''); }
     if (a === 'One student') { $('#audLabel').textContent = 'Student'; $('#n-target').innerHTML = MEMBERS.map(m => `<option>${m.n} · ${m.no}</option>`).join(''); }
-    $('#audPreview').textContent = a === 'All members' ? 'All members · 1,248' : `${a} · ${$('#n-target').value}`;
+    const ph = $('#n-target-in'); if (ph) ph.placeholder = a === 'One student' ? 'Type a name or member no.' : `Search ${a === 'One dojo' ? 'dojos' : 'grades'}`;
+    preview();
   };
-  $('#audSeg').addEventListener('change', syncAud); $('#n-target').addEventListener('change', syncAud);
+  const preview = () => { const a = radio('aud'); $('#audPreview').textContent = a === 'All members' ? 'All members · 1,248' : `${a} · ${$('#n-target').value}`; };
+  $('#audSeg').addEventListener('change', syncAud); $('#n-target').addEventListener('change', preview);
   $('#n-title').addEventListener('input', e => $('#pvTitle').textContent = e.target.value || 'Your title');
   $('#n-body').addEventListener('input', e => { $('#pvBody').textContent = e.target.value || 'Your message appears here.'; $('#nCount').textContent = e.target.value.length; });
   $('#notifyForm').addEventListener('submit', e => {
@@ -205,4 +207,12 @@ runPage({
     if (k === 'payments') downloadCSV(`payments-${stamp}.csv`, [['Member', 'Status']].concat(MEMBERS.map(m => [m.n, m.st])));
   });
   }
+});
+
+// search boxes: each one filters only its own list
+runPage({
+  applications() { filterList('#appSearch', '#appRows'); filterList('#mcSearch', '#mcAdminRows'); },
+  sessions() { filterList('#sesSearch', '#sesRows'); },
+  grading() { filterList('#gradSearch', '#gradRows'); },
+  payments() { filterList('#paySearch', '#adminPayRows'); }
 });

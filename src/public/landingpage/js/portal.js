@@ -8,15 +8,15 @@
 
 const PORTALS = {
   student: {
-    label: 'Student', dir: 'student/', login: 'login.html', search: 'Search classes', me: ['LW', 'Lervyn Wong', '4th Kyu · HQ Dojo'], ben: true,
+    label: 'Student', dir: 'student/', login: 'login.html', me: ['LW', 'Lervyn Wong', '4th Kyu · HQ Dojo'], ben: true,
     pages: [['home', 'home', 'Home'], ['book', 'cal', 'Book a class'], ['packages', 'box', 'Packages'], ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['profile', 'user', 'Profile']]
   },
   instructor: {
-    label: 'Instructor', dir: 'staff/instructor/', login: 'staff/index.html?denied', search: 'Search students', me: ['BT', 'Bob Tan Sensei', '6th Dan · HQ Dojo'],
+    label: 'Instructor', dir: 'staff/instructor/', login: 'staff/index.html?denied', me: ['BT', 'Bob Tan Sensei', '6th Dan · HQ Dojo'],
     pages: [['today', 'home', 'Today'], ['students', 'users', 'Students'], ['timetable', 'cal', 'Timetable'], ['grading', 'award', 'Grading', () => CANDIDATES.filter(c => !c.done).length], ['profile', 'user', 'Profile']]
   },
   admin: {
-    label: 'HQ Admin', dir: 'staff/admin/', login: 'staff/index.html?denied', search: 'Search members, sessions', me: ['HQ', 'HQ Office', 'Administrator'],
+    label: 'HQ Admin', dir: 'staff/admin/', login: 'staff/index.html?denied', me: ['HQ', 'HQ Office', 'Administrator'],
     pages: [['dashboard', 'home', 'Overview'], ['applications', 'inbox', 'Requests', () => APPS.length + MC_REQUESTS.filter(r => r.status === 'PENDING').length], ['members', 'users', 'Members'], ['sessions', 'cal', 'Sessions'],
       ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['notify', 'mega', 'Notifications'], ['reports', 'chart', 'Reports']]
   }
@@ -47,7 +47,6 @@ function buildShell() {
     <img class="tb-logo m-only" src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">
     <span class="crumb">${P.label} · <b>${cur[2]}</b></span>
     <span class="sp"></span>
-    <label class="search">${icon('search')}<input placeholder="${P.search}" aria-label="Search"></label>
     <button class="icon-btn" data-notif aria-label="Notifications">${icon('bell')}<span class="badge-dot"></span></button>
     <button class="icon-btn m-only" data-logout aria-label="Log out" title="Log out">${icon('logout')}</button>
   </div>`);

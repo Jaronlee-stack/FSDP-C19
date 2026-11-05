@@ -140,3 +140,9 @@ runPage({
   },
   grading() { renderCandidates(); }
 });
+
+// search boxes: each one filters only its own list
+runPage({
+  today() { filterList('#rosterSearch', '#roster'); },
+  grading() { filterList('#gradeSearch', '#gradeList'); }
+});
