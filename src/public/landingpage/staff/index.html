@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Folder pages can be opened as /site/student (no trailing slash), e.g. by `npx serve`.
+     Relative links would then point one folder too high, so pin the base to this folder. -->
+<script>(function () { var p = location.pathname; if (!/\/$|\.html?$/.test(p)) document.write('<base href="' + p + '/">'); })();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Staff sign-in · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/forms.css">
+</head>
+<body data-page="staff" data-root="../">
+
+<div class="staff">
+    <form class="staff-box" id="staffForm" novalidate>
+      <div class="staff-brand"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt=""><div><b>AIKIDO SHINJU-KAI</b><span>Staff portal</span></div></div>
+      <div><h1>Staff sign-in</h1><p id="staffNote">For instructors and HQ office staff. Accounts are issued by the HQ office.</p></div>
+      <div class="role-tabs two" id="roleTabs" role="tablist">
+        <span class="thumb"></span>
+        <button type="button" role="tab" class="on" aria-selected="true" data-role="instructor">Instructor</button>
+        <button type="button" role="tab" aria-selected="false" data-role="admin">HQ Admin</button>
+      </div>
+      <div class="fld"><label for="s-id" id="sIdLabel">Instructor ID</label>
+        <div class="id-wrap"><svg class="ic prefix"><use href="#i-id"/></svg><input id="s-id" value="INS-0042" autocomplete="username" spellcheck="false"></div>
+        <span class="hint" id="sIdHint">Issued by the HQ office, e.g. INS-0042</span><span class="err">Enter your ID in the format shown.</span></div>
+      <div class="fld"><label for="s-pass">Password</label><input id="s-pass" type="password" value="password123" autocomplete="current-password"><span class="err">Enter your password.</span></div>
+      <button class="btn btn-dark arrow" type="submit" style="justify-self:start">Sign in<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button>
+      <p class="fine"><svg class="ic"><use href="#i-lock"/></svg>Every sign-in is logged. Lost access? Call the HQ office on +65 6513 1588.</p>
+    </form>
+  </div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/staff-login.js"></script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Student · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="student" data-page="grading" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="grading">
+        <div class="page-h"><div><h1>Grading</h1><p>Eligibility is worked out from your sessions and time in rank.</p></div><span class="pill warn" id="gaStatus">Not yet eligible</span></div>
+        <div class="g-wide">
+          <div class="card ac">
+            <div class="card-h"><h3>Checklist · 3rd Kyu</h3><span class="sub">Adult grading · 13 Dec 2026</span></div>
+            <div class="checks" id="gaChecks"></div>
+            <p id="gaDemoWrap" style="font-size:12px;color:var(--muted);margin-top:12px">Prototype: <button type="button" id="gaDemo" style="border:0;background:none;padding:0;color:var(--red);font-weight:600;font-size:12px">Simulate all requirements met</button></p>
+          </div>
+          <div class="card ac">
+            <div class="card-h"><h3>Grading calendar</h3></div>
+            <div class="rows">
+              <div class="row"><div class="grow"><div class="t">13 Sep 2026</div><div class="d">Applications 2 – 30 Aug</div></div><span class="pill plain">Closed</span></div>
+              <div class="row"><div class="grow"><div class="t">13 Dec 2026</div><div class="d">Applications 1 – 29 Nov</div></div><span class="pill ok">Open</span></div>
+              <div class="row"><div class="grow"><div class="t">14 Mar 2027</div><div class="d">Applications 1 – 28 Feb</div></div><span class="pill plain">Upcoming</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Curriculum tree (SSP-03) -->
+        <div class="card white ac">
+          <div class="card-h"><div><h3>Curriculum · 3rd Kyu</h3><span class="sub">Techniques for your next grading. Tap one to watch the demonstration.</span></div><button type="button" class="sbtn" id="ctToggle">Expand all</button></div>
+          <div class="ctree" id="ctree"></div>
+        </div>
+
+        <div class="card white ac">
+          <div class="card-h"><div><h3>Grading application</h3><span class="sub" id="gaSub">Unlocks when every item on the checklist is met</span></div><span class="pill plain" id="gaLock"><svg class="ic" style="width:13px;height:13px"><use href="#i-lock"/></svg>Locked</span></div>
+          <form class="grid2" id="gradeForm" novalidate>
+            <div class="fld"><label for="ga-dojo">Principal dojo</label><input id="ga-dojo" value="HQ Dojo · Thomson V One" readonly></div>
+            <div class="fld"><label for="ga-cur">Current grade &amp; date passed</label><input id="ga-cur" value="4th Kyu · 13 Mar 2026" readonly></div>
+            <div class="fld"><label for="ga-target">Grading for</label><select id="ga-target"><option>3rd Kyu (Brown)</option></select></div>
+            <div class="fld"><label for="ga-book">Membership book photo</label><input id="ga-book" type="file" accept="image/*"><span class="hint">Pages showing your session stamps</span><span class="err" id="gaBookErr">Upload a photo of your stamp pages.</span></div>
+            <div class="fld full"><div class="fees" id="gaFees"></div></div>
+            <div class="fld full"><div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Submit at least two weeks before grading; late applications carry an admin charge. 2nd Kyu and above must also meet weapons requirements. Members aged 5–12 take the Children's grading.</span></div></div>
+            <div class="fld full"><button class="btn btn-dark arrow" type="submit" id="gaSubmit" disabled>Submit application<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+          </form>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/ben.js"></script>
+<script src="../js/portal.js"></script>
+<script src="../js/student.js"></script>
+</body>
+</html>

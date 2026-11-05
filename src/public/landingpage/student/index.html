@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Folder pages can be opened as /site/student (no trailing slash), e.g. by `npx serve`.
+     Relative links would then point one folder too high, so pin the base to this folder. -->
+<script>(function () { var p = location.pathname; if (!/\/$|\.html?$/.test(p)) document.write('<base href="' + p + '/">'); })();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Student · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="student" data-page="home" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="home">
+        <div class="g-side g-card">
+          <div class="hello ac">
+            <div>
+              <h1><span class="shiny on-dark" id="greet">Good evening, Lervyn.</span></h1>
+              <p>Seven more sessions and you're eligible for 3rd Kyu. Grading applications close on 29 Nov.</p>
+              <div class="mini">
+                <div><b class="num" id="helloLessons">18</b><span>Lessons left</span></div>
+                <div><b class="num" data-count="29">0</b><span>Sessions at this rank</span></div>
+                <div><b class="num" data-count="7">0</b><span>Months in rank</span></div>
+              </div>
+            </div>
+          </div>
+          <!-- ProfileCard → digital student card -->
+          <div class="pcard ac" id="studentCard">
+            <div class="pcard-body">
+              <div class="pcard-tile">
+                <span class="pcard-holo"></span>
+                <div class="pcard-top"><span class="pcard-org"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><span class="pcard-kanji">合気道</span></div>
+                <div class="pcard-mid"><span class="pcard-av">LW</span><div><div class="pcard-name">Lervyn Wong</div><div class="pcard-rank"><i></i>4th Kyu · Brown</div></div></div>
+                <div class="pcard-bot"><span>MEMBER NO.<b>ASK-2025-1834</b></span><span style="text-align:right">PRINCIPAL DOJO<b>HQ · Thomson</b></span></div>
+                <span class="pcard-glare"></span>
+              </div>
+              <div class="pcard-foot"><span class="st">Active · renews Jan 2027</span><button type="button" data-qr><svg class="ic"><use href="#i-nfc"/></svg>Check in</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="g4 g4-card ac" data-stagger>
+          <div class="stat"><span class="l">Lessons remaining</span><span class="v" id="stLessons">18</span><span class="h" id="stLessonsH">Next expiry 15 Jan 2027</span></div>
+          <div class="stat"><span class="l">Sessions to 3rd Kyu</span><span class="v"><span data-count="29">0</span><small>/36</small></span><span class="h up">7 to go</span></div>
+          <div class="stat"><span class="l">Membership</span><span class="v" style="font-size:28px">Active</span><span class="h">Annual dues paid · Jan 2027</span></div>
+          <div class="stat dark"><span class="l">Next grading</span><span class="v">13 Dec</span><span class="h">Applications close 29 Nov</span></div>
+        </div>
+
+        <div class="g-wide">
+          <div class="card ac">
+            <div class="card-h"><div><h3>Progress to 3rd Kyu</h3><span class="sub">6 months and 36 sessions at 4th Kyu</span></div>
+              <div class="view-toggle" id="progToggle"><button class="on" data-v="path">Belt path</button><button data-v="bar">Bar</button></div></div>
+            <div id="progPath"><div class="path" id="beltPath"></div></div>
+            <div id="progBar" hidden>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><b>29 of 36 sessions</b><span style="color:var(--muted)">81%</span></div>
+              <div class="bar red"><i data-w="81"></i></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;margin:18px 0 8px"><b>7 of 6 months</b><span style="color:var(--ok)">Met</span></div>
+              <div class="bar"><i data-w="100"></i></div>
+            </div>
+          </div>
+          <div class="card ac">
+            <div class="card-h"><div><h3>Your lessons</h3><span class="sub">Used from the pack that expires first</span></div><button class="sbtn" data-page-link="packages"><svg class="ic"><use href="#i-plus"/></svg>Top up</button></div>
+            <div class="rows" id="homePasses"></div>
+          </div>
+        </div>
+
+        <div class="card ac">
+          <div class="card-h"><h3>Upcoming classes</h3><button class="sbtn" data-page-link="book"><svg class="ic"><use href="#i-plus"/></svg>Book another</button></div>
+          <div id="upcoming"></div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/ben.js"></script>
+<script src="../js/portal.js"></script>
+<script src="../js/student.js"></script>
+</body>
+</html>
