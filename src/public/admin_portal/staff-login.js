@@ -25,5 +25,5 @@ $('#staffForm').addEventListener('submit', e => {
   fldOf($('#s-id')).classList.toggle('invalid', !idOk); fldOf($('#s-pass')).classList.toggle('invalid', !pwOk);
   if (!idOk || !pwOk) { toast(!idOk ? `Check your ${STAFF_ID[role].label.toLowerCase()}.` : 'Enter your password.', 'bad'); return; }
   signIn(role);
-  location.href = url(`staff/${role}/index.html`);
+  location.href = url(`${role}_portal/index.html`);
 });

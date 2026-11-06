@@ -17,7 +17,7 @@ function signOut() {
   AUTH.role = null;
   try { sessionStorage.removeItem('ask-role'); } catch (_) {}
   save();
-  location.href = url(staff ? 'staff/index.html' : 'index.html');
+  location.href = url(staff ? 'admin_portal/signin.html' : 'landingpage/index.html');
 }
 document.addEventListener('click', e => { if (e.target.closest('[data-logout]')) { e.preventDefault(); closeSM(); signOut(); } });
 
@@ -30,7 +30,7 @@ const DB = (() => {
 })();
 function save() { try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch (_) {} }
 window.addEventListener('pagehide', save);   // every change is kept when you move to another page
-function resetDemo() { try { localStorage.removeItem(DB_KEY); sessionStorage.clear(); } catch (_) {} location.href = url('index.html'); }
+function resetDemo() { try { localStorage.removeItem(DB_KEY); sessionStorage.clear(); } catch (_) {} location.href = url('landingpage/index.html'); }
 document.addEventListener('click', e => { if (e.target.closest('[data-reset]')) { e.preventDefault(); resetDemo(); } });
 
 /* short names used throughout the page scripts */

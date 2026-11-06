@@ -2,7 +2,7 @@
 /* AIKIDO SHINJU-KAI — login.js  (member log in; students only) */
 
 try { const last = sessionStorage.getItem('ask-last-id'); if (last) $('#l-id').value = last; } catch (_) {}
-const toPortal = () => { location.href = url('student/index.html'); };
+const toPortal = () => { location.href = url('student_portal/index.html'); };
 
 $('#l-id').addEventListener('input', e => { const p = e.target.selectionStart; e.target.value = e.target.value.toUpperCase(); e.target.setSelectionRange(p, p); fldOf(e.target).classList.remove('invalid'); });
 $('#loginForm').addEventListener('submit', e => {

@@ -67,7 +67,7 @@ document.querySelector('main').insertAdjacentHTML('afterend', `  <footer class="
   </footer>`);
 
 /* signed-in members get a shortcut back to their portal */
-if (AUTH.role === 'student') { const l = $('.nav-login'); l.textContent = 'My portal'; l.href = 'student/index.html'; }
+if (AUTH.role === 'student') { const l = $('.nav-login'); l.textContent = 'My portal'; l.href = url('student_portal/index.html'); }
 
 SM_LINKS = [['About', 'about.html'], ['Classes', 'index.html#classes'], ['Fees', 'index.html#pricing'], ['Instructors', 'about.html#ab-instructors'],
   ['Dojos', 'index.html#find'], ['Book a trial', 'trial.html#trial'], ['Join now', 'join.html'], ['Member log in', 'login.html']];

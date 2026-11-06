@@ -175,7 +175,7 @@ document.body.insertAdjacentHTML('beforeend', `<div class="sm" id="sm" aria-hidd
   <aside class="sm-panel" aria-label="Menu">
     <div class="sm-head"><span class="brand"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><button class="icon-btn" data-sm-close aria-label="Close menu"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <ul class="sm-list" id="smList"></ul>
-    <div class="sm-foot" id="smFoot"><small>Shinju-Kai</small><div class="links"><a href="__ROOT__index.html">Website</a><a href="__ROOT__login.html">Member log in</a><a href="__ROOT__join.html">Join</a></div></div>
+    <div class="sm-foot" id="smFoot"><small>Shinju-Kai</small><div class="links"><a href="__ROOT__landingpage/index.html">Website</a><a href="__ROOT__landingpage/login.html">Member log in</a><a href="__ROOT__landingpage/join.html">Join</a></div></div>
   </aside>
 </div>
 <div class="overlay" id="modal" aria-hidden="true">
@@ -192,10 +192,10 @@ document.body.insertAdjacentHTML('beforeend', `<div class="sm" id="sm" aria-hidd
 </aside>`.replaceAll('__ROOT__', ROOT));
 
 /* [data-go] buttons jump between pages */
-const GO = { home: 'index.html', login: 'login.html', join: 'join.html', trial: 'trial.html', about: 'about.html' };
+const GO = { home: 'landingpage/index.html', login: 'landingpage/login.html', join: 'landingpage/join.html', trial: 'landingpage/trial.html', about: 'landingpage/about.html' };
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-go]'); if (!b) return;
-  e.preventDefault(); location.href = url(GO[b.dataset.go] || 'index.html');
+  e.preventDefault(); location.href = url(GO[b.dataset.go] || 'landingpage/index.html');
 });
 
 /* ---------- 4. MODAL / DRAWER ---------- */
