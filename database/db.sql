@@ -1,98 +1,87 @@
-// ==========================================
-// 1. AUTHENTICATION & CORE USERS
-// ==========================================
-Table users {
-  id varchar [pk, note: 'e.g., UUID or custom string ID']
-  role varchar [not null, note: 'Values: student, guest, instructor, admin, front_desk']
-  email varchar [unique, not null]
-  password_hash varchar [not null]
-  created_at timestamptz [not null]
-}
+-- 1. AUTHENTICATION & CORE USERS
+CREATE TABLE users (
+    id VARCHAR(255) PRIMARY KEY,
+    role VARCHAR(50) NOT NULL, -- Values: student, guest, instructor, admin, front_desk
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-// ==========================================
-// 2. ROLE PROFILES (1-to-1 with users)
-// ==========================================
-Table student_profile {
-  user_id varchar [pk, ref: - users.id]
-  full_name varchar [not null]
-  dob date [not null]
-  contact_no varchar [not null]
-  rank varchar [not null]
-  dojo varchar [not null]
-  last_grading_date date
-  last_passed_grading_date date
-  total_accumulated_hours numeric [default: 0]
-  accumulated_hours numeric [default: 0]
-  weapon_hours numeric [default: 0]
-  discount boolean [default: false]
-}
+-- 2. ROLE PROFILES
+CREATE TABLE student_profile (
+    user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    full_name VARCHAR(255) NOT NULL,
+    dob DATE NOT NULL,
+    contact_no VARCHAR(50) NOT NULL,
+    rank VARCHAR(50) NOT NULL,
+    dojo VARCHAR(255) NOT NULL,
+    last_grading_date DATE,
+    last_passed_grading_date DATE,
+    total_accumulated_hours NUMERIC DEFAULT 0,
+    accumulated_hours NUMERIC DEFAULT 0,
+    weapon_hours NUMERIC DEFAULT 0,
+    discount BOOLEAN DEFAULT FALSE
+);
 
-Table guest_profile {
-  user_id varchar [pk, ref: - users.id]
-  full_name varchar [not null]
-  contact_no varchar
-  trial_status varchar [note: 'Values: Pending, Attended, Converted']
-}
+CREATE TABLE guest_profile (
+    user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    full_name VARCHAR(255) NOT NULL,
+    contact_no VARCHAR(50),
+    trial_status VARCHAR(50) -- Values: Pending, Attended, Converted
+);
 
-Table instructor_profile {
-  user_id varchar [pk, ref: - users.id]
-  full_name varchar [not null]
-}
+CREATE TABLE instructor_profile (
+    user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    full_name VARCHAR(255) NOT NULL
+);
 
-Table admin_profile {
-  user_id varchar [pk, ref: - users.id]
-  full_name varchar [not null]
-}
+CREATE TABLE admin_profile (
+    user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    full_name VARCHAR(255) NOT NULL
+);
 
-Table frontdesk_profile {
-  user_id varchar [pk, ref: - users.id]
-  full_name varchar [not null]
-}
+CREATE TABLE frontdesk_profile (
+    user_id VARCHAR(255) PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+    full_name VARCHAR(255) NOT NULL
+);
 
-// ==========================================
-// 3. STUDENT BUSINESS LOGIC
-// ==========================================
-Table membership {
-  user_id varchar [pk, ref: - student_profile.user_id]
-  membership_expiry date [not null]
-  account_status varchar [not null, note: 'Values: Active, Inactive, Deactivated']
-}
+-- 3. STUDENT BUSINESS LOGIC
+CREATE TABLE membership (
+    user_id VARCHAR(255) PRIMARY KEY REFERENCES student_profile(user_id) ON DELETE CASCADE,
+    membership_expiry DATE NOT NULL,
+    account_status VARCHAR(50) NOT NULL -- Values: Active, Inactive, Deactivated
+);
 
-Table grading_history {
-  id varchar [pk]
-  user_id varchar [ref: > student_profile.user_id]
-  grading_date date [not null]
-  grading_remarks text
-  grade boolean [not null, note: 'TRUE for Pass, FALSE for Fail']
-}
+CREATE TABLE grading_history (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) REFERENCES student_profile(user_id) ON DELETE CASCADE,
+    grading_date DATE NOT NULL,
+    grading_remarks TEXT,
+    grade BOOLEAN NOT NULL -- TRUE for Pass, FALSE for Fail
+);
 
-// ==========================================
-// 4. CLASS SCHEDULING & ATTENDANCE
-// ==========================================
-Table class_booking {
-  lesson_id varchar [pk]
-  instructor_id varchar [ref: > instructor_profile.user_id]
-  class_code varchar [not null]
-  lesson_time timestamptz [not null, note: 'Stores both date and time']
-  lesson_location varchar [not null]
-  class_type varchar [not null]
-}
+-- 4. CLASS SCHEDULING & ATTENDANCE
+CREATE TABLE class_booking (
+    lesson_id VARCHAR(255) PRIMARY KEY,
+    instructor_id VARCHAR(255) REFERENCES instructor_profile(user_id),
+    class_code VARCHAR(255) NOT NULL,
+    lesson_time TIMESTAMPTZ NOT NULL,
+    lesson_location VARCHAR(255) NOT NULL,
+    class_type VARCHAR(255) NOT NULL
+);
 
-Table class_attendance {
-  lesson_id varchar [ref: > class_booking.lesson_id]
-  user_id varchar [ref: > users.id, note: 'Links to users so Guests can also be added to rosters']
-  attendance_status varchar [not null, note: 'Values: Booked, Attended, No-Show, Cancelled']
-  remarks text [note: 'Instructor notes on student performance']
-  
-  indexes {
-    (lesson_id, user_id) [pk] // Composite Primary Key
-  }
-}
+CREATE TABLE class_attendance (
+    lesson_id VARCHAR(255) REFERENCES class_booking(lesson_id) ON DELETE CASCADE,
+    user_id VARCHAR(255) REFERENCES users(id) ON DELETE CASCADE,
+    attendance_status VARCHAR(50) NOT NULL, -- Values: Booked, Attended, No-Show, Cancelled
+    remarks TEXT,
+    PRIMARY KEY (lesson_id, user_id)
+);
 
-Table makeup_class {
-  id varchar [pk]
-  user_id varchar [ref: > student_profile.user_id]
-  original_lesson_id varchar [ref: > class_booking.lesson_id, note: 'The class they missed']
-  makeup_lesson_id varchar [ref: > class_booking.lesson_id, note: 'The class they are using the credit for']
-  status varchar [not null, note: 'Values: Pending, Used, Expired']
-}
+CREATE TABLE makeup_class (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) REFERENCES student_profile(user_id) ON DELETE CASCADE,
+    original_lesson_id VARCHAR(255) REFERENCES class_booking(lesson_id),
+    makeup_lesson_id VARCHAR(255) REFERENCES class_booking(lesson_id),
+    status VARCHAR(50) NOT NULL -- Values: Pending, Used, Expired
+);
