@@ -8,15 +8,15 @@
 
 const PORTALS = {
   student: {
-    label: 'Student', dir: 'student/', login: 'login.html', me: ['LW', 'Lervyn Wong', '4th Kyu · HQ Dojo'], ben: true,
+    label: 'Student', dir: 'student_portal/', login: 'landingpage/login.html', me: ['LW', 'Lervyn Wong', '4th Kyu · HQ Dojo'], ben: true,
     pages: [['home', 'home', 'Home'], ['book', 'cal', 'Book a class'], ['packages', 'box', 'Packages'], ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['profile', 'user', 'Profile']]
   },
   instructor: {
-    label: 'Instructor', dir: 'staff/instructor/', login: 'staff/index.html?denied', me: ['BT', 'Bob Tan Sensei', '6th Dan · HQ Dojo'],
+    label: 'Instructor', dir: 'instructor_portal/', login: 'admin_portal/signin.html?denied', me: ['BT', 'Bob Tan Sensei', '6th Dan · HQ Dojo'],
     pages: [['today', 'home', 'Today'], ['students', 'users', 'Students'], ['timetable', 'cal', 'Timetable'], ['grading', 'award', 'Grading', () => CANDIDATES.filter(c => !c.done).length], ['profile', 'user', 'Profile']]
   },
   admin: {
-    label: 'HQ Admin', dir: 'staff/admin/', login: 'staff/index.html?denied', me: ['HQ', 'HQ Office', 'Administrator'],
+    label: 'HQ Admin', dir: 'admin_portal/', login: 'admin_portal/signin.html?denied', me: ['HQ', 'HQ Office', 'Administrator'],
     pages: [['dashboard', 'home', 'Overview'], ['applications', 'inbox', 'Requests', () => APPS.length + MC_REQUESTS.filter(r => r.status === 'PENDING').length], ['members', 'users', 'Members'], ['sessions', 'cal', 'Sessions'],
       ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['notify', 'mega', 'Notifications'], ['reports', 'chart', 'Reports']]
   }
