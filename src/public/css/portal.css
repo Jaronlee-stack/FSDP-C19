@@ -44,6 +44,9 @@ body[data-portal]:not(.ok) { visibility: hidden; }
 .g-wide { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 14px; }
 .g-side { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 14px; align-items: start; }
 /* student home: the card column = the Next grading column = the lessons column */
+.g-side.g-even { align-items: stretch; }   /* both cards same height */
+.g-even > .live-card { display: flex; flex-direction: column; align-items: flex-start; }
+.g-even > .live-card > :last-child { margin-top: auto; }
 .g-side.g-card { grid-template-columns: minmax(0, 1fr) calc((100% - 14px) / 2.6); align-items: stretch; }
 .g4.g4-card { grid-template-columns: repeat(3, minmax(0, 1fr)) calc((100% - 14px) / 2.6); }
 .g-side.g-card .pcard { max-width: none; display: flex; }
@@ -374,3 +377,19 @@ body[data-portal]:not(.ok) { visibility: hidden; }
 .mc-preview img { width: 100%; max-height: 420px; object-fit: contain; }
 .mc-preview iframe { width: 100%; height: 420px; border: 0; display: block; }
 #mcRows:not(:empty) { margin-top: 18px; border-top: 1px solid var(--line); }
+
+/* per-list search boxes */
+.card-h-acts { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+.list-search { width: 260px; max-width: 100%; flex: 0 1 260px; }
+.list-search input { height: 40px; }
+.page-h .acts { display: flex; gap: 8px; align-items: center; flex-wrap: nowrap; flex-shrink: 0; margin-left: auto; }
+.page-h .acts > .sbtn { flex: none; }
+/* filter pills + search on one line, same height, vertically centred */
+.list-bar { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.list-bar .filters { align-items: center; }
+.list-bar .fpill { height: 40px; display: inline-flex; align-items: center; }
+.list-bar .list-search { margin-left: auto; }
+@media (max-width: 640px) {
+  .card-h-acts, .page-h .acts { width: 100%; }
+  .card-h-acts .list-search, .page-h .acts .list-search, .list-bar .list-search { flex: 1 1 200px; width: auto; margin-left: 0; }
+}

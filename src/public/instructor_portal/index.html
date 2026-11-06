@@ -1,4 +1,5 @@
 <!doctype html>
+<!-- FILE: staff/instructor/index.html — instructor Today page -->
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -20,7 +21,7 @@
     <main class="main">
       <section class="page on" data-page="today">
         <div class="page-h"><div><h1>Today · Mon 3 Nov</h1><p>Attendance opens 30 minutes before each class.</p></div></div>
-        <div class="g-side">
+        <div class="g-side g-even">
           <div class="live-card ac">
             <span class="tag">Active now</span>
             <h2>Adults · 7:00 – 8:00 PM</h2>
@@ -34,7 +35,7 @@
           </div>
         </div>
         <div class="card white ac">
-          <div class="card-h"><div><h3>Roster · Adults 7 PM</h3><span class="sub">Tap to mark present. Students tapping the NFC tag are marked automatically.</span></div><button class="sbtn" id="markAll"><svg class="ic"><use href="#i-check"/></svg>Mark all present</button></div>
+          <div class="card-h"><div><h3>Roster · Adults 7 PM</h3><span class="sub">Tap to mark present. Students tapping the NFC tag are marked automatically.</span></div><div class="card-h-acts"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="rosterSearch" type="search" placeholder="Search roster" aria-label="Search roster" autocomplete="off"></label><button class="sbtn" id="markAll"><svg class="ic"><use href="#i-check"/></svg>Mark all present</button></div></div>
           <div class="rows" id="roster"></div>
         </div>
       </section>

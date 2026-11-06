@@ -555,7 +555,7 @@ function qrSVG(seed0 = 1834, size = 200) {
 
 /* ---------- 13. CUSTOM SELECT + DATE PICKER ---------- */
 function enhance(root = document) {
-  $$('.fld select', root).forEach(customSelect);
+  $$('.fld select', root).forEach(s => s.hasAttribute('data-search') ? comboSelect(s) : customSelect(s));
   $$('input[data-dp]', root).forEach(el => { if (!el.dataset.dpReady) datePicker(el, dpPreset(el.dataset.dp)); });
 }
 function closeAllPop(except) {
@@ -563,6 +563,7 @@ function closeAllPop(except) {
     if (w === except) return;
     w.classList.remove('open');
     const b = $('.cs-btn, .dp-btn', w); b && b.setAttribute('aria-expanded', 'false');
+    w.comboReset && w.comboReset();
   });
 }
 document.addEventListener('pointerdown', e => { if (!e.target.closest('.cs, .dp')) closeAllPop(); });
@@ -570,6 +571,125 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAllPop(
 
 /* Rounded dropdown that replaces the native select list but keeps the
    real <select> underneath, so form code keeps working. */
+/* ---------- search box that filters one list on the page ----------
+   input: the search <input>; lists: one or more containers (or selectors).
+   Matches the row's name/description (or every cell in a table row).
+   Keeps working when the list re-renders (MutationObserver). */
+function filterList(input, lists) {
+  input = typeof input === 'string' ? $(input) : input;
+  const boxes = [].concat(lists).map(l => typeof l === 'string' ? $(l) : l).filter(Boolean);
+  if (!input || !boxes.length) return;
+  const apply = () => {
+    const q = input.value.trim().toLowerCase();
+    boxes.forEach(box => {
+      const rows = [...box.children].filter(r => r.matches('.row, tr') && !r.classList.contains('no-match'));
+      let shown = 0;
+      rows.forEach(r => {
+        const hay = (r.matches('tr') ? r.textContent : $$('.t, .d', r).map(x => x.textContent).join(' ') || r.textContent).toLowerCase();
+        const ok = !q || hay.includes(q);
+        r.hidden = !ok; if (ok) shown++;
+      });
+      let msg = $(':scope > .no-match', box);
+      const need = q && rows.length && !shown;
+      if (need && !msg) {
+        msg = box.tagName === 'TBODY' ? document.createElement('tr') : document.createElement('p');
+        msg.className = 'no-match';
+        if (box.tagName === 'TBODY') msg.innerHTML = `<td colspan="${box.closest('table').querySelectorAll('thead th').length || 1}"></td>`;
+        obs.disconnect(); box.appendChild(msg); watch();
+      }
+      if (msg) {
+        msg.hidden = !need;
+        if (need) (msg.querySelector('td') || msg).textContent = `No matches for “${input.value.trim()}”`;
+      }
+    });
+  };
+  const obs = new MutationObserver(() => { obs.disconnect(); apply(); watch(); });
+  const watch = () => boxes.forEach(b => obs.observe(b, { childList: true }));
+  input.addEventListener('input', apply);
+  input.addEventListener('keydown', e => { if (e.key === 'Escape' && input.value) { input.value = ''; apply(); } });
+  watch(); apply();
+}
+
+/* ---------- searchable dropdown (<select data-search>) ----------
+   Type to narrow the list by any part of the option text, scroll or click,
+   arrow keys + Enter to choose. The real <select> stays the source of truth. */
+function comboSelect(sel) {
+  if (sel.dataset.cs) return;
+  sel.dataset.cs = 1;
+  const wrap = document.createElement('div'); wrap.className = 'cs combo';
+  sel.parentNode.insertBefore(wrap, sel); wrap.appendChild(sel);
+  sel.tabIndex = -1; sel.setAttribute('aria-hidden', 'true');
+  const box = document.createElement('div'); box.className = 'cs-btn combo-box';
+  const listId = (sel.id || 'cb' + Math.random().toString(36).slice(2)) + '-list';
+  box.innerHTML = `${icon('search')}<input class="combo-in" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="${listId}" autocomplete="off" spellcheck="false">${icon('chev')}`;
+  const inp = $('.combo-in', box);
+  const list = document.createElement('div'); list.className = 'cs-list'; list.id = listId; list.setAttribute('role', 'listbox');
+  wrap.append(box, list);
+  if (sel.id) { const lab = $(`label[for="${sel.id}"]`); inp.id = sel.id + '-in'; if (lab) lab.htmlFor = inp.id; }
+  inp.placeholder = sel.dataset.search || 'Type to search';
+  let hl = -1, shown = [];
+  const label = () => { const o = sel.options[sel.selectedIndex]; return o ? o.textContent : ''; };
+  const sync = () => { if (document.activeElement !== inp || !wrap.classList.contains('open')) inp.value = label(); };
+  const isOpen = () => wrap.classList.contains('open');
+  const mark = (t, q) => {
+    const i = q ? t.toLowerCase().indexOf(q) : -1;
+    return i < 0 ? esc(t) : esc(t.slice(0, i)) + '<mark>' + esc(t.slice(i, i + q.length)) + '</mark>' + esc(t.slice(i + q.length));
+  };
+  const paintHl = () => {
+    $$('.cs-opt', list).forEach((b, i) => b.classList.toggle('hl', i === hl));
+    const h = $('.cs-opt.hl', list);
+    if (h) { inp.setAttribute('aria-activedescendant', h.id); const top = h.offsetTop, bot = top + h.offsetHeight;
+      if (top < list.scrollTop) list.scrollTop = top - 6; else if (bot > list.scrollTop + list.clientHeight) list.scrollTop = bot - list.clientHeight + 6; }
+    else inp.removeAttribute('aria-activedescendant');
+  };
+  const render = q => {
+    q = (q || '').trim().toLowerCase();
+    shown = [...sel.options].map((o, i) => [o, i]).filter(([o]) => !q || o.textContent.toLowerCase().includes(q));
+    list.innerHTML = shown.length
+      ? shown.map(([o, i], k) => `<button type="button" tabindex="-1" class="cs-opt" role="option" id="${listId}-${k}" data-i="${i}" aria-selected="${i === sel.selectedIndex}"${o.disabled ? ' disabled' : ''}><span class="lbl">${mark(o.textContent, q)}</span></button>`).join('')
+      : `<div class="cs-empty">No matches</div>`;
+    hl = q ? (shown.length ? 0 : -1) : shown.findIndex(([, i]) => i === sel.selectedIndex);
+    paintHl();
+  };
+  const open = (q = '') => {
+    if (!isOpen()) {
+      closeAllPop(wrap);
+      const r = box.getBoundingClientRect();
+      wrap.classList.toggle('up', innerHeight - r.bottom < 300 && r.top > innerHeight - r.bottom);
+      wrap.classList.add('open'); inp.setAttribute('aria-expanded', 'true');
+    }
+    render(q);
+  };
+  const close = () => { wrap.classList.remove('open'); inp.setAttribute('aria-expanded', 'false'); inp.value = label(); };
+  wrap.comboReset = () => { inp.setAttribute('aria-expanded', 'false'); inp.value = label(); };
+  const choose = i => {
+    if (sel.selectedIndex !== i) { sel.selectedIndex = i; sel.dispatchEvent(new Event('input', { bubbles: true })); sel.dispatchEvent(new Event('change', { bubbles: true })); }
+    close();
+  };
+  inp.addEventListener('focus', () => { open(); inp.select(); });
+  box.addEventListener('mousedown', e => { if (e.target !== inp) { e.preventDefault(); isOpen() && document.activeElement === inp ? close() : inp.focus(); } });
+  inp.addEventListener('click', () => { if (!isOpen()) open(); });
+  inp.addEventListener('input', () => open(inp.value));
+  list.addEventListener('mousedown', e => e.preventDefault());   // keep focus in the box while clicking
+  list.addEventListener('click', e => { const b = e.target.closest('.cs-opt'); if (b && !b.disabled) choose(+b.dataset.i); });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (!isOpen()) return open();
+      if (!shown.length) return;
+      hl = (hl + (e.key === 'ArrowDown' ? 1 : -1) + shown.length) % shown.length; paintHl();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (isOpen() && hl > -1 && shown[hl]) choose(shown[hl][1]); else open(inp.value);
+    } else if (e.key === 'Escape') { if (isOpen()) { e.preventDefault(); close(); } }
+    else if (e.key === 'Tab') close();
+  });
+  inp.addEventListener('blur', () => setTimeout(() => { if (document.activeElement !== inp && isOpen()) close(); }, 0));
+  sel.addEventListener('change', sync);
+  new MutationObserver(() => { sync(); if (isOpen()) render(inp.value === label() ? '' : inp.value); }).observe(sel, { childList: true, subtree: true });
+  sync();
+}
+
 function customSelect(sel) {
   if (sel.dataset.cs) return;
   sel.dataset.cs = 1;

@@ -17,9 +17,9 @@
     <main class="main">
       <section class="page on" data-page="students">
         <div class="page-h"><div><h1>My students</h1><p>Everyone who trains in your classes.</p></div></div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between">
+        <div class="list-bar">
           <div class="filters" id="stuFilter"></div>
-          <label class="search" style="width:min(280px,100%)"><svg class="ic"><use href="#i-search"/></svg><input id="stuSearch" placeholder="Search by name" aria-label="Search students"></label>
+          <label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="stuSearch" placeholder="Search by name" aria-label="Search students"></label>
         </div>
         <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Student</th><th>Grade</th><th>Sessions</th><th>Last seen</th><th>Status</th></tr></thead><tbody id="stuRows"></tbody></table></div>
       </section>

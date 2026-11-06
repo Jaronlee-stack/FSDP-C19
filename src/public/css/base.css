@@ -432,6 +432,20 @@ table.tbl { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 
 .cs-opt:hover, .cs-opt.hl { background: var(--mist); }
 .cs-opt[aria-selected="true"] { font-weight: 600; color: var(--navy); }
 .cs-opt[aria-selected="true"]::after { content: ""; flex: none; width: 12px; height: 6px; border-left: 2px solid var(--red); border-bottom: 2px solid var(--red); transform: rotate(-45deg) translateY(-2px); }
+/* searchable dropdown (select[data-search]) */
+.combo-box { cursor: text; justify-content: flex-start; padding-top: 0; padding-bottom: 0; }
+.combo-box .ic:first-child { color: var(--faint); flex: none; }
+.cs.open .combo-box .ic:first-child { transform: none; }
+.combo-box .ic:last-child { margin-left: auto; flex: none; cursor: pointer; }
+.fld .combo-box .combo-in, .combo-box .combo-in { flex: 1; min-width: 0; width: auto; border: 0; padding: 0; margin: 0; min-height: 44px; height: auto; background: none; box-shadow: none; outline: none; font: inherit; font-size: 14px; color: var(--ink); border-radius: 0; }
+.combo-box .combo-in::placeholder { color: var(--faint); }
+.combo-box:focus-within { border-color: var(--navy); box-shadow: 0 0 0 4px rgba(22,33,59,.1); }
+.cs-opt .lbl { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cs-opt mark { background: rgba(200,16,46,.12); color: inherit; border-radius: 3px; padding: 0 1px; }
+.cs-empty { padding: 12px; font-size: 14px; color: var(--muted); }
+/* lists filtered by a search box */
+.no-match { padding: 18px 12px; text-align: center; color: var(--muted); font-size: 14px; }
+td.no-match, tr.no-match td { text-align: center; color: var(--muted); padding: 18px 12px; }
 .cs-list::-webkit-scrollbar, .dp-grid::-webkit-scrollbar { width: 6px; }
 .cs-list::-webkit-scrollbar-thumb, .dp-grid::-webkit-scrollbar-thumb { background: var(--line); border-radius: 6px; }
 
