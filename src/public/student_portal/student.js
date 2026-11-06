@@ -501,7 +501,9 @@ function renderMC() {
 function openCheckIn() {
   openModal(`<h3 id="modalTitle">Check in</h3><p class="sub">Tap your phone on the NFC tag at the dojo door, or show this code to your instructor.</p>
     <div style="display:grid;place-items:center;margin:22px 0">${qrSVG()}</div>
-    <div class="kv"><div><span>Member</span><span>${ME.name}</span></div><div><span>Member no.</span><span class="num">${ME.no}</span></div></div>`);
+    <div class="kv"><div><span>Member</span><span>${ME.name}</span></div><div><span>Member no.</span><span class="num">${ME.no}</span></div></div>
+    <div class="acts"><button class="sbtn dark" id="ciGo">${icon('nfc')}Complete check-in</button></div>`);
+  $('#ciGo').addEventListener('click', () => { location.href = url('student_portal/checkin.html'); });
 }
 
 /* ---------- pages ---------- */
@@ -554,8 +556,58 @@ runPage({
       if ($('#pw2').value.length < 8) { fldOf($('#pw2')).classList.add('invalid'); return; }
       closeModal(); toast('Password updated');
     });
-  }
+  },
+  checkin() { renderCheckIn(); }
 });
+
+/* which class the member just checked in to:
+   a booked class on the mat right now (or next up today), else the next eligible
+   HQ class today — so the confirmation always names a real session. */
+function checkInClass() {
+  const now = new Date();
+  const windowOpen = (date, c) => classStart(date, c).getTime() - 30 * 60000; // doors 30 min before
+  // 1) a booked class happening today, closest to now
+  const bookedToday = BOOKINGS
+    .filter(u => daysBetween(TODAY, u.date) === 0 && classEnd(u.date, u.c) >= now)
+    .sort((a, b) => classStart(a.date, a.c) - classStart(b.date, b.c))[0];
+  if (bookedToday) return { c: bookedToday.c, date: bookedToday.date, booked: true };
+  // 2) next eligible HQ class on the mat now or later today
+  const day = (TODAY.getDay() + 6) % 7;
+  const next = CLASSES
+    .filter(c => c.day === day && !whyNot(c) && classEnd(TODAY, c) >= now)
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .find(c => now >= windowOpen(TODAY, c)) || CLASSES.filter(c => c.day === day && !whyNot(c)).sort((a, b) => a.time.localeCompare(b.time))[0];
+  return next ? { c: next, date: TODAY, booked: false } : null;
+}
+
+function renderCheckIn() {
+  const now = new Date();
+  const fmtTime = d => { let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'), ap = h < 12 ? 'AM' : 'PM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; };
+  $('#ciMember').textContent = ME.name;
+  $('#ciNo').textContent = ME.no;
+  $('#ciTime').textContent = `${fmtTime(now)} · ${fmtDate(now)}`;
+
+  const info = checkInClass();
+  if (info) {
+    const { c, date, booked } = info;
+    $('#ciSub').textContent = booked
+      ? 'Your booked class is confirmed. Attendance recorded — enjoy the mat.'
+      : 'Attendance recorded. Enjoy your class on the mat.';
+    $('#ciDetail').innerHTML = `
+      <div class="ci-class">
+        <span class="ci-date"><span>${DAY[date.getDay()]}</span><b>${date.getDate()}</b></span>
+        <div class="ci-class-body">
+          <div class="ci-class-name">${esc(c.type)}${booked ? '' : ' <span class="ci-tag">Drop-in</span>'}</div>
+          <div class="ci-class-row">${icon('clock')}<span>${timeLabel(c.time)} – ${timeLabel(String(+c.time.slice(0, 2) + 1).padStart(2, '0') + ':00')}</span></div>
+          <div class="ci-class-row">${icon('user')}<span>${esc(c.ins)}</span></div>
+          <div class="ci-class-row">${icon('pin')}<span>HQ Dojo · Thomson V One</span></div>
+        </div>
+        <span class="ci-ok" aria-label="Checked in">${icon('check')}</span>
+      </div>`;
+  } else {
+    $('#ciDetail').innerHTML = `<div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Attendance recorded at HQ Dojo. No class is scheduled right now — show this to your instructor if asked.</span></div>`;
+  }
+}
 
 /* on every student page: seed, refresh lesson widgets, and ask about any class that just ended */
 if (ALLOWED) {
