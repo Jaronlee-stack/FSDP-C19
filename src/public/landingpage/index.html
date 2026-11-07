@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Folder pages can be opened as /site/student (no trailing slash), e.g. by `npx serve`.
+     Relative links would then point one folder too high, so pin the base to this folder. -->
+<script>(function () { var p = location.pathname; if (!/\/$|\.html?$/.test(p)) document.write('<base href="' + p + '/">'); })();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/public.css">
+</head>
+<body data-root="../" data-page="home">
+
+<main>
+    <div class="hero" id="top">
+      <div class="hero-card">
+        <div class="bg" role="img" aria-label="Adults class training at the Shinju-Kai HQ dojo"></div>
+        <div class="kanji-mark" aria-hidden="true">合気道</div>
+        <div class="hero-content">
+          <div class="hero-copy">
+            <span class="eyebrow on-dark">Est. 1988 · Aikikai Hombu recognised</span>
+            <h1><span class="shiny on-dark">Train with purpose.</span><br>Grow with discipline.</h1>
+            <p>Classes every day for adults and children at our Headquarters Dojo and 60+ dojos across Singapore. Start with one trial class at HQ.</p>
+            <div class="ctas">
+              <a class="btn btn-light" href="join.html">Become a Member<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+              <a class="btn btn-ghost" href="trial.html#trial">Book a Trial · S$29<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+            </div>
+          </div>
+          <div class="hero-stats">
+            <div><b class="num" data-count="10000" data-suffix="+">0</b><span>Members trained</span></div>
+            <div><b class="num" data-count="60" data-suffix="+">0</b><span>Dojos</span></div>
+            <div><b class="num" data-count="70">0</b><span>Instructors</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LogoLoop: dojo names -->
+    <div class="loop-band">
+      <small>Shinju-Kai dojos across Singapore</small>
+      <div class="loop" id="dojoLoop" aria-label="Dojo locations"><div class="loop-track"></div></div>
+    </div>
+
+    <!-- CLASSES -->
+    <section class="sec wrap" id="classes">
+      <div class="sec-head ac">
+        <div><span class="eyebrow">Class types</span><h2>One hour on the mat, every class</h2></div>
+        <p>Twelve ways to train, from children and seniors to instructor and academy programmes. Beginners start at white belt and are placed by age and grade.</p>
+      </div>
+      <div class="classes ac" data-stagger>
+        <a class="cls" id="cls-adult" href="class.html#adult"><span class="k">大</span><span class="tag">Ages 12 &amp; above</span><h3>Adult Class</h3><p class="d">All grades. Fitness, confidence and self-defence through circular, flowing technique.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-children" href="class.html#children"><span class="k">子</span><span class="tag">Ages 5–12</span><h3>Children Class</h3><p class="d">All grades. Safe falling, focus, reflexes and motor skills, with a path into the adult class.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-mixed" href="class.html#mixed"><span class="k">和</span><span class="tag">All ages &amp; fitness levels</span><h3>Mixed Class (Adults &amp; Children)</h3><p class="d">Parents and children train together; instructors adapt each technique to age and ability.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-ladies" href="class.html#ladies"><span class="k">女</span><span class="tag">Women</span><h3>Ladies Class</h3><p class="d">Soft, circular self-defence against a larger opponent, plus focus and confidence.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-senior" href="class.html#senior"><span class="k">寿</span><span class="tag">Ages 50 &amp; above</span><h3>Senior SG50 Class</h3><p class="d">Gentle, low-strain movement for balance, coordination, flexibility and basic self-defence.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-weapon" href="class.html#weapon"><span class="k">剣</span><span class="tag">Jo · Bokken · Tanto</span><h3>Weapon Class</h3><p class="d">Staff, wooden sword and knife work to sharpen ma-ai (distance) and timing.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-advanced" href="class.html#advanced"><span class="k">上</span><span class="tag">Experienced students</span><h3>Advanced Class</h3><p class="d">Complex throws and locks, multiple attackers and weapons; prepares you for black belt grading.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-instructional" href="class.html#instructional"><span class="k">師</span><span class="tag">Aspiring instructors</span><h3>Instructional Class</h3><p class="d">Teaching method, class management and mentorship towards instructor certification.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-private" href="class.html#private"><span class="k">個</span><span class="tag">Members &amp; non-members</span><h3>Private Class</h3><p class="d">One-to-one lessons at HQ on a flexible schedule, for beginners or grading preparation. S$120 per hour.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-sep" href="class.html#sep"><span class="k">学</span><span class="tag">MOE schools</span><h3>Sports Education Programme (SEP)</h3><p class="d">Aikido in Singapore schools; Shinju-Kai has been the sole SEP Aikido provider since 2006.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-corporate" href="class.html#corporate"><span class="k">社</span><span class="tag">Companies &amp; teams</span><h3>Corporate Programme</h3><p class="d">Customised team-building: communication, conflict resolution and leadership. No experience needed.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="cls" id="cls-academy" href="class.html#academy"><span class="k">塾</span><span class="tag">Dedicated students</span><h3>Shinju-Kai Academy</h3><p class="d">Intensive curriculum with Shihan mentorship, priority seminars and a path to instructor certification.</p><span class="go">View class<svg class="ic"><use href="#i-arrow"/></svg></span></a>
+      </div>
+    </section>
+
+    <!-- FEES -->
+    <section class="sec wrap" id="pricing" style="padding-top:0">
+      <div class="sec-head ac">
+        <div><span class="eyebrow">Fees</span><h2>Start small, then commit</h2></div>
+        <p>Guests can try one session at HQ. Members pay a one-time S$60 to join, then choose a lesson package.</p>
+      </div>
+      <div class="prices ac" data-stagger>
+        <article class="price-card feature">
+          <span class="eyebrow on-dark">Membership</span>
+          <div class="amt num">S$60 <small>to join</small></div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>Registration, student handbook and membership book</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Year-one annual dues (S$48)</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Student card, collected at your first lesson</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Book HQ classes and track grading online</li>
+          </ul>
+          <a class="btn btn-light" href="join.html">Register Online<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+        </article>
+        <article class="price-card">
+          <span class="eyebrow">Trial</span>
+          <div class="amt num">S$29 <small>one session</small></div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>First-time visitors, once per person</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Beginner classes at HQ Dojo</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>No uniform needed</li>
+          </ul>
+          <a class="btn btn-dark arrow" href="trial.html#trial">Book a Trial<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        </article>
+        <article class="price-card">
+          <span class="eyebrow">Guest passes</span>
+          <div class="amt num">S$50 <small>1-day unlimited</small></div>
+          <ul>
+            <li><svg class="ic"><use href="#i-check"/></svg>1-week unlimited pass: S$150</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Overseas guests from S$40</li>
+            <li><svg class="ic"><use href="#i-check"/></svg>Private class: S$120 per hour</li>
+          </ul>
+          <a class="btn btn-dark arrow" href="trial.html#day">Buy a Guest Pass<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        </article>
+      </div>
+    </section>
+
+    <!-- INSTRUCTORS -->
+    <section class="sec" id="instructors" style="padding-top:0">
+      <div class="wrap sec-head ac">
+        <div><span class="eyebrow">Our instructors</span><h2>Learn from certified senseis</h2></div>
+        <p>Led by Chairman Founder and Chief Instructor Philip Lee Shihan, 7th Dan. <a href="about.html#ab-instructors" style="color:var(--red);font-weight:600">See all instructors</a></p>
+      </div>
+      <div class="marquee" id="marquee" aria-label="Instructor profiles"><div class="mq-track" id="mqTrack"></div></div>
+    </section>
+
+    <!-- CONTACT CARDS -->
+    <section class="sec wrap" style="padding-top:0" aria-label="Contact details">
+      <div class="cards4 ac" data-stagger>
+        <article class="info"><div class="ib"><svg class="ic"><use href="#i-phone"/></svg></div><h3>Call Us</h3><p>Questions about classes, fees or which dojo suits you?</p><strong>+65 6513 1588<br>+65 6256 0111</strong></article>
+        <article class="info"><div class="ib"><svg class="ic"><use href="#i-mail"/></svg></div><h3>Email Us</h3><p>We'll route it to the right dojo or instructor.</p><strong>hq@aikidoshinjukai.com.sg</strong></article>
+        <article class="info"><div class="ib"><svg class="ic"><use href="#i-home"/></svg></div><h3>HQ Dojo</h3><p>Thomson V One, 9 Sin Ming Road, #B1-02</p><strong>Singapore 575630</strong></article>
+        <article class="info"><div class="ib"><svg class="ic"><use href="#i-clock"/></svg></div><h3>Office Hours</h3><p>Mon–Fri: 10:00 AM – 9:00 PM<br>Sat–Sun: 8:00 AM – 6:00 PM</p><strong>Closed on public holidays</strong></article>
+      </div>
+    </section>
+
+    <!-- DOJOS: depth carousel + live map -->
+    <section class="wrap" id="find">
+      <div class="dojos ac">
+        <div class="dojos-head">
+          <div><span class="eyebrow on-dark">Our dojos</span><h2>Find a dojo near you</h2></div>
+          <div style="display:grid;gap:14px;justify-items:start">
+            <p>Swipe through our dojos. The map follows whichever one is in front. Community dojos run term courses through the club; HQ classes can be booked online.</p>
+            <div class="tools" id="regionFilter"></div>
+          </div>
+        </div>
+        <div class="dojos-grid">
+          <div class="dc" id="dojoCarousel" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Dojo locations">
+            <div class="dc-stage"></div>
+            <button class="dc-arrow prev" type="button" aria-label="Previous dojo"><svg class="ic"><use href="#i-left"/></svg></button>
+            <button class="dc-arrow next" type="button" aria-label="Next dojo"><svg class="ic"><use href="#i-right"/></svg></button>
+            <div class="dc-dots" role="tablist" aria-label="Dojos"></div>
+          </div>
+          <div class="map-panel" id="mapPanel">
+            <div class="map-spin"><i></i></div>
+            <iframe id="dojoMap" title="Map of the selected dojo" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="map-info" aria-live="polite"><b id="mapName">ASK Headquarters Dojo</b><span class="ad" id="mapAddr">Thomson V One, 9 Sin Ming Road, #B1-02, Singapore 575630</span><div class="row2" id="mapTags"></div></div>
+            <a class="map-open" id="mapOpen" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-map"/></svg>Open in Maps</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="sec wrap" id="faq">
+      <div class="faq">
+        <div class="faq-intro ac"><span class="eyebrow">Questions</span><h2>Before you join</h2><p>Quick answers about membership, booking, uniforms and grading.</p></div>
+        <div class="ac">
+          <div class="qa open"><button aria-expanded="true">Do I need martial arts experience?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>No. Most members start with none. New members begin at white belt. If you trained in Aikido before, bring your record book and certificates and we'll verify your grade.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">Which classes can I book online?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>Online booking covers classes at the HQ Dojo in Thomson V One. Community club dojos run term courses that you register for through the club or your instructor.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">What does the S$60 cover?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>Registration, the student handbook, your membership book and year-one annual dues. Your dogi and lesson package are paid in the same checkout.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">When do I get my student card?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>You get your membership number by email right after you register. Collect your physical student card at your principal dojo on your first lesson.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">When can I take my first grading?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>After at least 3 months of membership with no outstanding fees and enough training hours. Your student portal tracks this for you.</p></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" style="padding-bottom:96px">
+      <div class="cta ac">
+        <div class="cta-l">
+          <div class="ben-big ben-av"><img src="mascot-still.webp" data-anim="mascot.webp" alt=""><svg viewBox="0 0 120 120"><use href="#ben"/></svg></div>
+          <div><span class="eyebrow">Still curious?</span><h2>Ask Ben, our dojo assistant</h2><p>Ben answers questions about class types, fees, dojo locations and grading at any hour.</p></div>
+        </div>
+        <button class="btn btn-red" data-ben-open>Chat with Ben<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></button>
+      </div>
+    </section>
+  </main>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="js/public.js"></script>
+<script src="../js/ben.js"></script>
+</body>
+</html>

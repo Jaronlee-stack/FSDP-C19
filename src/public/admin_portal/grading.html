@@ -1,0 +1,33 @@
+<!doctype html>
+<!-- FILE: staff/admin/grading.html -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="grading" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="grading">
+        <div class="page-h"><div><h1>Grading</h1><p>Schedule applicants, then approve instructor proposals to promote.</p></div></div>
+        <div class="list-bar"><div class="filters" id="gradTabs"><button class="fpill on" data-g="apps">Applications <span class="n">3</span></button><button class="fpill" data-g="props">Promotion proposals <span class="n">2</span></button></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="gradSearch" type="search" placeholder="Search by name" aria-label="Search by name" autocomplete="off"></label></div>
+        <div class="card white"><div class="rows" id="gradRows"></div></div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

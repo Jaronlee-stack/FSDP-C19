@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Folder pages can be opened as /site/student (no trailing slash), e.g. by `npx serve`.
+     Relative links would then point one folder too high, so pin the base to this folder. -->
+<script>(function () { var p = location.pathname; if (!/\/$|\.html?$/.test(p)) document.write('<base href="' + p + '/">'); })();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="dashboard" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="dashboard">
+        <div class="page-h"><div><h1>Overview</h1><p>All dojos · Mon 3 Nov 2026</p></div></div>
+        <div class="g4 ac" data-stagger>
+          <div class="stat"><span class="l">Active members</span><span class="v"><span data-count="1248" data-sep>0</span></span><span class="h up">+14 this month</span></div>
+          <div class="stat alert"><span class="l">Need approval</span><span class="v"><span data-count="4" id="statPending">0</span></span><span class="h">Membership applications</span></div>
+          <div class="stat"><span class="l">Lapsed</span><span class="v"><span data-count="7">0</span></span><span class="h dn">Dues unpaid past 365 days</span></div>
+          <div class="stat dark"><span class="l">Grading applications</span><span class="v"><span data-count="23">0</span></span><span class="h">For 13 Dec</span></div>
+        </div>
+        <div class="g-wide">
+          <div class="card ac"><div class="card-h"><div><h3>Most booked HQ sessions</h3><span class="sub">This week, by bookings</span></div></div><div class="bars" id="trendBars"></div></div>
+          <div class="card ac"><div class="card-h"><h3>Waiting on you</h3></div>
+            <div class="rows">
+              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-inbox"/></svg></span><div class="grow"><div class="t">Membership applications</div><div class="d">Paid, waiting for approval</div></div><button class="sbtn" data-page-link="applications">Review</button></div>
+              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-doc"/></svg></span><div class="grow"><div class="t">MC carry-forward requests</div><div class="d">Lessons to move to a later expiry</div></div><button class="sbtn" data-page-link="applications">Review</button></div>
+              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-award"/></svg></span><div class="grow"><div class="t">Promotion proposals</div><div class="d">Signed by instructors</div></div><button class="sbtn" data-page-link="grading">Review</button></div>
+              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-flag"/></svg></span><div class="grow"><div class="t">Low attendance flags</div><div class="d">5 students not seen in 14+ days</div></div><button class="sbtn" data-page-link="members">View</button></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

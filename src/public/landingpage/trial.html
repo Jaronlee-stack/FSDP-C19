@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Book a trial · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/forms.css">
+</head>
+<body data-root="../" data-page="trial" class="form-page">
+
+<div class="reg">
+    <aside class="reg-side pass-side">
+      <div class="bg"></div>
+      <a class="brand" href="index.html"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">AIKIDO SHINJU-KAI</a>
+      <div class="pass-sum" aria-live="polite">
+        <span class="nm" id="psName">Trial session</span>
+        <div class="big" id="psPrice">S$29</div>
+        <ul id="psList"></ul>
+        <div class="when" id="psWhen"><span>Pick a date to see classes.</span></div>
+      </div>
+    </aside>
+    <main class="reg-main">
+      <div class="reg-top"><button class="sbtn ghost" data-go="home"><svg class="ic"><use href="#i-back"/></svg>Back to site</button><span class="mobile-steps" id="psMobile">Trial · S$29</span></div>
+      <form id="passForm" novalidate>
+        <section class="rstep on" data-pstep="1">
+          <h2>Book a trial or guest pass</h2>
+          <p class="lead">No membership needed. Classes run at the HQ Dojo. Pay now and get your booking by email straight away.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <div class="q"><h3>Choose a pass<span class="req">*</span></h3><label class="toggle"><input type="checkbox" id="overseas">Visiting from overseas</label></div>
+              <div class="choices grid2" id="passChoices"></div>
+              <div class="fld" id="f-pass"><span class="err">Choose a pass.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Your details</h3>
+              <div class="grid2">
+                <div class="fld full"><label for="g-name">Name<span class="req">*</span></label><input id="g-name" autocomplete="name"><span class="err">Enter your name.</span></div>
+                <div class="fld"><label for="g-email">Email<span class="req">*</span></label><input id="g-email" type="email" autocomplete="email" placeholder="you@example.com"><span class="err">Enter a valid email. Your booking is sent here.</span></div>
+                <div class="fld"><label for="g-phone">Mobile<span class="req">*</span></label><input id="g-phone" type="tel" inputmode="tel" placeholder="9123 4567"><span class="err">Enter a mobile number.</span></div>
+                <div class="fld"><span class="lbl">Who is training?<span class="req">*</span></span><div class="seg"><input type="radio" name="gwho" id="gw-a" value="Adult" checked><label for="gw-a">Adult (13+)</label><input type="radio" name="gwho" id="gw-c" value="Child"><label for="gw-c">Child (4–12)</label></div></div>
+                <div class="fld" id="f-guardian" hidden><label for="g-guardian">Parent or guardian name<span class="req">*</span></label><input id="g-guardian"><span class="err">A parent or guardian must book for a child.</span></div>
+              </div>
+            </div>
+
+            <div class="rgroup">
+              <h3>When</h3>
+              <div class="hq-banner sm">
+                <span class="ib"><svg class="ic"><use href="#i-pin"/></svg></span>
+                <div><b>ASK Headquarters Dojo</b><span>Thomson V One, 9 Sin Ming Road, #B1-02 · near Bright Hill MRT</span></div>
+              </div>
+              <div class="grid2">
+                <div class="fld"><label for="g-date">Date<span class="req">*</span></label><input id="g-date" type="text" data-dp="future" placeholder="DD / MM / YYYY" inputmode="numeric"><span class="hint">Book at least 1 day ahead, up to 30 days.</span><span class="err" id="gDateErr">Pick a date from tomorrow to 30 days ahead.</span></div>
+              </div>
+              <div class="fld"><span class="lbl" id="sessLbl">Class<span class="req">*</span></span><div class="sess-pick" id="sessPick"></div><span class="err">Choose a class.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <div class="q"><div class="qt">Any injuries or medical conditions we should know about?<span class="req">*</span></div><div class="yn"><input type="radio" name="gmed" id="gm-y" value="Yes"><label for="gm-y">Yes</label><input type="radio" name="gmed" id="gm-n" value="No"><label for="gm-n">No</label></div></div>
+              <div class="fld" id="f-gmed"><span class="err">Choose Yes or No.</span></div>
+              <div class="reveal" id="gmedReveal"><div><div class="fld"><label for="g-med">Please specify<span class="req">*</span></label><textarea id="g-med"></textarea><span class="err">Tell us about it so the instructor can adjust.</span></div></div></div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Training waiver<span class="req">*</span> <small>Legally binding</small></h3>
+              <div class="waiver-text" tabindex="0" aria-label="Training waiver">
+                <p><b>Assumption of risk.</b> Aikido involves throws, falls and joint locks. I take part at my own risk and will follow the instructor's directions and dojo etiquette.</p>
+                <p><b>Fitness.</b> I am, or the child I am signing for is, fit to train. I have declared any injury or condition above.</p>
+                <p><b>Release.</b> Aikido Shinju-Kai, its instructors and staff are not liable for injury, loss or damage arising from training, except where required by law.</p>
+                <p><b>First aid.</b> I allow emergency first aid and medical treatment if needed. Treatment costs are my own.</p>
+                <p><b>Fees.</b> Guest and trial fees are non-refundable.</p>
+              </div>
+              <div class="fld" id="f-waiver"><span class="lbl" id="waiverLbl">Your signature</span><div id="passSig"></div><span class="hint" id="waiverHint">By signing you accept the waiver above.</span><span class="err">Sign the waiver to continue.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Payment</h3>
+              <div class="fees" id="gFees"></div>
+              <div class="card-mock"><span class="brand-chip">STRIPE</span><span class="grow">Card payment · Visa •••• 4242</span><svg class="ic" style="color:var(--ok)"><use href="#i-lock"/></svg></div>
+              <div class="slide" id="passSlide"><div class="fill"></div><div class="lbl"><em id="passSlideLbl">Slide to pay S$29</em></div><div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg class="ic"><use href="#i-arrow"/></svg></div></div>
+              <span class="hint" style="font-size:12px;color:var(--muted)">We check the form when you slide. Anything missing is highlighted.</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="rstep" data-pstep="2">
+          <div class="done-hero" style="margin-bottom:28px"><div class="seal" aria-hidden="true">道</div><div><span class="eyebrow">You're booked</span><h2 style="font-size:clamp(28px,3.4vw,40px);margin-top:10px" id="gDoneTitle">See you on the mat</h2><p style="color:var(--muted);margin-top:6px" id="gDoneSub">Confirmation and receipt sent.</p></div></div>
+          <div class="ticket" id="ticket"></div>
+          <div class="done-grid">
+            <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-clock"/></svg></span><b>Arrive 15 minutes early</b><p>Check in at the HQ front desk and meet your instructor.</p></div>
+            <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-user"/></svg></span><b>Wear comfortable clothes</b><p>T-shirt and track pants are fine. No dogi needed yet.</p></div>
+            <div class="done-item key"><span class="ib"><svg class="ic"><use href="#i-award"/></svg></span><b>Liked it?</b><p>Register as a member online in about 6 minutes.</p></div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" id="passAgain">Book another</button><button type="button" class="btn btn-red arrow" data-go="join">Become a member<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+      </form>
+    </main>
+  </div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/ben.js"></script>
+<script src="js/trial.js"></script>
+</body>
+</html>

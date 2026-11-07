@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Student · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="student" data-page="profile" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="profile">
+        <div class="page-h"><div><h1>Profile</h1><p>Keep your contact and emergency details up to date.</p></div></div>
+        <div class="g-side">
+          <form class="card white grid2" id="profileForm" novalidate>
+            <div class="fld full"><label for="p-name">Name</label><input id="p-name" value="Lervyn Wong"></div>
+            <div class="fld"><label for="p-email">Email</label><input id="p-email" type="email" value="lervyn@email.com"></div>
+            <div class="fld"><label for="p-phone">Mobile</label><input id="p-phone" value="9123 4567"></div>
+            <div class="fld"><label for="p-ec">Emergency contact</label><input id="p-ec" value="May Wong (Parent)"></div>
+            <div class="fld"><label for="p-ecp">Emergency mobile</label><input id="p-ecp" value="9876 5432"></div>
+            <div class="fld full"><button class="sbtn dark" type="submit"><svg class="ic"><use href="#i-check"/></svg>Save changes</button></div>
+          </form>
+          <div class="card">
+            <div class="card-h"><h3>Membership</h3></div>
+            <div class="kv" style="border-top:1px solid var(--line)">
+              <div><span>Membership no.</span><span class="num">ASK-2025-1834</span></div>
+              <div><span>Date joined</span><span>14 Jun 2025</span></div>
+              <div><span>Principal dojo</span><span>HQ · Thomson</span></div>
+              <div><span>Grade</span><span>4th Kyu (Brown)</span></div>
+              <div><span>Annual dues</span><span>Paid to Jan 2027</span></div>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="sbtn" id="pwBtn"><svg class="ic"><use href="#i-lock"/></svg>Change password</button><button class="sbtn ghost" data-logout><svg class="ic"><use href="#i-logout"/></svg>Log out</button></div>
+          </div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/ben.js"></script>
+<script src="../js/portal.js"></script>
+<script src="student.js"></script>
+</body>
+</html>

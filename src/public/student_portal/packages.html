@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Student · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="student" data-page="packages" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="packages">
+        <div class="page-h"><div><h1>Packages</h1><p>Your lessons, when they expire, and top-ups. Paid securely with Stripe.</p></div></div>
+        <div class="credit-banner ac" id="creditBanner"></div>
+
+        <div class="card white ac">
+          <div class="card-h"><div><h3>Your packages</h3><span class="sub" id="passCapNote">You can hold up to 2 packages at a time</span></div></div>
+          <div id="myPasses"></div>
+        </div>
+
+        <div class="card-h" style="margin:8px 4px 0"><h3 id="pkgShopH">Adult packages</h3><span class="sub">Unlimited stops your lesson packs being used while it runs</span></div>
+        <div class="pkgs" id="pkgShop"></div>
+
+        <!-- MC carry-forward (SSP-11) -->
+        <div class="card white ac" id="mcCard">
+          <div class="card-h"><div><h3>Carry lessons forward with an MC</h3><span class="sub">Sick or injured? Tell HQ how many lessons you couldn't use. Only those lessons get a later expiry, up to 14 days.</span></div></div>
+          <form class="grid2" id="mcForm" novalidate>
+            <div class="fld full"><label for="mc-pass">Package</label><select id="mc-pass"></select></div>
+            <div class="fld"><label for="mc-from">MC start date<span class="req">*</span></label><input id="mc-from" type="text" data-dp="recent" placeholder="DD / MM / YYYY" inputmode="numeric"><span class="err">Enter the first day on your MC.</span></div>
+            <div class="fld"><label for="mc-to">MC end date<span class="req">*</span></label><input id="mc-to" type="text" data-dp="recent" placeholder="DD / MM / YYYY" inputmode="numeric"><span class="err" id="mcToErr">Enter the last day on your MC.</span></div>
+            <div class="fld full"><label for="mc-n">Lessons to carry forward<span class="req">*</span></label>
+              <div class="stepper"><button type="button" data-st="-1" aria-label="One fewer">−</button><input id="mc-n" type="number" inputmode="numeric" min="1" value="1"><button type="button" data-st="1" aria-label="One more">+</button></div>
+              <span class="hint" id="mcNHint">Count the classes you would have attended while on MC.</span><span class="err" id="mcNErr">Choose how many lessons to carry forward.</span></div>
+            <div class="fld full"><label for="mc-file">Medical certificate<span class="req">*</span></label><input id="mc-file" type="file" accept="image/*,application/pdf"><span class="hint">Photo or PDF, up to 10 MB</span><span class="err" id="mcFileErr">Upload a photo or PDF of your MC.</span></div>
+            <div class="fld full"><label for="mc-note">Note for HQ<span class="opt">Optional</span></label><textarea id="mc-note" placeholder="e.g. Sprained ankle, doctor advised 10 days of rest"></textarea></div>
+            <div class="fld full"><div class="note"><svg class="ic"><use href="#i-info"/></svg><span id="mcDays">Pick your MC dates to see the new expiry.</span></div></div>
+            <div class="fld full"><button class="sbtn dark" type="submit" id="mcSubmit" style="justify-self:start"><svg class="ic"><use href="#i-upload"/></svg>Submit request</button></div>
+          </form>
+          <div class="rows" id="mcRows"></div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/ben.js"></script>
+<script src="../js/portal.js"></script>
+<script src="student.js"></script>
+</body>
+</html>

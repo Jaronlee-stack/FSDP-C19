@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Join · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/forms.css">
+</head>
+<body data-root="../" data-page="join" class="form-page">
+
+<div class="reg">
+    <aside class="reg-side">
+      <div class="bg"></div>
+      <a class="brand" href="index.html"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">AIKIDO SHINJU-KAI</a>
+      <h2>Membership application</h2>
+      <p>About 6 minutes. Your membership number arrives by email the moment you finish.</p>
+      <ol class="steps" id="regSteps">
+        <li data-s="1"><span class="n"><span>1</span><svg class="ic"><use href="#i-check"/></svg></span><div>Your particulars<small>Name, contact, email check</small></div></li>
+        <li data-s="2"><span class="n"><span>2</span><svg class="ic"><use href="#i-check"/></svg></span><div>Health &amp; history<small>Experience, medical</small></div></li>
+        <li data-s="3"><span class="n"><span>3</span><svg class="ic"><use href="#i-check"/></svg></span><div>Dojo &amp; dogi<small>Where you train, uniform size</small></div></li>
+        <li data-s="4"><span class="n"><span>4</span><svg class="ic"><use href="#i-check"/></svg></span><div>Lesson package<small>Pay for your classes</small></div></li>
+        <li data-s="5"><span class="n"><span>5</span><svg class="ic"><use href="#i-check"/></svg></span><div>Sign &amp; pay<small>Terms, signature, payment</small></div></li>
+      </ol>
+    </aside>
+
+    <main class="reg-main">
+      <div class="reg-top">
+        <button class="sbtn ghost" data-go="home"><svg class="ic"><use href="#i-back"/></svg>Back to site</button>
+        <span class="mobile-steps" id="regMobileStep">Step 1 of 5</span>
+      </div>
+      <div class="reg-prog"><i id="regProg"></i></div>
+
+      <form id="regForm" novalidate>
+        <!-- STEP 1 -->
+        <section class="rstep on" data-step="1">
+          <h2>Your particulars</h2>
+          <p class="lead">Fields marked <span class="req">*</span> are required. Your membership number and date joined are recorded automatically.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3>About you</h3>
+              <div class="grid2">
+                <div class="fld full"><label for="r-name">Name<span class="req">*</span></label><input id="r-name" autocomplete="name" placeholder="As shown on your NRIC or passport"><span class="err">Enter your name.</span></div>
+                <div class="fld"><span class="lbl">Gender<span class="req">*</span></span>
+                  <div class="seg" role="radiogroup" aria-label="Gender"><input type="radio" name="gender" id="g-m" value="Male"><label for="g-m">Male</label><input type="radio" name="gender" id="g-f" value="Female"><label for="g-f">Female</label></div>
+                  <span class="err">Select your gender.</span></div>
+                <div class="fld"><label for="r-nat">Nationality<span class="req">*</span></label>
+                  <select id="r-nat"><option value="">Select</option><option>Singaporean</option><option>Singapore PR</option><option>Malaysian</option><option>Chinese</option><option>Indian</option><option>Filipino</option><option>Indonesian</option><option>Other</option></select><span class="err">Select your nationality.</span></div>
+                <div class="fld"><label for="r-dob">Date of birth<span class="req">*</span></label><input id="r-dob" type="text" data-dp="dob" placeholder="DD / MM / YYYY" inputmode="numeric" autocomplete="bday"><span class="err" id="dobErr">Enter a real date. Members must be at least 4 years old.</span></div>
+                <div class="fld"><label for="r-age">Age</label><input id="r-age" readonly placeholder="Calculated from date of birth"><span class="hint" id="ageHint">Sets your class group and fees.</span></div>
+              </div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Contact</h3>
+              <div class="grid2">
+                <div class="fld"><label for="r-phone">Mobile number (HP)<span class="req">*</span></label><input id="r-phone" type="tel" inputmode="tel" placeholder="9123 4567" autocomplete="tel"><span class="err">Enter an 8-digit Singapore mobile number.</span></div>
+                <div class="fld full"><label for="r-email">Email address<span class="req">*</span></label>
+                  <div class="email-row">
+                    <input id="r-email" type="email" placeholder="you@example.com" autocomplete="email">
+                    <button type="button" class="sbtn dark" id="sendCode">Send code</button>
+                    <span class="verified" id="emailOk" hidden><svg class="ic"><use href="#i-check"/></svg>Verified</span>
+                  </div>
+                  <span class="err" id="emailErr">Enter a valid email, then verify it.</span>
+                  <div class="reveal" id="otpReveal"><div>
+                    <div class="otp-box">
+                      <p>We sent a 6-digit code to <b id="otpTo">your email</b>. It expires in 10 minutes.</p>
+                      <div class="slots" id="slots">
+                        <input class="cap" id="otpInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6" aria-label="6-digit code">
+                        <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+                      </div>
+                      <div class="meta"><span>Prototype: the code is <b>123456</b></span><button type="button" id="resend">Resend code</button></div>
+                    </div>
+                  </div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Emergency contact</h3>
+              <div class="grid3">
+                <div class="fld"><label for="r-ecname">Name<span class="req">*</span></label><input id="r-ecname" placeholder="Full name"><span class="err">Required.</span></div>
+                <div class="fld"><label for="r-ecrel">Relationship<span class="req">*</span></label><select id="r-ecrel"><option value="">Select</option><option>Parent</option><option>Spouse</option><option>Sibling</option><option>Guardian</option><option>Friend</option></select><span class="err">Required.</span></div>
+                <div class="fld"><label for="r-ecphone">Mobile<span class="req">*</span></label><input id="r-ecphone" type="tel" inputmode="tel" placeholder="9123 4567"><span class="err">Enter an 8-digit number.</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="rnav"><span></span><button type="button" class="btn btn-dark arrow" data-next>Continue<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+
+        <!-- STEP 2 -->
+        <section class="rstep" data-step="2">
+          <h2>Health &amp; history</h2>
+          <p class="lead">This helps your instructor keep you safe and place you at the right grade.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3>Martial arts experience <small>Optional</small></h3>
+              <div class="grid2">
+                <div class="fld"><label for="r-exp">Previous martial arts experience<span class="opt">Optional</span></label><input id="r-exp" placeholder="e.g. Judo, 3 years"></div>
+                <div class="fld"><label for="r-grade">Grade<span class="opt">Optional</span></label><input id="r-grade" placeholder="e.g. 2nd Kyu, green belt"></div>
+              </div>
+              <div class="note"><svg class="ic"><use href="#i-info"/></svg><span>New members start at white belt. Aikido grades from other recognised dojos can be carried over once our office checks your record book and certificate.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <div class="q">
+                <div class="qt">Previously registered as a member of Aikido Shinju-Kai?<span class="req">*</span></div>
+                <div class="yn" role="radiogroup" aria-label="Previously registered"><input type="radio" name="prev" id="prev-y" value="Yes"><label for="prev-y">Yes</label><input type="radio" name="prev" id="prev-n" value="No"><label for="prev-n">No</label></div>
+              </div>
+              <div class="fld" id="f-prev"><span class="err">Choose Yes or No.</span></div>
+              <div class="reveal" id="prevReveal"><div>
+                <div class="grid2">
+                  <div class="fld"><label for="r-prevdate">Date you joined previously<span class="req">*</span></label><input id="r-prevdate" type="text" data-dp="past" placeholder="DD / MM / YYYY" inputmode="numeric"><span class="err">Enter the date you first joined.</span></div>
+                  <div class="fld"><span class="lbl">&nbsp;</span><span class="hint" style="padding-top:12px">Members who left 2 or more years ago re-register at the full S$60.</span></div>
+                </div>
+              </div></div>
+            </div>
+
+            <div class="rgroup">
+              <div class="q">
+                <div class="qt">Do you have any past injuries, medical conditions or medical history?<span class="req">*</span><small>e.g. heart disease, high blood pressure, diabetes, asthma, allergies, fractures</small></div>
+                <div class="yn" role="radiogroup" aria-label="Medical history"><input type="radio" name="med" id="med-y" value="Yes"><label for="med-y">Yes</label><input type="radio" name="med" id="med-n" value="No"><label for="med-n">No</label></div>
+              </div>
+              <div class="fld" id="f-med"><span class="err">Choose Yes or No.</span></div>
+              <div class="reveal" id="medReveal"><div>
+                <div class="fld"><label for="r-med">Please specify<span class="req">*</span></label><textarea id="r-med" placeholder="Condition, when it happened, anything your instructor should avoid"></textarea><span class="err">Tell us about the condition.</span></div>
+              </div></div>
+            </div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" data-prev><svg class="ic"><use href="#i-back"/></svg>Back</button><button type="button" class="btn btn-dark arrow" data-next>Continue<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+
+        <!-- STEP 3 -->
+        <section class="rstep" data-step="3">
+          <h2>Dojo &amp; dogi</h2>
+          <p class="lead">Your principal dojo is where you collect your student card and train regularly. Classes at the HQ Dojo can also be booked online from your portal.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3>Principal dojo<span class="req">*</span></h3>
+              <div class="choices grid2" id="dojoChoices"></div>
+              <div class="fld" id="f-dojo"><span class="err">Choose your principal dojo.</span></div>
+            </div>
+            <div class="rgroup">
+              <h3>Class group<span class="req">*</span></h3>
+              <div class="fld"><label for="r-class">Preferred class</label><select id="r-class"></select><span class="hint" id="classHint">Suggested from your age.</span><span class="err">Choose a class group.</span></div>
+            </div>
+            <div class="rgroup">
+              <h3>Purchase of dogi<span class="req">*</span> <small>Required for training</small></h3>
+              <div class="choices grid3" id="dogiChoices">
+                <div class="choice"><input type="radio" name="dogi" id="d1" value="Cotton (Standard)" data-price="30"><label for="d1"><span class="top"><span class="t">Cotton</span><span class="tick"><svg class="ic"><use href="#i-check"/></svg></span></span><span class="d">Standard single weave. Good for beginners.</span><span class="price num">S$30</span></label></div>
+                <div class="choice"><input type="radio" name="dogi" id="d2" value="Heavyweight Cotton" data-price="45"><label for="d2"><span class="top"><span class="t">Heavyweight</span><span class="tick"><svg class="ic"><use href="#i-check"/></svg></span></span><span class="d">Double weave. Lasts years of ukemi.</span><span class="price num">S$45</span></label></div>
+                <div class="choice"><input type="radio" name="dogi" id="d3" value="Competition Grade" data-price="60"><label for="d3"><span class="top"><span class="t">Competition</span><span class="tick"><svg class="ic"><use href="#i-check"/></svg></span></span><span class="d">Pre-shrunk, reinforced knees.</span><span class="price num">S$60</span></label></div>
+              </div>
+              <div class="fld" id="f-dogi"><span class="err">Choose a dogi type.</span></div>
+              <div class="fld"><span class="lbl">Dogi size<span class="req">*</span></span>
+                <div class="size-pick" id="sizePick"></div>
+                <span class="err" id="sizeErr">Choose a size.</span>
+              </div>
+              <details>
+                <summary class="sbtn ghost" style="width:fit-content"><svg class="ic"><use href="#i-info"/></svg>Size guide</summary>
+                <div class="tbl-wrap plain" style="margin-top:10px"><table class="size-guide">
+                  <thead><tr><th>Size</th><th>Height</th><th>Size</th><th>Height</th></tr></thead>
+                  <tbody>
+                    <tr><td>000</td><td>100–110 cm</td><td>3</td><td>155–165 cm</td></tr>
+                    <tr><td>00</td><td>110–120 cm</td><td>4</td><td>165–175 cm</td></tr>
+                    <tr><td>0</td><td>120–130 cm</td><td>5</td><td>175–182 cm</td></tr>
+                    <tr><td>1</td><td>130–140 cm</td><td>6</td><td>182–190 cm</td></tr>
+                    <tr><td>2</td><td>140–155 cm</td><td>7</td><td>190 cm +</td></tr>
+                  </tbody></table></div>
+              </details>
+            </div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" data-prev><svg class="ic"><use href="#i-back"/></svg>Back</button><button type="button" class="btn btn-dark arrow" data-next>Continue<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+
+        <!-- STEP 4 -->
+        <section class="rstep" data-step="4">
+          <h2>Lesson package</h2>
+          <p class="lead" id="pkgLead">Pick how you want to pay for classes. Lessons are credited to your account straight after payment, and each package shows its expiry date.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3 id="pkgGroupTitle">Adult packages</h3>
+              <div class="choices grid2" id="pkgChoices"></div>
+              <div class="fld" id="f-pkg"><span class="err">Choose a package.</span></div>
+            </div>
+            <div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Book HQ classes up to 1 month ahead and at least 1 day before. Cancel 4 or more hours before class to get the lesson back.</span></div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" data-prev><svg class="ic"><use href="#i-back"/></svg>Back</button><button type="button" class="btn btn-dark arrow" data-next>Review &amp; sign<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+        </section>
+
+        <!-- STEP 5 -->
+        <section class="rstep" data-step="5">
+          <h2>Sign &amp; pay</h2>
+          <p class="lead">Check your details, read the terms to the end, sign, then slide to pay.</p>
+          <div class="rform">
+            <div class="rgroup">
+              <h3>Your application</h3>
+              <dl class="review" id="review"></dl>
+            </div>
+
+            <div class="tc">
+              <div class="tc-h"><b>Consent, declaration &amp; indemnity</b><span id="tcPct">0% read</span></div>
+              <div class="tc-prog"><i id="tcBar"></i></div>
+              <div class="tc-fade" id="tcFade">
+                <div class="tc-body" id="tcBody" tabindex="0" aria-label="Terms and conditions, scroll to read">
+                  <p>By signing this form, I confirm my membership application and certify that I understand and agree to all the stated Terms and Conditions. I also declare that the personal data I have provided is true and correct.</p>
+                  <h4>1. Indemnity</h4>
+                  <p>I accept personal responsibility and agree that Aikido Shinju-Kai (ASK), Shinju-Kai International Pte Ltd (SIPL), its affiliated organisations, partners and governing bodies, their officers, instructors and personnel, other members, participants, supervisors, coaches and sponsoring organisations or their agents will not be held liable for any loss or damage, including injury, death or damage to property, caused or alleged to be caused in whole or in part by the negligence of myself or my child or otherwise.</p>
+                  <h4>2. Training of my own free will</h4>
+                  <p>I recognise and accept that I enter martial arts training entirely of my own free will, and I understand the importance of following the rules of training and dojo etiquette.</p>
+                  <h4>3. Health declaration</h4>
+                  <p>I certify that I am, or my child is, in good physical condition with no disease, injury or other condition that would impair performance or physical and mental well-being during training. If I have any injury or illness that could affect my ability to take part, I will tell the organisation and instructor, and discuss with my doctor whether martial arts training is appropriate.</p>
+                  <h4>4. Emergency medical treatment</h4>
+                  <p>In an emergency injury that needs medical attention, I permit a doctor, nurse, athletic trainer or other emergency medical personnel to give me or my child medical assistance or treatment. The cost of any treatment or hospitalisation arising from injury during training will not be paid by ASK, its affiliated organisations and governing bodies, their officers, instructors or personnel.</p>
+                  <h4>5. Fees</h4>
+                  <p>Membership and registration fees are non-refundable. All Principal Dojo training fees must be paid before the start of a new term. Annual dues are payable each year; a membership unpaid for more than 365 days lapses, and class booking is locked until dues are paid.</p>
+                  <h4>6. Private policy</h4>
+                  <p>In accordance with the Personal Data Protection Act 2012, I consent to the collection, use and disclosure of my personal data by ASK and/or any ASK-Authorised Party for membership-related matters.</p>
+                  <h4>7. Terminology</h4>
+                  <ol>
+                    <li>"ASK" means Aikido Shinju-Kai.</li>
+                    <li>"Data" means any information relating to me in the possession of, or provided from time to time to, any ASK-Authorised Party.</li>
+                    <li>"ASK-Authorised Party" means Aikido Shinju-Kai in China or its related companies, such as Shinju-Kai International Pte Ltd in Singapore; the Company's existing or potential third-party service providers, affiliated organisations, contracting partners and agents; any governmental or regulatory authority in any jurisdiction; and any other party listed in the prevailing ASK Privacy Policy.</li>
+                    <li>The current ASK Privacy Policy is published at aikidoshinjukai.com.sg.</li>
+                  </ol>
+                  <h4>8. Signature</h4>
+                  <p>Applicants below 21 years old must have the form signed by a parent or guardian, who accepts these terms on the applicant's behalf.</p>
+                  <h4>9. Right to reject</h4>
+                  <p>Aikido Shinju-Kai reserves the right to reject any application without giving a reason.</p>
+                  <p class="end">End of terms · Version 2020.1</p>
+                </div>
+                <span class="tc-cue"><svg class="ic"><use href="#i-chev"/></svg>Scroll to the end to continue</span>
+              </div>
+              <div class="tc-f">
+                <label class="check locked" id="tcAgreeWrap"><input type="checkbox" id="tcAgree" disabled><span>I have read and agree to the Terms and Conditions<span class="req">*</span><small id="tcAgreeHint">Unlocks once you scroll to the end.</small></span></label>
+                <label class="check"><input type="checkbox" id="pdpa"><span>I consent to ASK processing my personal data under the PDPA 2012<span class="req">*</span></span></label>
+                <label class="check"><input type="checkbox" id="mkt"><span>Send me news about events, seminars and activities<small>Optional</small></span></label>
+              </div>
+            </div>
+
+            <!-- legally binding signature -->
+            <div class="rgroup">
+              <h3>Signature<span class="req">*</span></h3>
+              <p class="hint" id="sigWho" style="font-size:13px;color:var(--muted)">Sign with your finger, stylus or mouse. Your signature confirms the declaration above.</p>
+              <div class="fld" id="f-gname" hidden><label for="r-gname">Parent or guardian's full name<span class="req">*</span></label><input id="r-gname" autocomplete="off" placeholder="As shown on their NRIC or passport"><span class="err">Enter the parent or guardian's full name.</span></div>
+              <div class="fld" id="f-regsig"><span class="lbl" id="regSigLbl">Applicant's signature</span><div id="regSig"></div><span class="hint" id="regSigMeta">Signed digitally on today's date. A copy is attached to your welcome email.</span><span class="err">Sign to continue.</span></div>
+            </div>
+
+            <div class="rgroup">
+              <h3>Payment</h3>
+              <div class="fees" id="fees"></div>
+              <div class="paybox">
+                <div class="card-mock"><span class="brand-chip">STRIPE</span><span class="grow">Card payment · Visa •••• 4242</span><svg class="ic" style="color:var(--ok)"><use href="#i-lock"/></svg></div>
+                <div class="slide locked" id="regSlide">
+                  <div class="fill"></div>
+                  <div class="lbl"><em id="regSlideLbl">Slide to pay</em></div>
+                  <div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><svg class="ic"><use href="#i-arrow"/></svg></div>
+                </div>
+                <span class="hint" id="payHint" style="font-size:12px;color:var(--muted)">Agree to the terms, give PDPA consent and sign to unlock payment.</span>
+              </div>
+            </div>
+          </div>
+          <div class="rnav"><button type="button" class="sbtn" data-prev><svg class="ic"><use href="#i-back"/></svg>Back</button><span></span></div>
+        </section>
+
+        <!-- DONE -->
+        <section class="rstep" data-step="6">
+          <div class="done-wrap">
+            <div class="done-hero">
+              <div class="seal" aria-hidden="true">心</div>
+              <div>
+                <span class="eyebrow">Welcome to Shinju-Kai</span>
+                <div class="memno" id="memNo">ASK-2026-0000</div>
+                <p style="color:var(--muted);margin-top:4px">Your membership number · Joined <b id="joinedOn">—</b></p>
+              </div>
+            </div>
+            <div class="done-grid">
+              <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-mail"/></svg></span><b>Welcome email sent</b><p>Your membership number and log-in details went to <span id="doneEmail">your email</span>.</p></div>
+              <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-receipt"/></svg></span><b>Receipt sent</b><p>Registration, dogi and lesson package. Paid <b id="donePaid">S$0</b>.</p></div>
+              <div class="done-item key"><span class="ib"><svg class="ic"><use href="#i-id"/></svg></span><b>Collect your student card</b><p>Pick it up at <b id="doneDojo">your principal dojo</b> on your first lesson.</p></div>
+            </div>
+            <div class="mail-tabs">
+              <div class="filters" id="mailTabs"><button type="button" class="fpill on" data-mail="welcome">Welcome email</button><button type="button" class="fpill" data-mail="receipt">Receipt</button></div>
+              <div class="mail" id="mailView"></div>
+            </div>
+            <div class="rnav"><button type="button" class="sbtn" data-go="home">Back to site</button><button type="button" class="btn btn-red arrow" data-go="login">Log in to your portal<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+          </div>
+        </section>
+      </form>
+    </main>
+  </div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/ben.js"></script>
+<script src="js/join.js"></script>
+</body>
+</html>
