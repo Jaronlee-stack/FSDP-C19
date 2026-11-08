@@ -3,9 +3,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<!-- Folder pages can be opened as /site/student (no trailing slash), e.g. by `npx serve`.
-     Relative links would then point one folder too high, so pin the base to this folder. -->
-<script>(function () { var p = location.pathname; if (!/\/$|\.html?$/.test(p)) document.write('<base href="' + p + '/">'); })();</script>
+<!-- A folder URL without the trailing slash (e.g. /src/public/landingpage, as `npx serve` shows it) would make every
+     relative link point one folder too high. Send the browser to the slash version first, before anything loads. -->
+<script>(function () { var l = location, p = l.pathname; if (/\/index$/.test(p)) p = p.slice(0, -5); else if (/\/$|\.html?$/.test(p)) return; else p += '/'; l.replace(p + l.search + l.hash); })();</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#16213B">
 <title>Instructor · Aikido Shinju-Kai</title>

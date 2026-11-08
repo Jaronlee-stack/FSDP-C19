@@ -17,7 +17,7 @@ const PORTALS = {
   },
   admin: {
     label: 'HQ Admin', dir: 'admin_portal/', login: 'admin_portal/signin.html?denied', me: ['HQ', 'HQ Office', 'Administrator'],
-    pages: [['dashboard', 'home', 'Overview'], ['applications', 'inbox', 'Requests', () => APPS.length], ['members', 'users', 'Members'], ['sessions', 'cal', 'Sessions'],
+    pages: [['dashboard', 'home', 'Overview'], ['applications', 'inbox', 'Requests', () => APPS.length + MC_REQS.filter(r => r.status === 'pending').length], ['members', 'users', 'Members'], ['sessions', 'cal', 'Sessions'],
       ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['notify', 'mega', 'Notifications'], ['reports', 'chart', 'Reports']]
   }
 };
@@ -96,6 +96,9 @@ function openNotifs() {
   let rows = [];
   if (PORTAL === 'student') {
     rows = DB.rateQueue.map((r, i) => row('star', `Rate your ${esc(r.c.type)} class`, `${dayName(r.date)} ${fmtShort(r.date)} · ${timeLabel(r.c.time)} · ${esc(r.c.ins)}`, `<button class="sbtn dark" data-rate="${i}">Rate</button>`));
+    MC_REQS.filter(r => r.no === ME.no && r.status !== 'pending').slice(0, 2).forEach(r => rows.push(r.status === 'approved'
+      ? row('check', 'Package extended', `${esc(r.passName)} +${plural(r.days, 'day')} · now expires ${fmtDate(new Date(r.newExp))}`)
+      : row('info', 'Extension not approved', `${esc(r.passName)}${r.reason ? ' · ' + esc(r.reason) : ''}`)));
     const next = BOOKINGS.slice().sort((a, b) => a.date - b.date)[0];
     const last = ATTENDANCE.find(a => a.status !== 'pending');
     if (last) rows.push(last.status === 'present'
@@ -110,6 +113,8 @@ function openNotifs() {
     if (FEEDBACK.length) rows.push(row('star', 'New class feedback', `${plural(FEEDBACK.length, 'rating')} from students this week`));
   } else {
     rows.push(row('inbox', 'Membership applications', `${APPS.length} paid and waiting for approval`));
+    const mcp = MC_REQS.filter(r => r.status === 'pending').length;
+    if (mcp) rows.push(row('doc', 'Package extension requests', `${plural(mcp, 'request')} with a medical certificate or compassion extension`));
     rows.push(row('award', 'Promotion proposals', `${PROPOSALS.length} signed by instructors`));
   }
   try { sessionStorage.setItem(seenKey, '1'); } catch (_) {}

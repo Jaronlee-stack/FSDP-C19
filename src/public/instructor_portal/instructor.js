@@ -72,8 +72,17 @@ document.addEventListener('click', e => {
   }
 });
 
+/* grading results: a pass promotes; a retake can try again at the next grading without re-qualifying;
+   a fail has to meet the session requirements again before applying */
+const RES_PASS = 'Pass', RES_RETAKE = 'Retake', RES_FAIL = 'Fail';
+const RES_HINT = {
+  [RES_PASS]: c => `Promoted to ${c.to} once HQ approves.`,
+  [RES_RETAKE]: c => `Stays at ${c.from}. May retake ${c.to} at the next grading without re-qualifying.`,
+  [RES_FAIL]: c => `Stays at ${c.from}. Must meet the session requirements again before re-applying.`
+};
+
 function renderCandidates() {
-  $('#gradeList').innerHTML = CANDIDATES.map((c, i) => `<div class="row"><span class="av">${initials(c.n)}</span><div class="grow"><div class="t">${c.n}</div><div class="d">${c.from} → ${c.to} · HQ Dojo</div></div><div class="acts">${c.done ? `<span class="pill ok">Sent to HQ · ${c.result}</span>` : `<button class="sbtn dark" data-record="${i}">${icon('edit')}Record result</button>`}</div></div>`).join('');
+  $('#gradeList').innerHTML = CANDIDATES.map((c, i) => `<div class="row"><span class="av">${initials(c.n)}</span><div class="grow"><div class="t">${c.n}</div><div class="d">${c.from} → ${c.to} · HQ Dojo</div></div><div class="acts">${c.done ? `<span class="pill ${c.result === 'Pass' ? 'ok' : c.result === 'Retake' ? 'warn' : 'bad'}">Sent to HQ · ${c.result}</span>` : `<button class="sbtn dark" data-record="${i}">${icon('edit')}Record result</button>`}</div></div>`).join('');
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-record]'); if (!b) return;
@@ -81,8 +90,8 @@ document.addEventListener('click', e => {
   openDrawer(`Grading · ${c.n}`, `
     <div class="kv" style="margin:0;border-top:1px solid var(--line)"><div><span>Candidate</span><span>${c.n}</span></div><div><span>Grading for</span><span>${c.from} → ${c.to}</span></div><div><span>Session</span><span>13 Dec 2026 · HQ Dojo</span></div></div>
     <form id="recForm" style="display:grid;gap:16px" novalidate>
-      <div class="fld"><span class="lbl">Result</span><div class="seg"><input type="radio" name="res" id="res1" value="Pass" checked><label for="res1">Pass</label><input type="radio" name="res" id="res2" value="Pass with merit"><label for="res2">Pass with merit</label><input type="radio" name="res" id="res3" value="Refer"><label for="res3">Refer</label></div></div>
-      <div class="fld"><label for="rec-rank">Rank awarded</label><select id="rec-rank"><option>${c.to}</option><option>${c.from} (no change)</option></select></div>
+      <div class="fld"><span class="lbl">Result</span><div class="seg" id="recRes"><input type="radio" name="res" id="res1" value="${RES_PASS}" checked><label for="res1">${RES_PASS}</label><input type="radio" name="res" id="res2" value="${RES_RETAKE}"><label for="res2">${RES_RETAKE}</label><input type="radio" name="res" id="res3" value="${RES_FAIL}"><label for="res3">${RES_FAIL}</label></div><span class="hint" id="recResHint">${RES_HINT[RES_PASS](c)}</span></div>
+      <div class="fld"><label for="rec-rank">Rank awarded</label><input id="rec-rank" value="${esc(c.to)}" readonly></div>
       <div class="fb-intro"><b>Feedback for ${esc(c.n.split(' ')[0])}</b><span>Shown on the student's Grading page. Type, or tap Dictate to speak and edit after.</span></div>
       <div class="fld dict-fld"><div class="dict-lbl"><label for="rec-well">What went well</label><button type="button" class="dict-btn" data-dictate="rec-well" aria-pressed="false">${icon('mic')}<span>Dictate</span></button></div><textarea id="rec-well" rows="3" placeholder="e.g. Confident ukemi, calm posture in ikkyo"></textarea><span class="dict-msg" role="status" aria-live="polite"></span><span class="err">Add at least one strength.</span></div>
       <div class="fld dict-fld"><div class="dict-lbl"><label for="rec-next">What to work on next</label><button type="button" class="dict-btn" data-dictate="rec-next" aria-pressed="false">${icon('mic')}<span>Dictate</span></button></div><textarea id="rec-next" rows="3" placeholder="e.g. Keep hips lower in iriminage"></textarea><span class="dict-msg" role="status" aria-live="polite"></span><span class="err">Add one thing to work on.</span></div>
@@ -90,6 +99,12 @@ document.addEventListener('click', e => {
     </form>`,
     `<button class="sbtn" data-drawer-close>Cancel</button><button class="sbtn red" id="recSend">${icon('sign')}Send to HQ</button>`, { onClose: stopDictation });
   const sig = signaturePad($('#recSig'), { startLabel: 'Sign as examiner', onChange: () => mark('#f-recsig', false) });
+  // the rank follows the result: only a pass moves the candidate up
+  $('#recRes').addEventListener('change', () => {
+    const r = radio('res');
+    $('#rec-rank').value = r === RES_PASS ? c.to : `${c.from} (no change)`;
+    $('#recResHint').textContent = RES_HINT[r](c);
+  });
   ['rec-well', 'rec-next'].forEach(id => $('#' + id).addEventListener('input', () => fldOf($('#' + id)).classList.remove('invalid')));
   $('#recSend').addEventListener('click', () => {
     stopDictation();
@@ -97,15 +112,16 @@ document.addEventListener('click', e => {
     mark(fldOf($('#rec-well')), !well); mark(fldOf($('#rec-next')), !next); mark('#f-recsig', !signed);
     if (!well || !next || !signed) { toast(!well || !next ? 'Fill in both feedback boxes.' : 'Sign the proposal first.', 'bad'); return; }
     c.done = true; c.result = radio('res');
-    const to = $('#rec-rank').value;
+    const to = c.result === RES_PASS ? c.to : c.from;
     PROPOSALS.unshift({ n: c.n, from: c.from, to, by: MY_INS, result: c.result, well, next, fb: `${well} Next: ${next}`, sig: signed });
-    if (c.n === ME.name) GRADE_FB.unshift({ from: c.from, to: c.result === 'Refer' ? c.from : to, date: new Date(TODAY), by: MY_INS, result: c.result, well, next, status: 'Sent to HQ' });
+    if (c.n === ME.name) GRADE_FB.unshift({ from: c.from, to, date: new Date(TODAY), by: MY_INS, result: c.result, well, next, status: 'Sent to HQ' });
     save(); setCount('grading', CANDIDATES.filter(x => !x.done).length);
     closeDrawer(); renderCandidates(); toast(`Signed proposal for ${c.n} sent to HQ`);
   });
 });
 
 runPage({
+  profile() { profileCard($('#insCard')); },
   today() {
     const d = new Date();
     $('.page h1').textContent = `Today · ${dayName(d)} ${d.getDate()} ${MON[d.getMonth()]}`;

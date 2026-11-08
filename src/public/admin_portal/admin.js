@@ -3,11 +3,62 @@
 
 const adm = { memFilter: 'All', memQ: '', gradTab: 'apps' };
 
+const pendingMC = () => MC_REQS.filter(r => r.status === 'pending');
+const requestCount = () => APPS.length + pendingMC().length;
+
 function renderApps() {
-  if (!$('#appRows')) { setCount('applications', APPS.length); return; }
+  if (!$('#appRows')) { setCount('applications', requestCount()); return; }
   $('#appRows').innerHTML = APPS.length ? APPS.map((a, i) => `<div class="row"><span class="av${a.isNew ? ' navy' : ''}">${initials(a.n)}</span><div class="grow"><div class="t">${esc(a.n)}${a.group === 'Child' ? ` <span class="pill plain" style="height:20px;font-size:11px">Age ${a.age}</span>` : ''}${a.isNew ? ' <span class="pill bad plain" style="height:20px;font-size:11px">New</span>' : ''}</div><div class="d">${esc(dojoName(a.dojo))} · ${esc(a.date)} · ${money(a.paid)} paid${a.med.startsWith('Yes') ? ' · <b style="color:var(--warn)">medical note</b>' : ''}</div></div><div class="acts"><button class="sbtn" data-app="${i}">View form</button><button class="sbtn dark" data-approve="${i}">${icon('check')}Approve</button></div></div>`).join('') : '<p style="color:var(--muted)">All caught up. No applications waiting.</p>';
-  setCount('applications', APPS.length);
+  setCount('applications', requestCount());
 }
+
+/* ---------- package extension requests (student sends an MC, or uses Compassion Guaranteed) ---------- */
+function renderMCReqs() {
+  const el = $('#mcRows'); if (!el) return;
+  const list = MC_REQS.map((r, i) => ({ r, i }));
+  const pend = list.filter(x => x.r.status === 'pending'), past = list.filter(x => x.r.status !== 'pending').slice(0, 5);
+  const when = r => r.kind === 'mc' ? `MC ${fmtShort(new Date(r.from))} – ${fmtShort(new Date(r.to))}` : 'Compassion Guaranteed (no MC needed)';
+  el.innerHTML = (pend.length ? pend.map(({ r, i }) => `<div class="row"><span class="av navy">${icon(r.kind === 'mc' ? 'doc' : 'gift')}</span><div class="grow"><div class="t">${esc(r.n)} · +${plural(r.days, 'day')}</div><div class="d">${esc(r.passName)} · ${when(r)} · sent ${fmtShort(new Date(r.date))}</div></div><div class="acts"><button class="sbtn" data-mc-view="${i}">View</button><button class="sbtn dark" data-mc-ok="${i}">${icon('check')}Approve</button></div></div>`).join('')
+    : '<p style="color:var(--muted)">No extension requests waiting.</p>')
+    + (past.length ? `<h4 class="mc-past-h">Recently handled</h4>${past.map(({ r }) => `<div class="row"><span class="av">${icon(r.kind === 'mc' ? 'doc' : 'gift')}</span><div class="grow"><div class="t">${esc(r.n)} · +${plural(r.days, 'day')}</div><div class="d">${esc(r.passName)} · ${when(r)}</div></div><span class="pill ${r.status === 'approved' ? 'ok' : 'bad'}">${r.status === 'approved' ? 'Approved' : 'Not approved'}</span></div>`).join('')}` : '');
+  setCount('applications', requestCount());
+}
+
+function openMCReq(i) {
+  const r = MC_REQS[i]; if (!r) return;
+  const pass = MY_PASSES.find(p => p.id === r.passId);
+  const cur = pass ? pass.expires : new Date(r.oldExp);
+  openDrawer(`Extension · ${r.n}`, `<div class="kv" style="margin:0;border-top:1px solid var(--line)">
+      <div><span>Member</span><span>${esc(r.n)} · ${esc(r.no)}</span></div>
+      <div><span>Package</span><span>${esc(r.passName)}</span></div>
+      <div><span>Type</span><span>${r.kind === 'mc' ? 'Medical certificate' : 'Compassion Guaranteed'}</span></div>
+      ${r.kind === 'mc' ? `<div><span>MC dates</span><span>${fmtDate(new Date(r.from))} – ${fmtDate(new Date(r.to))}</span></div><div><span>MC file</span><span>${esc(r.fileName || '—')}</span></div>` : ''}
+      <div><span>Extend by</span><span>${plural(r.days, 'day')}</span></div>
+      <div><span>Expires now</span><span>${fmtDate(new Date(cur))}</span></div>
+      <div><span>After approval</span><span>${fmtDate(addDays(new Date(cur), r.days))}</span></div>
+      <div><span>Sent</span><span>${fmtDate(new Date(r.date))}</span></div>
+    </div>
+    ${r.note ? `<div class="note" style="margin-top:14px"><svg class="ic"><use href="#i-info"/></svg><span><b>Member's note:</b> ${esc(r.note)}</span></div>` : ''}
+    ${r.kind === 'compassion' ? '<div class="note" style="margin-top:14px"><svg class="ic"><use href="#i-info"/></svg><span>Compassion Guaranteed covers up to 2 weeks on the children\'s 1-month pass, no questions asked.</span></div>' : '<div class="note" style="margin-top:14px"><svg class="ic"><use href="#i-info"/></svg><span>Check the MC is valid and covers the dates above before approving.</span></div>'}
+    <div class="fld" style="margin-top:16px"><label for="mc-why">Reason if not approved<span class="opt">Sent to the member</span></label><textarea id="mc-why" placeholder="e.g. MC dates don't match the missed classes"></textarea></div>`,
+    `<button class="sbtn" id="mcReject">Not approved</button><button class="sbtn dark" data-mc-ok="${i}">${icon('check')}Approve</button>`);
+  $('#mcReject').addEventListener('click', () => {
+    r.status = 'rejected'; r.reason = $('#mc-why').value.trim(); save(); renderMCReqs(); closeDrawer();
+    toast(`Extension for ${r.n} not approved. Member notified.`, 'info');
+  });
+}
+function approveMC(i) {
+  const r = MC_REQS[i]; if (!r || r.status !== 'pending') return;
+  const pass = MY_PASSES.find(p => p.id === r.passId);
+  if (pass) pass.expires = addDays(pass.expires, r.days);
+  r.status = 'approved'; r.newExp = pass ? pass.expires : addDays(new Date(r.oldExp), r.days);
+  save(); renderMCReqs(); closeDrawer();
+  toast(`${r.passName} extended by ${plural(r.days, 'day')} for ${r.n}.`);
+}
+document.addEventListener('click', e => {
+  const v = e.target.closest('[data-mc-view]'); if (v) { openMCReq(+v.dataset.mcView); return; }
+  const ok = e.target.closest('[data-mc-ok]'); if (ok) { e.stopPropagation(); approveMC(+ok.dataset.mcOk); }
+});
 
 function openApp(i) {
   const a = APPS[i];
@@ -92,7 +143,7 @@ function renderGrading() {
   if (adm.gradTab === 'apps') {
     $('#gradRows').innerHTML = GRAD_APPS.map((g, i) => `<div class="row"><span class="av">${initials(g.n)}</span><div class="grow"><div class="t">${g.n}</div><div class="d">${g.from} → ${g.to} · submitted ${g.sub} · ${g.note}</div></div><div class="acts">${g.sched ? `<span class="pill ok">${g.sched}</span>` : `<button class="sbtn dark" data-sched="${i}">${icon('cal')}Schedule</button>`}</div></div>`).join('');
   } else {
-    $('#gradRows').innerHTML = PROPOSALS.length ? PROPOSALS.map((p, i) => `<div class="row"><span class="av">${initials(p.n)}</span><div class="grow"><div class="t">${p.n} · ${p.result}</div><div class="d">${p.from} → ${p.to} · signed by ${esc(p.by)}</div>${p.well || p.next ? `<dl class="fb-mini">${p.well ? `<dt>Went well</dt><dd>${esc(p.well)}</dd>` : ''}${p.next ? `<dt>Work on next</dt><dd>${esc(p.next)}</dd>` : ''}</dl>` : `<div class="d">“${esc(p.fb)}”</div>`}${p.sig ? `<img class="sig-thumb" src="${p.sig}" alt="Signature of ${esc(p.by)}">` : ''}</div><div class="acts"><button class="sbtn dark" data-promote="${i}">${icon('award')}Approve promotion</button></div></div>`).join('') : '<p style="color:var(--muted)">No proposals waiting.</p>';
+    $('#gradRows').innerHTML = PROPOSALS.length ? PROPOSALS.map((p, i) => `<div class="row"><span class="av">${initials(p.n)}</span><div class="grow"><div class="t">${p.n} · ${p.result}</div><div class="d">${p.from} → ${p.to} · signed by ${esc(p.by)}</div>${p.well || p.next ? `<dl class="fb-mini">${p.well ? `<dt>Went well</dt><dd>${esc(p.well)}</dd>` : ''}${p.next ? `<dt>Work on next</dt><dd>${esc(p.next)}</dd>` : ''}</dl>` : `<div class="d">“${esc(p.fb)}”</div>`}${p.sig ? `<img class="sig-thumb" src="${p.sig}" alt="Signature of ${esc(p.by)}">` : ''}</div><div class="acts">${/^Pass/.test(p.result) ? `<button class="sbtn dark" data-promote="${i}">${icon('award')}Approve promotion</button>` : `<span class="pill ${p.result === 'Fail' ? 'bad' : 'warn'}">${p.result === 'Fail' ? 'Re-qualify first' : 'Retake next grading'}</span><button class="sbtn" data-promote="${i}">${icon('check')}Confirm result</button>`}</div></div>`).join('') : '<p style="color:var(--muted)">No proposals waiting.</p>';
   }
 }
 
@@ -109,11 +160,17 @@ function openSchedule(i) {
 
 function promote(i) {
   const p = PROPOSALS.splice(i, 1)[0];
+  if (!/^Pass/.test(p.result)) {   // retake / fail: no rank change, the student just sees the result
+    if (p.n === ME.name) { const f = GRADE_FB.find(x => x.result === p.result && x.status === 'Sent to HQ'); if (f) f.status = 'Confirmed'; }
+    if (p.result === 'Fail') { const s = STUDENTS.find(x => x.n === p.n); if (s) { s.s = 0; s.st = ST_PROGRESS; } }
+    save(); renderGrading();
+    toast(`${p.result} result for ${p.n} confirmed. Student notified.`, 'info'); return;
+  }
   const m = MEMBERS.find(x => x.n === p.n); if (m) m.g = p.to;
   const s = STUDENTS.find(x => x.n === p.n); if (s) { s.g = p.to; s.s = 0; s.st = ST_PROGRESS; }
   if (p.n === ME.name) {   // the student sees a promotion celebration on their home page
     DB.levelUps.push({ kind: 'promotion', to: p.to, date: new Date(TODAY) });
-    const f = GRADE_FB.find(x => x.to === p.to && x.result !== 'Refer'); if (f) f.status = 'Promoted';
+    const f = GRADE_FB.find(x => x.to === p.to && /^Pass/.test(x.result)); if (f) f.status = 'Promoted';
   }
   save(); renderGrading(); renderMembers();
   toast(`${p.n} promoted to ${p.to}`);
@@ -127,7 +184,7 @@ runPage({
   setTimeout(() => $$('#trendBars i').forEach(i => i.style.width = i.dataset.w + '%'), 200);
   },
   applications() {
-  renderApps();
+  renderApps(); renderMCReqs();
   $('#appRows').addEventListener('click', e => {
     const v = e.target.closest('[data-app]'); if (v) openApp(+v.dataset.app);
     const a = e.target.closest('[data-approve]'); if (a) approveApp(+a.dataset.approve);
@@ -204,7 +261,7 @@ runPage({
 
 // search boxes: each one filters only its own list
 runPage({
-  applications() { filterList('#appSearch', '#appRows'); },
+  applications() { filterList('#appSearch', '#appRows'); filterList('#mcSearch', '#mcRows'); },
   sessions() { filterList('#sesSearch', '#sesRows'); },
   grading() { filterList('#gradSearch', '#gradRows'); },
   payments() { filterList('#paySearch', '#adminPayRows'); }

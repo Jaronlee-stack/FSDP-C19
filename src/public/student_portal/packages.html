@@ -16,7 +16,7 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="packages">
-        <div class="page-h"><div><h1>Packages</h1><p>Your lessons, when they expire, and top-ups. Paid securely with Stripe.</p></div></div>
+        <div class="page-h"><div><h1>Packages</h1><p>Your lessons, when they expire, top-ups and extensions. Paid securely with Stripe.</p></div></div>
         <div class="credit-banner ac" id="creditBanner"></div>
 
         <div class="card white ac">
@@ -26,6 +26,48 @@
 
         <div class="card-h" style="margin:8px 4px 0"><h3 id="pkgShopH">Adult packages</h3><span class="sub">Unlimited stops your lesson packs being used while it runs</span></div>
         <div class="pkgs" id="pkgShop"></div>
+
+        <!-- discounts + package rules, from the official fee terms -->
+        <div class="pk-info">
+          <div class="card white pk-disc">
+            <div class="card-h"><div><h3>Discounts</h3><span class="sub">Bring proof to the HQ office and we'll apply it to your account</span></div></div>
+            <div class="disc-row"><span class="disc-amt">40%<small>off</small></span><div><b>Seniors</b><span>Aged 65 and above</span></div></div>
+            <div class="disc-row"><span class="disc-amt">50%<small>off</small></span><div><b>Full-time students &amp; NSF</b><span>Students aged 17 to 25, and full-time national servicemen</span></div></div>
+          </div>
+          <div class="card white">
+            <div class="card-h"><h3>Package rules</h3></div>
+            <ul class="pk-rules">
+              <li><svg class="ic"><use href="#i-box"/></svg><span>Hold up to <b>2 packages</b> at a time, in any combination.</span></li>
+              <li><svg class="ic"><use href="#i-pin"/></svg><span>Training packages are valid at the <b>HQ Dojo</b> only.</span></li>
+              <li><svg class="ic"><use href="#i-clock"/></svg><span>Children's 1-month pass: up to <b>2 weeks' extension</b>, no questions asked (Compassion Guaranteed).</span></li>
+              <li><svg class="ic"><use href="#i-doc"/></svg><span>Any other extension past the stated validity needs a <b>valid medical certificate</b>.</span></li>
+              <li><svg class="ic"><use href="#i-receipt"/></svg><span>Training fees are <b>non-refundable</b> and non-transferable.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- MC / compassion extension requests -->
+        <div class="card white mc-card" id="mc">
+          <div class="card-h"><div><h3>Extend a package</h3><span class="sub">Missed classes because you were unwell? Send your MC and HQ will extend your package.</span></div><span class="pill navy plain" id="mcCount" hidden></span></div>
+          <form class="grid2 mc-form" id="mcForm" novalidate>
+            <div class="fld full"><label for="mc-pass">Package to extend</label><select id="mc-pass"></select><span class="err">Choose a package.</span></div>
+            <div class="fld full mc-kinds" role="radiogroup" aria-label="Type of extension">
+              <label class="mc-kind"><input type="radio" name="mcKind" value="mc" checked><span><b>Medical certificate</b><small>Extend by the days on your MC</small></span></label>
+              <label class="mc-kind" id="mcCompWrap"><input type="radio" name="mcKind" value="compassion"><span><b>Compassion Guaranteed</b><small>Children's 1-month pass · up to 14 days, no MC</small></span></label>
+            </div>
+            <div class="fld mc-only"><label for="mc-from">MC from</label><input id="mc-from" data-dp="recent" placeholder="DD / MM / YYYY" inputmode="numeric" autocomplete="off"><span class="err" id="mcFromErr">Enter the first day on your MC.</span></div>
+            <div class="fld mc-only"><label for="mc-to">MC to</label><input id="mc-to" data-dp="recent" placeholder="DD / MM / YYYY" inputmode="numeric" autocomplete="off"><span class="err" id="mcToErr">Enter the last day on your MC.</span></div>
+            <div class="fld comp-only" hidden><label for="mc-days">Extend by</label><select id="mc-days"><option value="7">7 days</option><option value="14" selected>14 days</option></select></div>
+            <div class="fld full mc-only"><label for="mc-file">Photo or PDF of your MC</label><input id="mc-file" type="file" accept="image/*,application/pdf"><span class="hint">JPG, PNG or PDF, up to 10 MB</span><span class="err" id="mcFileErr">Upload your medical certificate.</span></div>
+            <div class="fld full"><label for="mc-note">Note for HQ<span class="opt">Optional</span></label><textarea id="mc-note" placeholder="e.g. Down with flu, missed 2 classes"></textarea></div>
+            <div class="fld full mc-sum" id="mcSum"></div>
+            <div class="fld full"><button class="btn btn-dark arrow" type="submit" id="mcSubmit">Send request<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
+          </form>
+          <div class="mc-list-wrap" id="mcListWrap" hidden>
+            <h4 class="mc-list-h">Your requests</h4>
+            <div class="rows" id="mcList"></div>
+          </div>
+        </div>
 
       </section>
     </main>

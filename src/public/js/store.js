@@ -22,7 +22,7 @@ function signOut() {
 document.addEventListener('click', e => { if (e.target.closest('[data-logout]')) { e.preventDefault(); closeSM(); signOut(); } });
 
 /* ---------- prototype database ---------- */
-const DB_KEY = 'ask-prototype-v3';   // v3: MC removed, attendance + grading feedback added
+const DB_KEY = 'ask-prototype-v3';   // v3: attendance + grading feedback; mcRequests added later (merged in from SEED)
 const reviveDates = (k, v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(v) ? new Date(v) : v;
 const DB = (() => {
   try { const raw = localStorage.getItem(DB_KEY); if (raw) return Object.assign(SEED(), JSON.parse(raw, reviveDates)); } catch (_) {}
@@ -36,7 +36,7 @@ document.addEventListener('click', e => { if (e.target.closest('[data-reset]')) 
 /* short names used throughout the page scripts */
 const MY_PASSES = DB.passes, STUDENTS = DB.students, APPS = DB.apps, MEMBERS = DB.members, SESSIONS = DB.sessions,
   GRAD_APPS = DB.gradApps, PROPOSALS = DB.proposals, CANDIDATES = DB.candidates, PAYS = DB.pays, GRADE = DB.grade,
-  FEEDBACK = DB.feedback, BOOKINGS = DB.bookings, ATTENDANCE = DB.attendance, GRADE_FB = DB.gradingFeedback;
+  FEEDBACK = DB.feedback, BOOKINGS = DB.bookings, ATTENDANCE = DB.attendance, GRADE_FB = DB.gradingFeedback, MC_REQS = DB.mcRequests;
 
 /* the signed-in student's own row in the instructor's student list */
 const myStudent = () => STUDENTS.find(s => s.n === ME.name);

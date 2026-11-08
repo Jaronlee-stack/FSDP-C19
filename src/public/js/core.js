@@ -159,7 +159,7 @@ const SPRITE = `<svg width="0" height="0" style="position:absolute" aria-hidden=
     <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></symbol>
     <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></symbol>
 
-    <!-- Ben fallback mascot (shows only if mascot-still.webp is missing) -->
+    <!-- chat assistant fallback avatar (shows only if img/aiko-head.webp fails to load) -->
     <symbol id="ben" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="60" fill="#C1272D"/>
       <path d="M22 120c2-22 18-34 38-34s36 12 38 34z" fill="#fff"/>
@@ -182,7 +182,7 @@ document.body.insertAdjacentHTML('beforeend', `<div class="sm" id="sm" aria-hidd
   <aside class="sm-panel" aria-label="Menu">
     <div class="sm-head"><span class="brand"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><button class="icon-btn" data-sm-close aria-label="Close menu"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <ul class="sm-list" id="smList"></ul>
-    <div class="sm-foot" id="smFoot"><small>Shinju-Kai</small><div class="links"><a href="__ROOT__landingpage/index.html">Website</a><a href="__ROOT__student_portal/login.html">Member log in</a><a href="__ROOT__landingpage/join.html">Join</a></div></div>
+    <div class="sm-foot" id="smFoot"><small>Shinju-Kai</small><div class="links"><a href="__ROOT__landingpage/index.html">Website</a><a href="__ROOT__student_portal/login.html">Log in</a><a href="__ROOT__landingpage/join.html">Join</a></div></div>
   </aside>
 </div>
 <div class="overlay" id="modal" aria-hidden="true">
@@ -602,55 +602,75 @@ function mark(el, bad) { const f = typeof el === 'string' ? $(el) : el; if (f) f
 /* ---------- optional voice-to-text (Web Speech API) ----------
    Any <button data-dictate="textareaId"> toggles dictation into that box.
    Typing always works; dictated text lands in the box and can be edited.
-   Browsers without the API get a friendly note instead of an error. */
+   - asks for the microphone first, so the browser shows its permission prompt
+   - keeps listening through pauses (Chrome stops recognition after a few seconds of silence; we restart it)
+   - falls back to en-US if the browser doesn't know en-SG
+   - explains plainly when the browser can't do voice typing (Firefox, in-app browsers, plain http on a phone) */
 const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
 let dictation = null;
-function stopDictation() { if (dictation) try { dictation.rec.stop(); } catch (_) {} }
-function dictMsg(ta, text) { const m = $('.dict-msg', fldOf(ta)); if (m) { m.textContent = text; m.classList.toggle('show', !!text); } }
-document.addEventListener('click', e => {
-  const btn = e.target.closest('[data-dictate]'); if (!btn) return;
-  const ta = $('#' + btn.dataset.dictate); if (!ta) return;
-  if (!SpeechRec) {
-    btn.classList.add('unsupported');
-    dictMsg(ta, "Voice typing isn't available in this browser. Type your notes instead, or open this page in Chrome or Edge to dictate.");
-    ta.focus(); return;
+function stopDictation() { if (dictation) { dictation.stopping = true; try { dictation.rec.stop(); } catch (_) {} } }
+function dictMsg(ta, text, bad) { const m = $('.dict-msg', fldOf(ta)); if (m) { m.textContent = text; m.classList.toggle('show', !!text); m.classList.toggle('bad', !!bad); } }
+function dictBtn(btn, on) { btn.classList.toggle('on', on); btn.setAttribute('aria-pressed', String(on)); const t = $('span', btn); if (t) t.textContent = on ? 'Stop' : 'Dictate'; }
+
+async function startDictation(btn, ta) {
+  if (!SpeechRec) { btn.classList.add('unsupported'); dictMsg(ta, "Voice typing isn't available in this browser. Open the page in Chrome, Edge or Safari to dictate, or type your notes.", true); ta.focus(); return; }
+  if (!window.isSecureContext) { dictMsg(ta, 'Voice typing only works on a secure page (https:// or localhost). Type your notes instead.', true); return; }
+  // ask for the mic up front: gives a clear prompt and a clear error if it's blocked
+  if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    try { const st = await navigator.mediaDevices.getUserMedia({ audio: true }); st.getTracks().forEach(t => t.stop()); }
+    catch (err) { dictMsg(ta, err && err.name === 'NotFoundError' ? 'No microphone found. Plug one in, or type instead.' : 'Microphone access is blocked. Allow it from the icon in the address bar, then tap Dictate again.', true); return; }
   }
-  if (dictation && dictation.btn === btn) { stopDictation(); return; }
-  stopDictation();
-  const rec = new SpeechRec();
-  rec.lang = 'en-SG'; rec.interimResults = true; rec.continuous = true;
   const base = ta.value.replace(/\s+$/, ''), sep = base ? ' ' : '';
   const capNext = !base || /[.!?]$/.test(base);
-  let done = '';
+  const d = { btn, ta, done: '', stopping: false, lang: 'en-SG', heard: false, rec: null };
   const write = extra => {
-    let t = (done + extra).replace(/^\s+/, '');
+    let t = (d.done + extra).replace(/^\s+/, '');
     if (capNext && t) t = t[0].toUpperCase() + t.slice(1);
     ta.value = base + (t ? sep + t : '');
     ta.dispatchEvent(new Event('input', { bubbles: true }));
   };
-  rec.onresult = ev => {
-    let interim = '';
-    for (let i = ev.resultIndex; i < ev.results.length; i++) {
-      const r = ev.results[i];
-      if (r.isFinal) done += (done ? ' ' : '') + r[0].transcript.trim(); else interim += ' ' + r[0].transcript;
-    }
-    write(interim);
+  const run = () => {
+    const rec = new SpeechRec();
+    rec.lang = d.lang; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
+    rec.onresult = ev => {
+      let interim = '';
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const r = ev.results[i];
+        if (r.isFinal) d.done += (d.done ? ' ' : '') + r[0].transcript.trim(); else interim += ' ' + r[0].transcript;
+      }
+      d.heard = true; write(interim);
+    };
+    rec.onerror = ev => {
+      if (ev.error === 'language-not-supported' && d.lang !== 'en-US') { d.lang = 'en-US'; return; }   // onend restarts in en-US
+      if (ev.error === 'no-speech' || ev.error === 'aborted') return;   // just keep listening / user stopped
+      d.stopping = true;
+      dictMsg(ta, ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'Microphone access is blocked. Allow it from the icon in the address bar, then tap Dictate again.'
+        : ev.error === 'network' ? "Voice typing couldn't reach the browser's speech service. It needs internet, and works in Chrome, Edge or Safari (not in some in-app browsers). You can type instead."
+        : ev.error === 'audio-capture' ? 'No microphone found. Plug one in, or type instead.'
+        : 'Voice typing stopped. You can keep typing.', true);
+    };
+    rec.onend = () => {
+      if (!d.stopping && dictation === d) { try { run(); return; } catch (_) {} }   // keep going through pauses
+      if (dictation === d) dictation = null;
+      dictBtn(btn, false);
+      const m = $('.dict-msg', fldOf(ta)); if (m && m.dataset.listening) { delete m.dataset.listening; if (!m.classList.contains('bad')) dictMsg(ta, d.heard ? '' : "Didn't catch anything. Tap Dictate and try again."); }
+    };
+    d.rec = rec;
+    rec.start();
   };
-  rec.onerror = ev => { const m = $('.dict-msg', fldOf(ta)); if (m) delete m.dataset.listening; dictMsg(ta,
-    ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'Microphone access is blocked. Allow it in your browser settings, or type instead.'
-    : ev.error === 'no-speech' ? "Didn't catch that. Tap Dictate and try again, or type instead."
-    : ev.error === 'network' ? 'Voice typing needs an internet connection. You can type instead.'
-    : ev.error === 'aborted' ? '' : 'Voice typing stopped. You can keep typing.'); };
-  rec.onend = () => {
-    if (dictation && dictation.rec === rec) dictation = null;
-    btn.classList.remove('on'); btn.setAttribute('aria-pressed', 'false'); $('span', btn).textContent = 'Dictate';
-    const m = $('.dict-msg', fldOf(ta)); if (m && m.dataset.listening) { delete m.dataset.listening; dictMsg(ta, ''); }
-  };
-  try { rec.start(); } catch (_) { dictMsg(ta, "Couldn't start voice typing. You can type instead."); return; }
-  dictation = { rec, btn };
-  btn.classList.add('on'); btn.setAttribute('aria-pressed', 'true'); $('span', btn).textContent = 'Stop';
-  dictMsg(ta, 'Listening. Speak, then tap Stop. You can edit the text after.');
+  try { run(); } catch (_) { dictMsg(ta, "Couldn't start voice typing. You can type instead.", true); return; }
+  dictation = d;
+  dictBtn(btn, true);
+  dictMsg(ta, 'Listening… speak now, then tap Stop. You can edit the text after.');
   const m = $('.dict-msg', fldOf(ta)); if (m) m.dataset.listening = 1;
+}
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-dictate]'); if (!btn) return;
+  e.preventDefault();
+  const ta = $('#' + btn.dataset.dictate); if (!ta) return;
+  if (dictation && dictation.btn === btn) { stopDictation(); return; }
+  stopDictation();
+  startDictation(btn, ta);
 });
 
 function qrSVG(seed0 = 1834, size = 200) {

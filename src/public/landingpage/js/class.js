@@ -85,7 +85,7 @@ const CLASS_CTA = {
   private: ['Book a private class', 'S$120 per hour at HQ. Call or email to pick a time.', [['Buy a private class', 'trial.html#private', 'arrow'], ['Call +65 6513 1588', 'tel:+6565131588', 'phone']]]
 };
 function initClassPages() {
-  $('#cpNav').innerHTML = CLASS_PAGES.map(c => `<a href="#${c.id}" data-cls="${c.id}">${esc(({ sep: 'SEP', corporate: 'Corporate', academy: 'Academy' })[c.id] || c.name.replace(' Class', '').replace(' (Adults & Children)', ''))}</a>`).join('');
+  $('#cpNav').innerHTML = '<a href="classes.html">All classes</a>' + CLASS_PAGES.map(c => `<a href="#${c.id}" data-cls="${c.id}">${esc(({ sep: 'SEP', corporate: 'Corporate', academy: 'Academy' })[c.id] || c.name.replace(' Class', '').replace(' (Adults & Children)', ''))}</a>`).join('');
 }
 function renderClass(id) {
   const i = CLASS_PAGES.findIndex(c => c.id === id), c = CLASS_PAGES[i];
@@ -115,7 +115,22 @@ function renderClass(id) {
   const on = $('#cpNav a.on'); if (on) on.scrollIntoView({ block: 'nearest', inline: 'center' });
 }
 
-initClassPages();
+/* ---------- ALL CLASSES (classes.html): one card per class, filterable ---------- */
+const CLASS_GROUP = { adult: 'Adults', ladies: 'Adults', senior: 'Adults', children: 'Children & family', mixed: 'Children & family',
+  weapon: 'Specialist', advanced: 'Specialist', instructional: 'Specialist', private: 'Specialist', sep: 'Programmes', corporate: 'Programmes', academy: 'Programmes' };
+function initClassIndex() {
+  const groups = ['All', 'Adults', 'Children & family', 'Specialist', 'Programmes'];
+  $('#clsFilter').innerHTML = groups.map((g, i) => `<button type="button" class="fpill${i ? '' : ' on'}" data-g="${esc(g)}">${esc(g)}</button>`).join('');
+  $('#clsGrid').innerHTML = CLASS_PAGES.map(c => `<a class="cls-card" href="class.html#${c.id}" data-g="${esc(CLASS_GROUP[c.id])}">
+    <div class="ph"><img src="${CI + c.img}" alt="" loading="lazy"><span class="k" aria-hidden="true">${c.k}</span></div>
+    <div class="bd"><span class="tag">${esc(c.facts[0][2])}</span><h3>${esc(c.name)}</h3><p>${esc(c.intro)}</p><span class="go">View class${icon('arrow')}</span></div></a>`).join('');
+  $('#clsFilter').addEventListener('click', e => {
+    const b = e.target.closest('[data-g]'); if (!b) return;
+    $$('#clsFilter .fpill').forEach(x => x.classList.toggle('on', x === b));
+    $$('#clsGrid .cls-card').forEach(c => { c.hidden = b.dataset.g !== 'All' && c.dataset.g !== b.dataset.g; });
+  });
+}
+
 function showClass() {
   const id = location.hash.slice(1);
   if (!CLASS_PAGES.some(c => c.id === id)) { history.replaceState(null, '', '#adult'); return showClass(); }
@@ -123,5 +138,5 @@ function showClass() {
   window.scrollTo(0, 0);
   animateIn(document.body);
 }
-window.addEventListener('hashchange', showClass);
-showClass();
+if (PAGE === 'class') { initClassPages(); window.addEventListener('hashchange', showClass); showClass(); }
+if (PAGE === 'classes') initClassIndex();

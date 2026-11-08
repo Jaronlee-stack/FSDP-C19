@@ -210,6 +210,88 @@ function openBuy(id) {
   });
 }
 
+/* ---------- package extensions: MC or Compassion Guaranteed (sent to HQ for approval) ---------- */
+const isCompassionPass = p => !!(p && (PKG.kids.find(k => k.name === p.name) || {}).compassion);
+const isoToDate = v => { if (!v) return null; const [y, m, d] = v.split('-').map(Number); return new Date(y, m - 1, d); };
+const mcStatus = { pending: ['warn', 'Waiting for HQ'], approved: ['ok', 'Approved'], rejected: ['bad', 'Not approved'] };
+
+function mcState() {
+  const pass = activePasses().find(p => p.id === $('#mc-pass').value);
+  const kind = radio('mcKind') || 'mc';
+  const from = isoToDate($('#mc-from').dataset.iso), to = isoToDate($('#mc-to').dataset.iso);
+  const days = kind === 'compassion' ? +$('#mc-days').value : (from && to && to >= from ? daysBetween(from, to) + 1 : 0);
+  return { pass, kind, from, to, days };
+}
+
+function renderMCForm() {
+  const { pass, kind, days } = mcState();
+  const comp = isCompassionPass(pass);
+  const compIn = $('#mcCompWrap input');
+  compIn.disabled = !comp; $('#mcCompWrap').classList.toggle('off', !comp);
+  if (!comp && compIn.checked) { $('input[name="mcKind"][value="mc"]').checked = true; return renderMCForm(); }
+  $$('#mcForm .mc-only').forEach(el => el.hidden = kind !== 'mc');
+  $$('#mcForm .comp-only').forEach(el => el.hidden = kind !== 'compassion');
+  $('#mcSum').innerHTML = pass && days
+    ? `<div class="note">${icon('clock')}<span>Your <b>${esc(pass.name)}</b> would move from <b>${fmtDate(pass.expires)}</b> to <b>${fmtDate(addDays(pass.expires, days))}</b> (+${plural(days, 'day')}) once HQ approves.</span></div>`
+    : '';
+}
+
+function renderMCList() {
+  const list = MC_REQS.filter(r => r.no === ME.no);
+  $('#mcListWrap').hidden = !list.length;
+  const pending = list.filter(r => r.status === 'pending').length;
+  $('#mcCount').hidden = !pending; $('#mcCount').textContent = `${pending} waiting`;
+  $('#mcList').innerHTML = list.map(r => {
+    const [cls, lbl] = mcStatus[r.status];
+    const when = r.kind === 'mc' ? `MC ${fmtShort(new Date(r.from))} – ${fmtShort(new Date(r.to))}` : 'Compassion Guaranteed';
+    return `<div class="row"><span class="av${r.status === 'approved' ? ' navy' : ''}">${icon(r.kind === 'mc' ? 'doc' : 'gift')}</span><div class="grow"><div class="t">+${plural(r.days, 'day')} · ${esc(r.passName)}</div><div class="d">${when} · sent ${fmtShort(new Date(r.date))}${r.status === 'approved' && r.newExp ? ` · now expires ${fmtDate(new Date(r.newExp))}` : ''}${r.status === 'rejected' && r.reason ? ` · ${esc(r.reason)}` : ''}</div></div><div class="acts"><span class="pill ${cls}">${lbl}</span>${r.status === 'pending' ? `<button type="button" class="sbtn ghost" data-mc-withdraw="${esc(r.id)}">Withdraw</button>` : ''}</div></div>`;
+  }).join('');
+}
+
+function initMC() {
+  const act = activePasses();
+  $('#mc-pass').innerHTML = act.length ? act.map(p => `<option value="${p.id}">${esc(p.name)} · ${plural(p.left, 'lesson')} left · expires ${fmtShort(p.expires)}</option>`).join('') : '<option value="">No active lesson package</option>';
+  if (!act.length) { $('#mcSubmit').disabled = true; $('#mcSum').innerHTML = `<div class="note warn">${icon('info')}<span>You have no active lesson package to extend. Unlimited plans renew every 2 weeks and don't need extending.</span></div>`; }
+  $('#mcForm').addEventListener('change', renderMCForm);
+  $('#mcForm').addEventListener('input', renderMCForm);
+  $('#mcForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const st = mcState();
+    if (!st.pass) { toast('Choose a package to extend.', 'bad'); return; }
+    if (MC_REQS.some(r => r.passId === st.pass.id && r.status === 'pending')) { toast('You already have a request waiting for this package.', 'info'); return; }
+    let ok = true;
+    if (st.kind === 'mc') {
+      const f = $('#mc-file').files[0];
+      const fileErr = !f ? 'Upload your medical certificate.' : !/^image\/|^application\/pdf$/.test(f.type) ? 'Use a photo (JPG, PNG) or a PDF.' : f.size > 10 * 1024 * 1024 ? 'File is over 10 MB. Try a smaller one.' : '';
+      $('#mcFileErr').textContent = fileErr || 'Upload your medical certificate.';
+      ok = mark(fldOf($('#mc-file')), !!fileErr) && ok;
+      ok = mark(fldOf($('#mc-from')), !st.from) && ok;
+      const toBad = !st.to || (st.from && st.to < st.from);
+      $('#mcToErr').textContent = st.to && st.from && st.to < st.from ? 'The last day can\'t be before the first day.' : 'Enter the last day on your MC.';
+      ok = mark(fldOf($('#mc-to')), toBad) && ok;
+      if (!ok) { toast('Check the highlighted fields.', 'bad'); return; }
+    }
+    const f = $('#mc-file').files[0];
+    MC_REQS.unshift({
+      id: 'MC-' + String(Date.now()).slice(-6), n: ME.name, no: ME.no, passId: st.pass.id, passName: st.pass.name,
+      kind: st.kind, from: st.from, to: st.to, days: st.days, oldExp: st.pass.expires,
+      file: st.kind === 'mc' && f ? `mc-uploads/${ME.no}/${Date.now()}-${f.name.replace(/\s+/g, '-')}` : null, fileName: f && st.kind === 'mc' ? f.name : null,
+      note: $('#mc-note').value.trim(), date: new Date(), status: 'pending'
+    });
+    save();
+    $('#mcForm').reset(); $$('#mcForm input[data-dp]').forEach(i => i.dpSet && i.dpSet(null)); $$('#mcForm .fld').forEach(x => x.classList.remove('invalid'));
+    renderMCForm(); renderMCList();
+    toast('Request sent. HQ usually replies within 2 working days.');
+  });
+  document.addEventListener('click', e => {
+    const w = e.target.closest('[data-mc-withdraw]'); if (!w) return;
+    const i = MC_REQS.findIndex(r => r.id === w.dataset.mcWithdraw); if (i < 0) return;
+    MC_REQS.splice(i, 1); save(); renderMCList(); toast('Request withdrawn.', 'info');
+  });
+  renderMCForm(); renderMCList();
+  if (location.hash === '#mc') setTimeout(() => $('#mc').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 300);
+}
+
 /* ---------- class rating: a pop-up once a class has ended ---------- */
 const RATE_TAGS = ['Clear explanations', 'Good pace', 'Felt safe', 'Learned something new', 'Fun partner work'];
 function agoText(end) {
@@ -440,8 +522,8 @@ const gameView = () => pref(VIEW_KEY, 'game') === 'game';
 const MILESTONE = 6;   // a reward chest every 6 sessions
 
 /* membership card (shown on Profile, and when the belt badge on Home is tapped) */
-function memberCardHTML() {
-  return `<div class="pcard" id="memberCard"><div class="pcard-body"><div class="pcard-tile"><span class="pcard-holo"></span>
+function memberCardHTML(id = 'memberCard') {
+  return `<div class="pcard" id="${id}"><div class="pcard-body"><div class="pcard-tile"><span class="pcard-holo"></span>
     <div class="pcard-top"><span class="pcard-org"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><span class="pcard-kanji">合気道</span></div>
     <div class="pcard-mid"><span class="pcard-av">${initials(ME.name)}</span><div><div class="pcard-name">${esc(ME.name)}</div><div class="pcard-rank" style="--belt:${beltOf(ME.grade)}"><i></i>${esc(ME.grade)}</div></div></div>
     <div class="pcard-bot"><span>MEMBER NO.<b>${esc(ME.no)}</b></span><span style="text-align:right">PRINCIPAL DOJO<b>${esc(DOJOS.find(d => d.id === ME.dojo).short)}</b></span></div>
@@ -541,32 +623,205 @@ function renderNextBelt(count) {
     <p class="nb-months ${monthsMet ? 'ok' : ''}">${icon(monthsMet ? 'check' : 'clock')}<span>${GRADE.monthsInRank} of ${GRADE.needMonths} months at ${esc(ME.grade)}${monthsMet ? ' · met' : ''}</span></p>`;
 }
 
+/* =====================================================================
+   GAMIFIED PATH — an illustrated dojo-garden trail.
+   One stop per session; every 6th stop unlocks an aikido item; the trail
+   ends at the dojo with your next belt. Aiko (the dojo girl) stands on the
+   stop you're up to and hops forward each time a session is claimed.
+   ===================================================================== */
+const REWARDS = [
+  { id: 'bokken', name: 'Bokken', d: 'Wooden sword' },
+  { id: 'jo', name: 'Jo', d: 'Wooden staff' },
+  { id: 'tanto', name: 'Tanto', d: 'Wooden knife' },
+  { id: 'hakama', name: 'Hakama', d: 'Pleated trousers' },
+  { id: 'tessen', name: 'Tessen', d: 'Iron fan' },
+  { id: 'zori', name: 'Zori', d: 'Dojo sandals' }
+];
+const rewardFor = n => REWARDS[(Math.floor(n / MILESTONE) - 1 + REWARDS.length * 9) % REWARDS.length];
+
+/* small inline illustrations (viewBox 0 0 64 64) */
+const ITEM_ART = {
+  bokken: '<g transform="rotate(-38 32 32)"><path d="M30 3c2.5 0 3.6 1.5 3.6 4l.4 33h-5l-.4-33c0-2.5.6-4 1.4-4z" fill="#D9A866" stroke="#7A5328" stroke-width="1.4"/><ellipse cx="31.8" cy="41" rx="8.5" ry="2.6" fill="#2B2B30"/><rect x="29.3" y="42.5" width="5" height="17" rx="2.2" fill="#4A2E18"/><path d="M29.6 46h4.4M29.6 50h4.4M29.6 54h4.4" stroke="#C9A06A" stroke-width="1.1"/></g>',
+  jo: '<g transform="rotate(42 32 32)"><rect x="29.5" y="1" width="5" height="62" rx="2.5" fill="#DDB077" stroke="#8A5A2B" stroke-width="1.4"/><path d="M29.5 14h5M29.5 50h5" stroke="#8A5A2B" stroke-width="1.4"/></g>',
+  tanto: '<g transform="rotate(-30 32 32)"><path d="M30 10c3 0 4 2 4 4v20h-6V14c0-2 1-4 2-4z" fill="#E9DCC4" stroke="#8A7556" stroke-width="1.4"/><rect x="24" y="34" width="16" height="4" rx="2" fill="#2B2B30"/><rect x="28.5" y="38" width="7" height="15" rx="3" fill="#7B2A26"/></g>',
+  hakama: '<path d="M18 14h28l5 40H36l-4-22-4 22H13z" fill="#1E2233" stroke="#0B0E18" stroke-width="1.4" stroke-linejoin="round"/><path d="M18 14h28v6H18z" fill="#2F3550"/><path d="M24 22l-3 30M40 22l3 30M28 22l-1 10M36 22l1 10" stroke="#3B4262" stroke-width="1.4"/><path d="M27 17h10" stroke="#F4EFE6" stroke-width="2" stroke-linecap="round"/>',
+  tessen: '<path d="M32 54 8 26a32 32 0 0 1 48 0z" fill="#C1272D" stroke="#7E151A" stroke-width="1.4" stroke-linejoin="round"/><path d="M32 54 14 22M32 54 22 16M32 54V14M32 54l10-38M32 54l18-32" stroke="#F2B8BA" stroke-width="1.2"/><circle cx="32" cy="54" r="3.4" fill="#2B2B30"/><circle cx="32" cy="33" r="5" fill="#fff" opacity=".9"/>',
+  zori: '<ellipse cx="22" cy="34" rx="9" ry="19" fill="#E6D3A8" stroke="#8A6D3A" stroke-width="1.4"/><ellipse cx="42" cy="30" rx="9" ry="19" fill="#E6D3A8" stroke="#8A6D3A" stroke-width="1.4"/><path d="M22 22l-6 9M22 22l6 9M42 18l-6 9M42 18l6 9" stroke="#C1272D" stroke-width="2.6" stroke-linecap="round"/>'
+};
+const itemSVG = id => `<svg viewBox="0 0 64 64" aria-hidden="true">${ITEM_ART[id] || ''}</svg>`;
+const beltSVG = col => `<svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 26h52v10H6z" fill="${col}" stroke="rgba(0,0,0,.35)" stroke-width="1.4"/><path d="M24 31 14 56l8-2 4 6 8-26M40 31l10 25-8-2-4 6-8-26" fill="${col}" stroke="rgba(0,0,0,.35)" stroke-width="1.4" stroke-linejoin="round"/><rect x="25" y="22" width="14" height="18" rx="4" fill="${col}" stroke="rgba(0,0,0,.45)" stroke-width="1.6"/></svg>`;
+
+/* scenery (sized by the wrapper; viewBox 0 0 100 100) */
+const DECOR = {
+  tree: '<ellipse cx="50" cy="94" rx="26" ry="5" fill="rgba(0,0,0,.12)"/><path d="M45 94V64h10v30z" fill="#8A5A2B"/><circle cx="34" cy="50" r="22" fill="#3E9A3C"/><circle cx="66" cy="50" r="22" fill="#3E9A3C"/><circle cx="50" cy="32" r="26" fill="#4FB24A"/><circle cx="40" cy="26" r="9" fill="#7ED36E" opacity=".7"/><circle cx="62" cy="44" r="6" fill="#7ED36E" opacity=".55"/>',
+  sakura: '<ellipse cx="50" cy="94" rx="26" ry="5" fill="rgba(0,0,0,.12)"/><path d="M46 94V60l-12-12 4-3 10 9 10-12 4 3-10 14v35z" fill="#7A4A2A"/><circle cx="30" cy="42" r="18" fill="#F6B6C8"/><circle cx="70" cy="40" r="18" fill="#F6B6C8"/><circle cx="50" cy="26" r="22" fill="#F9C9D6"/><circle cx="50" cy="48" r="14" fill="#F2A3BA"/><circle cx="40" cy="20" r="6" fill="#fff" opacity=".6"/><circle cx="66" cy="34" r="3" fill="#fff" opacity=".7"/><circle cx="28" cy="46" r="3" fill="#fff" opacity=".6"/>',
+  pine: '<ellipse cx="50" cy="94" rx="20" ry="4.5" fill="rgba(0,0,0,.12)"/><rect x="46" y="76" width="8" height="18" fill="#7A4A2A"/><path d="M50 6 74 46H26z" fill="#2F7D3A"/><path d="M50 26l28 40H22z" fill="#2B7034"/><path d="M50 46l30 34H20z" fill="#256330"/><path d="M50 10 58 26H44z" fill="#4E9E52" opacity=".6"/>',
+  lantern: '<ellipse cx="50" cy="95" rx="20" ry="4" fill="rgba(0,0,0,.14)"/><rect x="34" y="84" width="32" height="10" rx="2" fill="#9A9A96"/><rect x="44" y="58" width="12" height="27" fill="#B1B1AC"/><rect x="32" y="50" width="36" height="9" rx="2" fill="#9A9A96"/><rect x="36" y="34" width="28" height="17" rx="2" fill="#C2C2BC"/><rect x="43" y="38" width="14" height="10" rx="1.5" fill="#FFD36B"/><path d="M26 34 50 18l24 16z" fill="#8C8C88"/><circle cx="50" cy="15" r="4" fill="#8C8C88"/>',
+  bush: '<ellipse cx="50" cy="92" rx="30" ry="5" fill="rgba(0,0,0,.1)"/><circle cx="32" cy="74" r="16" fill="#45A443"/><circle cx="66" cy="74" r="16" fill="#45A443"/><circle cx="50" cy="64" r="20" fill="#56B852"/><circle cx="38" cy="66" r="3" fill="#fff"/><circle cx="60" cy="58" r="3" fill="#FFD36B"/><circle cx="68" cy="72" r="3" fill="#fff"/><circle cx="46" cy="78" r="3" fill="#F6B6C8"/>',
+  rock: '<ellipse cx="50" cy="90" rx="30" ry="5" fill="rgba(0,0,0,.12)"/><path d="M22 88c-4-14 6-28 22-30 14-2 30 6 34 18 3 8-2 12-8 12z" fill="#A9A7A1"/><path d="M34 64c8-4 18-4 26 0-6 2-16 2-26 0z" fill="#C9C7C1"/>',
+  rack: '<ellipse cx="50" cy="95" rx="26" ry="4" fill="rgba(0,0,0,.12)"/><rect x="22" y="30" width="6" height="64" rx="2" fill="#6B4425"/><rect x="72" y="30" width="6" height="64" rx="2" fill="#6B4425"/><rect x="18" y="40" width="64" height="5" rx="2" fill="#7E5230"/><rect x="18" y="62" width="64" height="5" rx="2" fill="#7E5230"/><path d="M14 37l72 4M14 59l72 4" stroke="#D9A866" stroke-width="3.4" stroke-linecap="round"/><path d="M14 37l10 .6M14 59l10 .6" stroke="#2B2B30" stroke-width="3.6" stroke-linecap="round"/>'
+};
+const TORII = '<svg viewBox="0 0 200 130" aria-hidden="true"><ellipse cx="100" cy="124" rx="80" ry="6" fill="rgba(0,0,0,.12)"/><rect x="44" y="34" width="12" height="90" fill="#C1272D"/><rect x="144" y="34" width="12" height="90" fill="#C1272D"/><rect x="40" y="112" width="20" height="10" fill="#2B2B30"/><rect x="140" y="112" width="20" height="10" fill="#2B2B30"/><rect x="34" y="40" width="132" height="10" fill="#C1272D"/><path d="M14 18c40 8 132 8 172 0l-4 14c-40 6-124 6-164 0z" fill="#2B2B30"/><path d="M20 26c40 6 120 6 160 0v8c-40 5-120 5-160 0z" fill="#C1272D"/><rect x="92" y="34" width="16" height="16" fill="#2B2B30"/><rect x="95" y="37" width="10" height="10" fill="#F4E9D2"/></svg>';
+const DOJO_ART = '<svg viewBox="0 0 260 170" aria-hidden="true"><ellipse cx="130" cy="164" rx="120" ry="7" fill="rgba(0,0,0,.14)"/><rect x="28" y="150" width="204" height="12" rx="3" fill="#A79F92"/><rect x="40" y="76" width="180" height="76" fill="#F6F0E4"/><path d="M40 76h180" stroke="#6B4425" stroke-width="5"/><rect x="40" y="76" width="8" height="76" fill="#6B4425"/><rect x="212" y="76" width="8" height="76" fill="#6B4425"/><rect x="104" y="96" width="52" height="56" fill="#6B4425"/><rect x="108" y="100" width="21" height="52" fill="#E9DCC4"/><rect x="131" y="100" width="21" height="52" fill="#E9DCC4"/><path d="M58 98h30v34H58zM172 98h30v34h-30z" fill="#E9DCC4" stroke="#6B4425" stroke-width="3"/><path d="M73 98v34M58 115h30M187 98v34M172 115h30" stroke="#6B4425" stroke-width="2"/><path d="M6 80c40-10 60-36 74-52h100c14 16 34 42 74 52z" fill="#22283B"/><path d="M6 80c40-10 60-36 74-52h100c14 16 34 42 74 52l-6 6c-40-8-62-30-74-46H86C74 56 52 78 12 86z" fill="#2F3650"/><path d="M60 28c20-14 120-14 140 0l-6 6H66z" fill="#22283B"/><rect x="112" y="40" width="36" height="18" rx="2" fill="#F6F0E4"/><text x="130" y="54" text-anchor="middle" font-family="Shippori Mincho, serif" font-size="13" fill="#22283B">道場</text><circle cx="130" cy="18" r="6" fill="#C1272D"/></svg>';
+
+const GP = { w: 0, count: 0, avatar: null, ro: null };
+function seeded(seed) { let x = seed; return () => (x = (x * 16807) % 2147483647) / 2147483647; }
+
 function renderPath(count, anim) {
+  const box = $('#gpath'); if (!box) return;
+  const w = Math.round(box.clientWidth); if (!w) return;   // hidden (Standard view)
+  if (!GP.ro && 'ResizeObserver' in window) {
+    GP.ro = new ResizeObserver(() => { const nw = Math.round(box.clientWidth); if (nw && Math.abs(nw - GP.w) > 4) renderPath(GP.count, false); });
+    GP.ro.observe(box);
+  }
+  GP.w = w; GP.count = count;
   const need = GRADE.needSessions, nxt = BOOKINGS.slice().sort((a, b) => a.date - b.date)[0];
   const first = Math.max(1, Math.min(count - 1, need - 8));
   const lastReg = Math.min(need - 1, Math.max(count + 5, first + 7));
-  const ZIG = [0, 1, 1.5, 1, 0, -1, -1.5, -1];
-  const nodes = [];
-  if (first > 1) nodes.push(`<li class="lp-cap"><span>${icon('check')}Sessions 1–${first - 1} done</span></li>`);
-  let k = 0;
-  const node = (n, kind) => {
-    const st = n <= count ? 'done' : n === count + 1 ? 'now' : 'locked';
-    const ic = kind === 'trophy' ? 'trophy' : kind === 'chest' ? 'gift' : st === 'done' ? 'check' : st === 'locked' ? 'lock' : 'star';
-    const label = kind === 'trophy' ? `Session ${n} · ready for ${GRADE.target}` : kind === 'chest' ? `Session ${n} · milestone` : `Session ${n}`;
-    const tip = st === 'now' ? `<span class="lp-tip">${nxt ? `Next: ${dayName(nxt.date)} ${fmtShort(nxt.date)}` : 'Book a class'}</span>` : '';
-    nodes.push(`<li class="lp-node ${st} ${kind || ''}" style="--x:${ZIG[k++ % ZIG.length]}" data-n="${n}"><span class="lp-dot" aria-label="${label}, ${st === 'done' ? 'completed' : st === 'now' ? 'up next' : 'locked'}">${icon(ic)}</span>${tip}${kind === 'trophy' ? `<span class="lp-end">${esc(GRADE.target)}</span>` : ''}</li>`);
-  };
-  for (let n = first; n <= lastReg; n++) node(n, n % MILESTONE === 0 ? 'chest' : '');
-  if (lastReg < need - 1) nodes.push(`<li class="lp-gap" style="--x:${ZIG[k++ % ZIG.length]}"><span>${plural(need - 1 - lastReg, 'more session')}</span></li>`);
-  node(need, 'trophy');
-  $('#lpath').innerHTML = nodes.join('');
-  $('#pathSub').textContent = count >= need ? 'Path complete. Time to prepare for grading.' : 'Every class you attend moves you one step. No-shows don\'t.';
-  if (anim && !reduce) {
-    const doneNode = $(`#lpath [data-n="${count}"] .lp-dot`), nowNode = $('#lpath .lp-node.now .lp-dot');
-    doneNode && doneNode.animate([{ transform: 'scale(.86)' }, { transform: 'scale(1.16)', offset: .45 }, { transform: 'scale(.96)', offset: .75 }, { transform: 'scale(1)' }], { duration: 560, easing: 'cubic-bezier(.23,1,.32,1)' });
-    nowNode && nowNode.animate([{ transform: 'translateY(8px) scale(.9)', opacity: .4 }, { transform: 'translateY(-4px) scale(1.04)', opacity: 1, offset: .6 }, { transform: 'none', opacity: 1 }], { duration: 520, delay: 140, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'backwards' });
+  const items = [];
+  if (first > 1) items.push({ kind: 'cap', text: `Sessions 1–${first - 1}` });
+  for (let n = first; n <= lastReg; n++) items.push({ kind: n % MILESTONE === 0 ? 'chest' : 'step', n });
+  if (lastReg < need - 1) items.push({ kind: 'gap', text: plural(need - 1 - lastReg, 'more session') });
+  items.push({ kind: 'trophy', n: need });
+
+  const narrow = w < 460, STEP = narrow ? 104 : 116, TOP = 158, BOT = 250, AMP = narrow ? 0.21 : 0.25;
+  const roadW = Math.max(30, Math.min(46, w * 0.085));
+  const H = TOP + (items.length - 1) * STEP + BOT;
+  const pts = items.map((it, k) => ({ x: w * (0.5 + AMP * Math.sin(k * 0.95 + 0.7)), y: TOP + k * STEP }));
+  const start = { x: w * 0.5, y: 70 }, end = { x: w * 0.5, y: H - 92 };
+  const L = [start, ...pts, end];
+  // road x at any height (straight-line between stops is close enough for placing scenery)
+  const roadX = y => { for (let i = 0; i < L.length - 1; i++) { const a = L[i], b = L[i + 1]; if (y >= a.y && y <= b.y) return a.x + (b.x - a.x) * ((y - a.y) / (b.y - a.y || 1)); } return w / 2; };
+  let d = `M${start.x.toFixed(1)} ${start.y}`;
+  for (let i = 0; i < L.length - 1; i++) {
+    const p0 = L[i - 1] || L[i], p1 = L[i], p2 = L[i + 1], p3 = L[i + 2] || p2;
+    d += ` C${(p1.x + (p2.x - p0.x) / 6).toFixed(1)} ${(p1.y + (p2.y - p0.y) / 6).toFixed(1)} ${(p2.x - (p3.x - p1.x) / 6).toFixed(1)} ${(p2.y - (p3.y - p1.y) / 6).toFixed(1)} ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
   }
+
+  // river + bridge between two stops about 60% of the way down
+  let river = '', bridge = '', riverY = -999;
+  if (items.length >= 6) {
+    const kr = Math.min(items.length - 2, Math.round(items.length * 0.58));
+    riverY = (pts[kr].y + pts[kr + 1].y) / 2;
+    const top = [], bot = [];
+    for (let x = 0; x <= w + 20; x += 20) { top.push(`${x} ${(riverY - 24 + Math.sin(x / 38) * 4).toFixed(1)}`); bot.push(`${x} ${(riverY + 24 + Math.sin(x / 44 + 1.3) * 4).toFixed(1)}`); }
+    river = `<path d="M${top.join(' L')} L${bot.reverse().join(' L')} Z" fill="#5DB7E6"/><path d="M${top.join(' L').split(' L').map(q => q.split(' ').map((v, i) => i ? (+v + 3).toFixed(1) : v).join(' ')).join(' L')}" fill="none" stroke="#8FD0F2" stroke-width="3" opacity=".8"/>`
+      + [0.18, 0.5, 0.8].map((f, i) => `<path d="M${w * f - 22} ${riverY + (i - 1) * 6} q11 -5 22 0 t22 0" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".55"/>`).join('');
+    const bx = (pts[kr].x + pts[kr + 1].x) / 2, ang = -Math.atan2(pts[kr + 1].x - pts[kr].x, STEP) * 180 / Math.PI;
+    const bw = roadW + 18, bh = 82;
+    bridge = `<g transform="translate(${bx.toFixed(1)} ${riverY.toFixed(1)}) rotate(${ang.toFixed(1)})"><rect x="${-bw / 2}" y="${-bh / 2}" width="${bw}" height="${bh}" rx="4" fill="#9A6234"/>${[...Array(9)].map((_, i) => `<rect x="${-bw / 2 + 2}" y="${-bh / 2 + 3 + i * 8.6}" width="${bw - 4}" height="6.4" rx="1.5" fill="#B87A45"/>`).join('')}<rect x="${-bw / 2 - 5}" y="${-bh / 2 - 6}" width="9" height="12" rx="2" fill="#6E4223"/><rect x="${bw / 2 - 4}" y="${-bh / 2 - 6}" width="9" height="12" rx="2" fill="#6E4223"/><rect x="${-bw / 2 - 5}" y="${bh / 2 - 6}" width="9" height="12" rx="2" fill="#6E4223"/><rect x="${bw / 2 - 4}" y="${bh / 2 - 6}" width="9" height="12" rx="2" fill="#6E4223"/></g>`;
+  }
+
+  // scenery on the side of the trail away from the road, plus grass tufts and flowers
+  const rnd = seeded(11 + items.length), order = ['tree', 'sakura', 'lantern', 'pine', 'bush', 'rack', 'sakura', 'rock', 'tree'];
+  const nearRiver = y => Math.abs(y - riverY) < 58;
+  const deco = [];
+  pts.forEach((p, k) => {
+    const left = p.x > w / 2;
+    const x = left ? w * (0.07 + rnd() * 0.13) : w * (0.8 + rnd() * 0.13);
+    const y = p.y + (rnd() - 0.5) * 36;
+    if (nearRiver(y) || y > H - 210) return;
+    const type = order[(k + Math.floor(rnd() * 2)) % order.length];
+    const sz = t => (t === 'rock' || t === 'bush' ? 58 : t === 'lantern' || t === 'rack' ? 64 : 104) * (narrow ? 0.8 : 1.15);
+    deco.push({ x, y, type, size: sz(type) });
+    // wide screens: a second, smaller piece of scenery fills the open side
+    if (!narrow && k % 2 === 0) {
+      const x2 = left ? w * (0.27 + rnd() * 0.06) : w * (0.67 + rnd() * 0.06), y2 = y + 46;
+      const t2 = ['bush', 'rock', 'lantern', 'bush'][k % 4];
+      if (!nearRiver(y2) && Math.abs(x2 - roadX(y2)) > roadW * 2.2) deco.push({ x: x2, y: y2, type: t2, size: sz(t2) * 0.85 });
+    }
+  });
+  for (let i = 0; i < items.length * 4; i++) {
+    const x = rnd() * w, y = 120 + rnd() * (H - 360);
+    if (nearRiver(y) || Math.abs(x - roadX(y)) < roadW * 1.25 || deco.some(o => Math.abs(o.x - x) < 34 && Math.abs(o.y - y) < 40)) continue;
+    deco.push({ x, y, type: i % 3 ? 'tuft' : 'flower', size: 18 });
+  }
+  deco.sort((a, b) => a.y - b.y);
+  const decoHTML = deco.map(o => o.type === 'tuft'
+    ? `<span class="gp-tuft" style="left:${o.x.toFixed(0)}px;top:${o.y.toFixed(0)}px"></span>`
+    : o.type === 'flower' ? `<span class="gp-flower" style="left:${o.x.toFixed(0)}px;top:${o.y.toFixed(0)}px"></span>`
+      : `<svg class="gp-deco" viewBox="0 0 100 100" style="left:${o.x.toFixed(0)}px;top:${o.y.toFixed(0)}px;width:${o.size}px;height:${o.size}px" aria-hidden="true">${DECOR[o.type]}</svg>`).join('');
+
+  // stops
+  const nowN = Math.min(count + 1, need), done = count >= need;
+  let nowPt = null;
+  const nodeHTML = items.map((it, k) => {
+    const p = pts[k], pos = `left:${p.x.toFixed(1)}px;top:${p.y}px`;
+    if (it.kind === 'cap') return `<div class="gp-sign" style="${pos}"><span>${icon('check')}${esc(it.text)}</span></div>`;
+    if (it.kind === 'gap') return `<div class="gp-sign dashed" style="${pos}"><span>${esc(it.text)}</span></div>`;
+    const st = it.n <= count ? 'done' : it.n === count + 1 ? 'now' : 'locked';
+    if (st === 'now' || (done && it.kind === 'trophy')) nowPt = p;
+    if (it.kind === 'trophy') {
+      return `<button type="button" class="gp-node trophy ${done ? 'done' : st}" style="${pos}" data-gp="trophy" aria-label="Session ${it.n}: ready for ${esc(GRADE.target)}${done ? ', reached' : ''}"><span class="gp-disc">${beltSVG(beltOf(GRADE.target))}</span><span class="gp-lbl">${esc(GRADE.target)}</span></button>`;
+    }
+    if (it.kind === 'chest') {
+      const r = rewardFor(it.n);
+      return `<button type="button" class="gp-node chest ${st}" style="${pos}" data-gp="chest" data-n="${it.n}" aria-label="Session ${it.n} milestone: ${r.name}, ${st === 'done' ? 'unlocked' : 'locked'}"><span class="gp-disc">${itemSVG(r.id)}${st === 'done' ? '' : `<i class="gp-lock">${icon('lock')}</i>`}</span><span class="gp-lbl">${st === 'done' ? icon('check') : ''}${esc(r.name)}</span></button>`;
+    }
+    return `<button type="button" class="gp-node step ${st}" style="${pos}" data-gp="${st}" data-n="${it.n}" aria-label="Session ${it.n}, ${st === 'done' ? 'completed' : st === 'now' ? 'up next' : 'locked'}"><span class="gp-disc">${icon(st === 'done' ? 'check' : st === 'locked' ? 'lock' : 'star')}</span><span class="gp-lbl">${st === 'done' ? icon('check') : st === 'locked' ? icon('lock') : ''}${it.n}</span></button>`;
+  }).join('');
+
+  // Aiko + the "up next" card
+  const nextChest = Math.ceil(nowN / MILESTONE) * MILESTONE;
+  const tease = !done && nextChest < need ? `<span class="gp-tease">${itemSVG(rewardFor(nextChest).id)}<span>Unlocks <b>${esc(rewardFor(nextChest).name)}</b> in ${plural(nextChest - count, 'session')}</span></span>` : '';
+  const pct = Math.min(100, Math.round(count / need * 100));
+  let av = '';
+  if (nowPt) {
+    const right = nowPt.x < w / 2;
+    av = `<div class="gp-av" style="left:${nowPt.x.toFixed(1)}px;top:${nowPt.y}px"><img src="${url('img/aiko-avatar.png')}" alt="" draggable="false"><span class="gp-av-shadow"></span></div>
+      <div class="gp-card ${right ? 'r' : 'l'}" style="left:${nowPt.x.toFixed(1)}px;top:${nowPt.y}px">
+        <b>${done ? 'Path complete!' : `Up next · Session ${nowN}`}</b>
+        <span class="gp-when">${done ? `Ask your instructor about ${esc(GRADE.target)} grading` : nxt ? `${dayName(nxt.date)} ${fmtShort(nxt.date)} · ${timeLabel(nxt.c.time)} ${esc(nxt.c.type)}` : 'No class booked yet'}</span>
+        <span class="gp-bar"><i style="width:${pct}%"></i><em>${count}/${need}</em></span>
+        ${tease}
+        ${!done && !nxt ? '<button type="button" class="sbtn dark gp-book" data-page-link="book">Book a class</button>' : ''}
+      </div>`;
+  }
+
+  box.style.height = H + 'px';
+  box.style.setProperty('--river', riverY > 0 ? riverY + 'px' : '-999px');
+  box.style.setProperty('--court', (H - 230) + 'px');
+  box.innerHTML = `<svg class="gp-svg" width="${w}" height="${H}" viewBox="0 0 ${w} ${H}" aria-hidden="true">
+      ${river}
+      <path d="${d}" fill="none" stroke="#C99A5B" stroke-width="${roadW + 8}" stroke-linecap="round"/>
+      <path d="${d}" fill="none" stroke="#EDCC92" stroke-width="${roadW}" stroke-linecap="round"/>
+      <path d="${d}" fill="none" stroke="#F7E3B9" stroke-width="3" stroke-linecap="round" stroke-dasharray="2 16"/>
+      ${bridge}
+    </svg>
+    <div class="gp-torii" style="left:${w / 2}px">${TORII}</div>
+    ${decoHTML}
+    <div class="gp-dojo" style="left:${w / 2}px;top:${H - 182}px">${DOJO_ART}</div>
+    ${nodeHTML}${av}`;
+
+  $('#pathSub').textContent = done ? 'Path complete. Time to prepare for grading.' : 'Every class you attend moves you one step. No-shows don\'t.';
+
+  // Aiko hops from where she stood to her new stop
+  const avEl = $('.gp-av', box);
+  if (avEl && anim && !reduce && GP.avatar && avEl.animate) {
+    const dx = GP.avatar.x - nowPt.x, dy = GP.avatar.y - nowPt.y;
+    avEl.animate([
+      { transform: `translate(${dx}px, ${dy}px)` },
+      { transform: `translate(${dx / 2}px, ${dy / 2 - 70}px)`, offset: 0.5 },
+      { transform: 'translate(0, 0)', offset: 0.85 },
+      { transform: 'translate(0, -8px)', offset: 0.93 },
+      { transform: 'translate(0, 0)' }
+    ], { duration: 780, easing: 'cubic-bezier(.3,.7,.3,1)' });
+    const doneDot = $(`.gp-node[data-n="${count}"] .gp-disc`, box);
+    doneDot && doneDot.animate([{ transform: 'scale(.8)' }, { transform: 'scale(1.18)', offset: .5 }, { transform: 'scale(1)' }], { duration: 560, delay: 300, easing: 'cubic-bezier(.23,1,.32,1)' });
+  }
+  if (nowPt) GP.avatar = { x: nowPt.x, y: nowPt.y };
 }
+
+/* tapping a stop explains it */
+document.addEventListener('click', e => {
+  const n = e.target.closest('[data-gp]'); if (!n) return;
+  const k = n.dataset.gp, num = +n.dataset.n, need = GRADE.needSessions, cnt = GP.count;
+  if (k === 'chest') { const r = rewardFor(num); toast(num <= cnt ? `${r.name} (${r.d.toLowerCase()}) unlocked at session ${num}.` : `Attend ${plural(num - cnt, 'more class', )} to unlock the ${r.name} (${r.d.toLowerCase()}).`, 'info'); return; }
+  if (k === 'trophy') { toast(cnt >= need ? `All ${need} sessions done. Your instructor can now mark you Qualified for ${GRADE.target}.` : `${plural(need - cnt, 'more session')} until you're ready for ${GRADE.target} grading.`, 'info'); return; }
+  if (k === 'done') toast(`Session ${num} · completed`, 'info');
+  else if (k === 'locked') toast(`Session ${num} unlocks after ${plural(num - cnt - 1, 'more class')}.`, 'info');
+  else if (k === 'now') toast('Attend your next class and get marked present to step forward.', 'info');
+});
 
 function renderLevelCards() {
   const box = $('#levelCards');
@@ -603,9 +858,12 @@ function renderAttendance() {
 
 function renderHome(anim) {
   const game = gameView();
+  const hc = $('#homeCard');
+  if (hc && !hc.firstChild) { hc.innerHTML = memberCardHTML('homeMemberCard'); profileCard($('#homeMemberCard')); }
   if (!game) DB.levelUps = DB.levelUps.filter(l => l.kind !== 'session');   // Standard view: no claiming, just the real count
   home.shown = game ? GRADE.sessions - pendingSessions() : GRADE.sessions;
   document.body.classList.toggle('home-std', !game);
+  document.body.classList.toggle('home-game', game);
   renderHomeTop(); renderPassViews();
   renderNextBelt(home.shown);
   if (game) { renderLevelCards(); renderPath(home.shown, anim); } else { const promo = DB.levelUps.find(l => l.kind === 'promotion'); $('#levelCards').hidden = !promo; $('#levelCards').innerHTML = promo ? `<div class="note"><svg class="ic"><use href="#i-award"/></svg><span><b>Promoted to ${esc(promo.to)}.</b> Congratulations.</span><button class="sbtn ghost" data-claim="promotion">Dismiss</button></div>` : ''; }
@@ -633,7 +891,7 @@ function claim(kind, btn) {
     const c = $('#nbCount'); c.textContent = after; c.closest('.nb-count').classList.add('bump');
     $('.pbar').setAttribute('aria-valuenow', after);
     renderPath(after, true);
-    const now = $('#lpath .lp-node.now') || $('#lpath .lp-node.trophy');
+    const now = $('#gpath .gp-av') || $('#gpath .gp-node.trophy');
     if (now) now.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
     if (big) { confetti(); setTimeout(() => toast(`${after} of ${need} sessions. You're ready for ${GRADE.target} grading once your instructor marks you Qualified.`), 400); }
     else toast(`+1 session · ${after} of ${need}`);
@@ -644,8 +902,8 @@ function claim(kind, btn) {
 }
 
 function openMemberCard() {
-  openModal(`<h3 id="modalTitle">Membership card</h3><p class="sub">${esc(ME.grade)} · ${esc(dojoName(ME.dojo))}</p><div style="margin-top:16px">${memberCardHTML()}</div>`);
-  profileCard($('#memberCard'));
+  openModal(`<h3 id="modalTitle">Membership card</h3><p class="sub">${esc(ME.grade)} · ${esc(dojoName(ME.dojo))}</p><div style="margin-top:16px">${memberCardHTML('modalMemberCard')}</div>`);
+  profileCard($('#modalMemberCard'));
 }
 
 /* prototype: stand in for the instructor marking your next class */
@@ -666,11 +924,11 @@ function simulateNext(status) {
 function renderFeedback() {
   const el = $('#fbList'); if (!el) return;
   el.innerHTML = GRADE_FB.length ? GRADE_FB.map(f => {
-    const pass = f.result !== 'Refer', d = new Date(f.date);
+    const pass = /^Pass/.test(f.result), d = new Date(f.date);
     return `<article class="fb-item">
       <div class="fb-head">
         <div class="fb-rank"><span class="belt" style="--belt:${beltOf(f.from)}"><i></i>${esc(f.from)}</span>${icon('arrow')}<span class="belt" style="--belt:${beltOf(f.to)}"><i></i>${esc(f.to)}</span></div>
-        <span class="pill ${pass ? 'ok' : 'warn'}">${esc(f.result)}${f.status ? ` · ${esc(f.status)}` : ''}</span>
+        <span class="pill ${pass ? 'ok' : f.result === 'Fail' ? 'bad' : 'warn'}">${esc(f.result)}${f.status ? ` · ${esc(f.status)}` : ''}</span>
       </div>
       <p class="fb-meta">${fmtDate(d)} · Examiner ${esc(f.by)}</p>
       <div class="fb-notes">
@@ -709,6 +967,7 @@ runPage({
   packages() {
     document.addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) openBuy(b.dataset.buy); });
     renderShop();
+    initMC();
   },
   grading() { initGradingApp(); initCurriculum(); renderFeedback(); },
   payments() {

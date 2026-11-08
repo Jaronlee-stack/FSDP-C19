@@ -64,10 +64,12 @@ function initAbout() {
   });
   $('#miles').innerHTML = MILESTONES.map(m => `<div class="mile"><span class="y">${m[0]}</span><span class="a">Age ${m[1]}</span><p>${m[2]}</p></div>`).join('');
 
-  const B = 'https://aikidoshinjukai.com.sg/images/instructors/';
-  const slug = n => n.replace(/ Sensei$/, '').toLowerCase().replace(/[^a-z\s]/g, '').trim().replace(/\s+/g, '-');
-  $('#insGroups').innerHTML = DAN_GROUPS.map(([g, names]) => `<div class="dan-group ac"><h3>${g} · ${names.length}</h3><div class="ins-grid">${names.map(n =>
-    `<article class="ins"><div class="ph"><img src="${B + slug(n)}.jpg" alt="${esc(n)}" loading="lazy" onerror="this.remove()"><span class="ini" aria-hidden="true">${initials(n)}</span></div><div class="meta"><span class="nm">${esc(n)}</span><span class="dan">${g.includes('2nd') ? '2nd Dan' : g}</span></div></article>`).join('')}</div></div>`).join('');
+  // instructors: two moving rows you can also swipe / drag (Philip Lee Shihan has his own section above)
+  const senior = DAN_GROUPS.slice(0, 2).flatMap(([g, names]) => names.map(n => [n, g]));
+  const junior = DAN_GROUPS.slice(2).flatMap(([g, names]) => names.map(n => [n, g.includes('2nd') ? '2nd Dan · Assistant' : g]));
+  const photo = n => (INSTRUCTORS.find(x => x[0] === n) || [])[2];
+  scrollMarquee($('#mqSenior'), senior.map(([n, g]) => insCard(n, g, photo(n))).join(''), { dir: 1, speed: 42, label: '6th and 5th Dan instructors' });
+  scrollMarquee($('#mqJunior'), junior.map(([n, g]) => insCard(n, g, photo(n))).join(''), { dir: -1, speed: 34, label: '4th, 3rd and 2nd Dan instructors' });
 
   $('#countries').innerHTML = Object.entries(OVERSEAS).map(([c, list]) => `<article class="country"><h3>${c} <small>${list.length} instructors</small></h3><div class="rows">${list.map(p => `<div class="row"><span class="av">${esc(p[0].replace(/老师|Sensei/g, '').trim().slice(0, 2).toUpperCase())}</span><div class="grow"><div class="t">${esc(p[0])}</div><div class="d">${esc(p[1])}</div></div><span class="pill plain">${p[2]}</span></div>`).join('')}</div></article>`).join('');
 
@@ -82,7 +84,7 @@ function initAbout() {
     const on = $('a.on', nav);
     if (on) nav.scrollTo({ left: on.offsetLeft - nav.clientWidth / 2 + on.clientWidth / 2, behavior: reduce ? 'auto' : 'smooth' });
   }), { rootMargin: '-40% 0px -55% 0px' });
-  $$('#v-about .ab-sec').forEach(s => io.observe(s));
+  $$('.ab-sec').forEach(s => io.observe(s));
 }
 
 initAbout();

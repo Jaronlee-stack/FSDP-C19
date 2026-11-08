@@ -12,7 +12,6 @@ const DOJOS = [
   { id: 'sengkang', name: 'ActiveSG Sengkang Dojo', short: 'Sengkang', code: 'SKAS', region: 'North East', addr: '57 Anchorvale Road, Singapore 544964' },
   { id: 'bishan', name: 'ActiveSG Bishan Dojo', short: 'Bishan', code: 'BSAS', region: 'Central', addr: '5 Bishan Street 14, Singapore 579783' },
   { id: 'toapayoh', name: 'SAFRA Toa Payoh Dojo', short: 'Toa Payoh', code: 'STPY', region: 'Central', addr: '293 Lorong 6 Toa Payoh, Singapore 319387' },
-  { id: 'smu', name: 'SMU Dojo', short: 'SMU', code: 'SMUC', region: 'Central', addr: 'Singapore Management University, 81 Victoria Street, Singapore 188065' },
   { id: 'jurong', name: 'ActiveSG Jurong East Dojo', short: 'Jurong East', code: 'JEAS', region: 'West', addr: '21 Jurong East Street 31, Singapore 609517' },
   { id: 'westcoast', name: 'West Coast Dojo', short: 'West Coast', code: 'WCCC', region: 'West', addr: '2 Clementi West Street 2, Singapore 129605' },
   { id: 'woodlands', name: 'ActiveSG Woodlands Dojo', short: 'Woodlands', code: 'WDAS', region: 'North', addr: '2 Woodlands Street 12, Singapore 738599' },
@@ -28,16 +27,21 @@ const PKG = {
     { id: 'a10', t: '10 lessons', name: '10-lesson pack', amt: 270, d: 'Good for 1 class a week', per: 'S$27 per lesson', lessons: 10, days: 77, valid: 'Valid 11 weeks' },
     { id: 'a25', t: '25 lessons', name: '25-lesson pack', amt: 600, d: 'Most members start here', per: 'S$24 per lesson', lessons: 25, months: 4, valid: 'Valid 4 months', best: true },
     { id: 'a50', t: '50 lessons', name: '50-lesson pack', amt: 980, d: 'For 2 or more classes a week', per: 'S$19.60 per lesson', lessons: 50, months: 6, valid: 'Valid 6 months' },
-    { id: 'aun', t: 'Unlimited', name: 'Unlimited', amt: 96, unit: '/ 2 weeks', d: 'Book as many classes as you like', per: 'Billed every 2 weeks', lessons: Infinity, days: 14, valid: '3-month minimum' }
+    { id: 'aun', t: 'Unlimited', name: 'Unlimited', amt: 96, unit: '/ 2 weeks', d: 'Book as many classes as you like', per: 'S$48 a week, billed every 2 weeks', lessons: Infinity, days: 14, valid: '3-month minimum' }
   ],
   kids: [
-    { id: 'k1', t: '1-month pass', name: 'Children 1-month pass', amt: 150, d: 'Up to 4 sessions over 5 weeks', per: 'Try it out', lessons: 4, days: 35, valid: 'Valid 5 weeks' },
-    { id: 'k6', t: '6-month pass', name: 'Children 6-month pass', amt: 139, unit: '/ month', d: 'Up to 24 sessions', per: 'Billed monthly', lessons: 24, months: 6, valid: 'Valid 6 months', best: true },
-    { id: 'k50', t: '50 lessons', name: 'Children 50-lesson pack', amt: 1200, d: 'Valid 6 months', per: 'S$24 per lesson', lessons: 50, months: 6, valid: 'Valid 6 months' }
+    { id: 'k1', t: '1-month pass', name: 'Children 1-month pass', amt: 150, d: '4 lessons, valid 5 weeks from your first session', per: 'Try it out', lessons: 4, days: 35, valid: 'Valid 5 weeks', compassion: true },
+    { id: 'k6', t: '6-month pass', name: 'Children 6-month pass', amt: 139, unit: '/ month', d: '24 lessons · or S$834 per semester', per: 'Semester-based billing', lessons: 24, months: 6, valid: 'Valid 6 months', best: true },
+    { id: 'k50', t: '50 lessons', name: 'Children 50-lesson pack', amt: 1200, unit: '/ semester', d: 'Valid 6 months from your first session', per: 'S$24 per lesson', lessons: 50, months: 6, valid: 'Valid 6 months' }
   ]
 };
 const expiryFor = (p, from = TODAY) => p.months ? addMonths(from, p.months) : addDays(from, p.days);
 const MAX_PACKAGES = 2;
+
+/* package extensions (from the official fee terms):
+   - Compassion Guaranteed: up to 2 weeks on the children's 1-month pass, no questions asked
+   - any other extension past the stated validity needs a valid medical certificate (MC) */
+const COMPASSION_DAYS = 14;
 
 const DOGI_SIZES = ['000', '00', '0', '1', '2', '3', '4', '5', '6', '7'];
 
@@ -192,7 +196,7 @@ function SEED() {
 ],
     proposals: [
   { n: 'Hannah Teo', from: '5th Kyu', to: '4th Kyu', by: 'Steven Goh Sensei', result: 'Pass', well: 'Clean ukemi, good posture in ikkyo.', next: 'Keep your centre lower in iriminage.', fb: 'Clean ukemi, good posture in ikkyo.' },
-  { n: 'Siti Rahman', from: '2nd Kyu', to: '1st Kyu', by: 'Robin Tan Sensei', result: 'Pass with merit', well: 'Excellent jo kata.', next: 'Start preparing for the yudansha track.', fb: 'Excellent jo kata. Ready for yudansha track.' }
+  { n: 'Siti Rahman', from: '2nd Kyu', to: '1st Kyu', by: 'Robin Tan Sensei', result: 'Pass', well: 'Excellent jo kata.', next: 'Start preparing for the yudansha track.', fb: 'Excellent jo kata. Ready for yudansha track.' }
 ],
     candidates: [
   { n: 'Jamie Tan', from: '3rd Kyu', to: '2nd Kyu', done: false },
@@ -235,6 +239,8 @@ function SEED() {
     next: 'Relax your shoulders when you grab, and keep eye contact with your partner.' }
 ],
     classEnded: {},   // instructor "End class": { 'YYYY-MM-DD|HH:MM': { at, present: [names], noshow: [names] } }
+    /* package extension requests (MC / compassion). status: 'pending' | 'approved' | 'rejected' */
+    mcRequests: [],
     bookings: [], rateQueue: [], rated: [], prompted: [], seeded: false
   };
 }
