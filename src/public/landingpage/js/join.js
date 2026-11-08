@@ -140,6 +140,8 @@ function validateStep(n) {
     need(phoneOk(val('r-ecphone')), fldOf($('#r-ecphone')));
   }
   if (n === 2) {
+    // a certificate on its own isn't enough: say which martial art it is for
+    reg.exps.forEach(x => { if ((x.files.length || x.grade) && !x.art.trim()) need(false, fldOf($(`#exp-art-${x.id}`))); });
     need(!!radio('prev'), $('#f-prev'));
     if (radio('prev') === 'Yes') need(!!$('#r-prevdate').dataset.iso, fldOf($('#r-prevdate')));
     need(!!radio('med'), $('#f-med'));
@@ -193,7 +195,7 @@ function regData() {
   return {
     name: val('r-name'), gender: radio('gender'), nat: val('r-nat'), dob: val('r-dob'), age: reg.age,
     phone: val('r-phone'), email: val('r-email'), ec: `${val('r-ecname')} (${val('r-ecrel')}) · ${val('r-ecphone')}`,
-    exp: [val('r-exp'), val('r-grade')].filter(Boolean).join(' · ') || 'None',
+    exp: expSummary(), exps: expData(),
     prev: radio('prev') === 'Yes' ? `Yes · joined ${val('r-prevdate')}` : 'No',
     med: radio('med') === 'Yes' ? `Yes · ${val('r-med')}` : 'No',
     dojo: radio('dojo'), cls: $('#r-class').value,
@@ -246,7 +248,7 @@ function completeRegistration() {
   $('#doneDojo').textContent = dojoName(d.dojo);
   try { sessionStorage.setItem('ask-last-id', no); } catch (_) {} // ready for the first log-in
   renderMail('welcome');
-  APPS.unshift({ n: d.name, dojo: d.dojo, date: joined, paid: reg.total, group: reg.group === 'kids' ? 'Child' : 'Adult', age: d.age, gender: d.gender, nat: d.nat, phone: d.phone, email: d.email, ec: d.ec, exp: d.exp, prev: d.prev, med: d.med, dogi: `${d.dogi}, size ${d.size}`, pkg: d.pkg.t, isNew: true, no, sig: reg.sig.value(), signer });
+  APPS.unshift({ n: d.name, dojo: d.dojo, date: joined, paid: reg.total, group: reg.group === 'kids' ? 'Child' : 'Adult', age: d.age, gender: d.gender, nat: d.nat, phone: d.phone, email: d.email, ec: d.ec, exp: d.exp, exps: d.exps, prev: d.prev, med: d.med, dogi: `${d.dogi}, size ${d.size}`, pkg: d.pkg.t, isNew: true, no, sig: reg.sig.value(), signer });
   save();
   setStep(6);
   toast('Payment received. Welcome to Shinju-Kai.');
@@ -277,4 +279,113 @@ function renderMail(kind) {
   }
 }
 
+/* ---------- martial arts experience: several entries, each with optional certificate / record book files ---------- */
+const EXP_MAX = 6, FILE_MAX = 4, FILE_MB = 10;
+reg.exps = [];
+let expSeq = 0;
+const newExp = () => ({ id: ++expSeq, art: '', grade: '', files: [] });
+
+function expSummary() {
+  const list = reg.exps.filter(x => x.art.trim() || x.grade.trim());
+  if (!list.length) return 'None';
+  return list.map(x => [x.art.trim(), x.grade.trim()].filter(Boolean).join(', ') + (x.files.length ? ` (${x.files.length} ${x.files.length === 1 ? 'file' : 'files'} attached)` : '')).join('; ');
+}
+/* what the HQ office sees: images are stored as small previews so they can be checked from the admin portal */
+const expData = () => reg.exps.filter(x => x.art.trim() || x.grade.trim()).map(x => ({ art: x.art.trim(), grade: x.grade.trim(), files: x.files.map(f => ({ name: f.name, type: f.type, size: f.size, thumb: f.thumb || null })) }));
+
+const fmtSize = b => b < 1024 * 1024 ? `${Math.max(1, Math.round(b / 1024))} KB` : `${(b / 1048576).toFixed(1)} MB`;
+
+/* shrink a photo to a light preview (max 900px, JPEG) so it fits in browser storage */
+function imagePreview(file) {
+  return new Promise(res => {
+    const img = new Image(), u = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, 900 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(u);
+      try { res(c.toDataURL('image/jpeg', 0.62)); } catch (_) { res(null); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(u); res(null); };
+    img.src = u;
+  });
+}
+
+function expRowHTML(x, i) {
+  const many = reg.exps.length > 1;
+  return `<div class="exp-row" data-exp="${x.id}">
+    <div class="exp-row-h"><b>${many ? `Martial art ${i + 1}` : 'Martial art'}</b>${many ? `<button type="button" class="exp-rm" data-exp-rm="${x.id}" aria-label="Remove martial art ${i + 1}">${icon('trash')}<span>Remove</span></button>` : ''}</div>
+    <div class="grid2">
+      <div class="fld"><label for="exp-art-${x.id}">Martial art and years<span class="opt">Optional</span></label><input id="exp-art-${x.id}" data-exp-f="art" value="${esc(x.art)}" placeholder="e.g. Judo, 3 years" autocomplete="off"><span class="err">Name the martial art these details are for.</span></div>
+      <div class="fld"><label for="exp-grade-${x.id}">Grade or belt<span class="opt">Optional</span></label><input id="exp-grade-${x.id}" data-exp-f="grade" value="${esc(x.grade)}" placeholder="e.g. 2nd Kyu, green belt" autocomplete="off"></div>
+    </div>
+    <div class="exp-files-wrap">
+      <span class="lbl">Certificate or record book<span class="opt">Optional</span></span>
+      ${x.files.length ? `<ul class="exp-files">${x.files.map((f, k) => `<li class="exp-file">
+        ${f.thumb ? `<button type="button" class="exp-thumb" data-exp-view="${x.id}:${k}" aria-label="Preview ${esc(f.name)}"><img src="${f.thumb}" alt=""></button>` : `<span class="exp-thumb doc">${icon('doc')}</span>`}
+        <span class="exp-fmeta"><b title="${esc(f.name)}">${esc(f.name)}</b><small>${f.type === 'application/pdf' ? 'PDF' : 'Image'} · ${fmtSize(f.size)}</small></span>
+        <button type="button" class="exp-frm" data-exp-frm="${x.id}:${k}" aria-label="Remove ${esc(f.name)}">${icon('x')}</button>
+      </li>`).join('')}</ul>` : ''}
+      ${x.files.length < FILE_MAX ? `<label class="file-drop" for="exp-file-${x.id}">
+        <input type="file" id="exp-file-${x.id}" data-exp-file="${x.id}" accept="image/*,application/pdf" multiple>
+        <span class="fd-ic">${icon('upload')}</span>
+        <span class="fd-t"><b>${x.files.length ? 'Add more files' : 'Attach photos or a PDF'}</b><small>Certificate or record book pages · JPG, PNG or PDF, up to ${FILE_MB} MB each</small></span>
+      </label>` : `<p class="fd-full">${FILE_MAX} files attached, the most for one martial art.</p>`}
+    </div>
+  </div>`;
+}
+
+function drawExp(focusId) {
+  $('#expList').innerHTML = reg.exps.map(expRowHTML).join('');
+  $('#expAdd').hidden = reg.exps.length >= EXP_MAX;
+  if (focusId) { const f = $(`#exp-art-${focusId}`); if (f) f.focus(); }
+}
+
+async function addFiles(x, list) {
+  const files = [...list];
+  let skipped = 0;
+  for (const f of files) {
+    if (x.files.length >= FILE_MAX) { skipped++; continue; }
+    const okType = f.type.startsWith('image/') || f.type === 'application/pdf';
+    if (!okType) { toast(`${f.name} isn't a photo or PDF.`, 'bad'); continue; }
+    if (f.size > FILE_MB * 1048576) { toast(`${f.name} is over ${FILE_MB} MB. Try a smaller photo.`, 'bad'); continue; }
+    x.files.push({ name: f.name, type: f.type, size: f.size, thumb: f.type.startsWith('image/') ? await imagePreview(f) : null });
+  }
+  if (skipped) toast(`Up to ${FILE_MAX} files for each martial art. ${skipped} not added.`, 'bad');
+  drawExp();
+}
+
+function initExperience() {
+  reg.exps = [newExp()];
+  drawExp();
+  $('#expAdd').addEventListener('click', () => { if (reg.exps.length >= EXP_MAX) return; const x = newExp(); reg.exps.push(x); drawExp(x.id); });
+  const box = $('#expList');
+  box.addEventListener('input', e => {
+    const f = e.target.dataset.expF; if (!f) return;
+    const x = reg.exps.find(r => r.id === +e.target.closest('[data-exp]').dataset.exp); x[f] = e.target.value;
+    fldOf(e.target).classList.remove('invalid');
+  });
+  box.addEventListener('change', e => {
+    const id = e.target.dataset.expFile; if (!id) return;
+    addFiles(reg.exps.find(r => r.id === +id), e.target.files);
+  });
+  box.addEventListener('click', e => {
+    const rm = e.target.closest('[data-exp-rm]');
+    if (rm) { reg.exps = reg.exps.filter(r => r.id !== +rm.dataset.expRm); drawExp(); $('#expAdd').focus(); return; }
+    const fr = e.target.closest('[data-exp-frm]');
+    if (fr) { const [id, k] = fr.dataset.expFrm.split(':').map(Number); reg.exps.find(r => r.id === id).files.splice(k, 1); drawExp(); return; }
+    const v = e.target.closest('[data-exp-view]');
+    if (v) { const [id, k] = v.dataset.expView.split(':').map(Number); const f = reg.exps.find(r => r.id === id).files[k]; openModal(`<h3 id="modalTitle">${esc(f.name)}</h3><img class="doc-preview" src="${f.thumb}" alt="Preview of ${esc(f.name)}">`); }
+  });
+  // drag & drop onto a file area
+  box.addEventListener('dragover', e => { const d = e.target.closest('.file-drop'); if (d) { e.preventDefault(); d.classList.add('over'); } });
+  box.addEventListener('dragleave', e => { const d = e.target.closest('.file-drop'); if (d) d.classList.remove('over'); });
+  box.addEventListener('drop', e => {
+    const d = e.target.closest('.file-drop'); if (!d) return;
+    e.preventDefault(); d.classList.remove('over');
+    addFiles(reg.exps.find(r => r.id === +d.querySelector('input').dataset.expFile), e.dataTransfer.files);
+  });
+}
+
+initExperience();
 initJoin();

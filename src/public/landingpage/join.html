@@ -99,11 +99,10 @@
           <div class="rform">
             <div class="rgroup">
               <h3>Martial arts experience <small>Optional</small></h3>
-              <div class="grid2">
-                <div class="fld"><label for="r-exp">Previous martial arts experience<span class="opt">Optional</span></label><input id="r-exp" placeholder="e.g. Judo, 3 years"></div>
-                <div class="fld"><label for="r-grade">Grade<span class="opt">Optional</span></label><input id="r-grade" placeholder="e.g. 2nd Kyu, green belt"></div>
-              </div>
-              <div class="note"><svg class="ic"><use href="#i-info"/></svg><span>New members start at white belt. Aikido grades from other recognised dojos can be carried over once our office checks your record book and certificate.</span></div>
+              <!-- one card per martial art; each can carry photos/PDFs of a certificate or record book (join.js: initExperience) -->
+              <div class="exp-list" id="expList"></div>
+              <button type="button" class="exp-add" id="expAdd"><svg class="ic"><use href="#i-plus"/></svg><span>Add another martial art</span></button>
+              <div class="note"><svg class="ic"><use href="#i-info"/></svg><span>New members start at white belt. Aikido grades from other recognised dojos can be carried over once our office checks your record book and certificate. Attaching them now speeds this up.</span></div>
             </div>
 
             <div class="rgroup">
@@ -137,10 +136,11 @@
         <!-- STEP 3 -->
         <section class="rstep" data-step="3">
           <h2>Dojo &amp; dogi</h2>
-          <p class="lead">Your principal dojo is where you collect your student card and train regularly. Classes at the HQ Dojo can also be booked online from your portal.</p>
+          <p class="lead">Your principal dojo is where you collect your student card and attend your weekly lessons.</p>
           <div class="rform">
             <div class="rgroup">
               <h3>Principal dojo<span class="req">*</span></h3>
+              <div class="dojo-note" role="note"><svg class="ic"><use href="#i-pin"/></svg><p>Choose a dojo you can get to every week. We recommend attending all your lessons at your principal dojo and not changing it later. Training with the same instructors helps them track your progress and prepare you for grading.</p></div>
               <div class="choices grid2" id="dojoChoices"></div>
               <div class="fld" id="f-dojo"><span class="err">Choose your principal dojo.</span></div>
             </div>

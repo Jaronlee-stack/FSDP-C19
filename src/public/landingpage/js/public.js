@@ -46,7 +46,7 @@ document.body.insertAdjacentHTML('afterbegin', `  <header class="nav">
         <a href="index.html#faq">FAQ</a>
       </nav>
       <div class="nav-acts">
-        <a class="nav-login" href="login.html">Member log in</a>
+        <a class="nav-login" href="../student_portal/login.html">Member log in</a>
         <a class="btn btn-light" href="join.html">Join Now<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
         <button class="menu-btn" data-sm-open aria-expanded="false" aria-controls="sm">Menu<span class="plus"></span></button>
       </div>
@@ -57,7 +57,7 @@ document.querySelector('main').insertAdjacentHTML('afterend', `  <footer class="
       <div class="foot-top">
         <div class="about"><a class="brand" href="index.html"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">AIKIDO SHINJU-KAI</a><p>Honouring tradition and leading the future of Aikido in Singapore since 1988. Recognised by Aikido World Headquarters, Japan.</p></div>
         <div><h4>Train</h4><ul><li><a href="about.html">About us</a></li><li><a href="index.html#classes">Class types</a></li><li><a href="index.html#find">Our dojos</a></li><li><a href="index.html#instructors">Instructors</a></li><li><a href="index.html#faq">Grading</a></li></ul></div>
-        <div><h4>Membership</h4><ul><li><a href="join.html">Register</a></li><li><a href="index.html#pricing">Fees</a></li><li><a href="trial.html#trial">Book a trial</a></li><li><a href="login.html">Member log in</a></li></ul></div>
+        <div><h4>Membership</h4><ul><li><a href="join.html">Register</a></li><li><a href="index.html#pricing">Fees</a></li><li><a href="trial.html#trial">Book a trial</a></li><li><a href="../student_portal/login.html">Member log in</a></li></ul></div>
         <div><h4>Contact</h4><ul class="num"><li>+65 6513 1588</li><li>+65 6256 0111</li><li>hq@aikidoshinjukai.com.sg</li></ul></div>
         <div><h4>Office hours</h4><ul><li>Mon–Fri · 10 AM – 9 PM</li><li>Sat–Sun · 8 AM – 6 PM</li></ul></div>
       </div>
@@ -70,7 +70,7 @@ document.querySelector('main').insertAdjacentHTML('afterend', `  <footer class="
 if (AUTH.role === 'student') { const l = $('.nav-login'); l.textContent = 'My portal'; l.href = url('student_portal/index.html'); }
 
 SM_LINKS = [['About', 'about.html'], ['Classes', 'index.html#classes'], ['Fees', 'index.html#pricing'], ['Instructors', 'about.html#ab-instructors'],
-  ['Dojos', 'index.html#find'], ['Book a trial', 'trial.html#trial'], ['Join now', 'join.html'], ['Member log in', 'login.html']];
+  ['Dojos', 'index.html#find'], ['Book a trial', 'trial.html#trial'], ['Join now', 'join.html'], ['Member log in', '../student_portal/login.html']];
 
 // close the nav dropdowns after a choice (hover/focus would keep them open)
 $$('.dd').forEach(dd => {

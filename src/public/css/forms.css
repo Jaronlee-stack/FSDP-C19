@@ -152,7 +152,7 @@
 .login-box .fine { font-size: 13px; color: var(--muted); }
 .login-box .fine button { border: 0; background: none; padding: 0; color: var(--red); font-weight: 600; }
 .google-btn { display: flex; align-items: center; justify-content: center; gap: 12px; height: 48px; border-radius: 99px; border: 1px solid var(--line); background: #fff; font-weight: 600; font-size: 14px; transition: border-color .2s, box-shadow .2s; }
-.google-btn:hover { border-color: var(--ink); box-shadow: var(--shadow-sm); }
+@media (hover: hover) and (pointer: fine) { .google-btn:hover { border-color: var(--ink); box-shadow: var(--shadow-sm); } }
 .google-btn svg { width: 18px; height: 18px; }
 .divider { display: flex; align-items: center; gap: 12px; font-size: 12px; color: var(--faint); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: var(--line); }
@@ -216,3 +216,58 @@
 .ticket-side svg { background: #fff; border-radius: 12px; padding: 8px; }
 .ticket-side small { font-size: 12px; color: rgba(255,255,255,.7); }
 @media (max-width: 640px) { .ticket { grid-template-columns: minmax(0, 1fr); } .ticket-side::before { display: none; } .ticket-main { padding: 20px; } .sess-pick { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+
+/* principal dojo guidance (membership form, step 3) */
+.dojo-note { display: flex; gap: 12px; align-items: flex-start; background: var(--red-tint); border: 1px solid #F2C9CB; border-radius: var(--r-sm); padding: 14px 16px; margin: 0; }
+.dojo-note .ic { width: 20px; height: 20px; color: var(--red); flex: none; margin-top: 1px; }
+.dojo-note p { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink); max-width: 68ch; }
+@media (max-width: 640px) { .dojo-note { padding: 12px 14px; } .dojo-note p { font-size: 13.5px; } }
+
+/* martial arts experience: one card per martial art, with optional certificate / record book files */
+.exp-list { display: grid; gap: 12px; }
+.exp-row { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-md); background: #fff; }
+.exp-row-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 24px; }
+.exp-row-h b { font-size: 14px; }
+.exp-rm { display: inline-flex; align-items: center; gap: 6px; border: 0; background: none; padding: 4px 6px; margin: -4px -6px; border-radius: 8px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.exp-rm .ic { width: 15px; height: 15px; }
+.exp-rm:active { transform: scale(.96); }
+.exp-files-wrap { display: grid; gap: 8px; }
+.exp-files-wrap .lbl { font-size: 13px; font-weight: 600; }
+.exp-files-wrap .lbl .opt { margin-left: 6px; font-weight: 500; color: var(--faint); }
+.exp-files { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.exp-file { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px; border-radius: var(--r-sm); background: var(--mist); }
+.exp-thumb { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; border: 0; padding: 0; background: #fff; display: grid; place-items: center; color: var(--red); }
+.exp-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.exp-thumb .ic { width: 20px; height: 20px; }
+.exp-fmeta { min-width: 0; display: grid; }
+.exp-fmeta b { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.exp-fmeta small { font-size: 12px; color: var(--muted); }
+.exp-frm { width: 32px; height: 32px; border: 0; border-radius: 50%; background: none; display: grid; place-items: center; color: var(--muted); }
+.exp-frm .ic { width: 15px; height: 15px; }
+.exp-frm:active { background: rgba(0,0,0,.06); }
+.file-drop { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px dashed var(--line); border-radius: var(--r-sm); cursor: pointer; transition: border-color .15s, background .15s; }
+.file-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.file-drop:focus-within { outline: 2px solid var(--ink); outline-offset: 2px; }
+.file-drop.over { border-color: var(--red); background: var(--red-tint); }
+.fd-ic { width: 36px; height: 36px; border-radius: 50%; background: var(--mist); display: grid; place-items: center; flex: none; }
+.fd-ic .ic { width: 17px; height: 17px; }
+.fd-t { display: grid; gap: 2px; min-width: 0; }
+.fd-t b { font-size: 14px; font-weight: 600; }
+.fd-t small { font-size: 12px; color: var(--muted); }
+.fd-full { margin: 0; font-size: 12.5px; color: var(--muted); }
+.exp-add { justify-self: start; display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 12px; border-radius: 99px; border: 1px solid var(--line); background: #fff; font-size: 14px; font-weight: 600; color: var(--ink); transition: border-color .15s, transform .12s; }
+.exp-add .ic { width: 16px; height: 16px; color: var(--red); stroke-width: 2.4; }
+.exp-add:active { transform: scale(.97); }
+.exp-add[hidden] { display: none; }
+.doc-preview { display: block; width: 100%; max-height: 70vh; object-fit: contain; border-radius: var(--r-sm); margin-top: 14px; background: var(--mist); }
+@media (hover: hover) and (pointer: fine) {
+  .exp-rm:hover { color: var(--red); background: var(--red-tint); }
+  .exp-frm:hover { background: rgba(0,0,0,.06); color: var(--ink); }
+  .file-drop:hover { border-color: var(--ink); }
+  .exp-add:hover { border-color: var(--ink); }
+}
+@media (max-width: 640px) {
+  .exp-row { padding: 14px; gap: 12px; }
+  .exp-files { grid-template-columns: 1fr; }
+  .exp-add { width: 100%; justify-content: center; }
+}

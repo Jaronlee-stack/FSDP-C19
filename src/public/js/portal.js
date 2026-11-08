@@ -8,7 +8,7 @@
 
 const PORTALS = {
   student: {
-    label: 'Student', dir: 'student_portal/', login: 'landingpage/login.html', me: ['LW', 'Lervyn Wong', '4th Kyu · HQ Dojo'], ben: true,
+    label: 'Student', dir: 'student_portal/', login: 'student_portal/login.html', me: ['LW', 'Lervyn Wong', '4th Kyu · HQ Dojo'], ben: true,
     pages: [['home', 'home', 'Home'], ['book', 'cal', 'Book a class'], ['packages', 'box', 'Packages'], ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['profile', 'user', 'Profile']]
   },
   instructor: {
@@ -17,7 +17,7 @@ const PORTALS = {
   },
   admin: {
     label: 'HQ Admin', dir: 'admin_portal/', login: 'admin_portal/signin.html?denied', me: ['HQ', 'HQ Office', 'Administrator'],
-    pages: [['dashboard', 'home', 'Overview'], ['applications', 'inbox', 'Requests', () => APPS.length + MC_REQUESTS.filter(r => r.status === 'PENDING').length], ['members', 'users', 'Members'], ['sessions', 'cal', 'Sessions'],
+    pages: [['dashboard', 'home', 'Overview'], ['applications', 'inbox', 'Requests', () => APPS.length], ['members', 'users', 'Members'], ['sessions', 'cal', 'Sessions'],
       ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['notify', 'mega', 'Notifications'], ['reports', 'chart', 'Reports']]
   }
 };
@@ -44,11 +44,10 @@ function buildShell() {
   </aside>`);
 
   main.insertAdjacentHTML('afterbegin', `<div class="topbar">
-    <img class="tb-logo m-only" src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">
+    <button class="icon-btn m-only tb-menu" data-sm-open aria-expanded="false" aria-controls="sm" aria-label="Open menu">${icon('menu')}</button>
     <span class="crumb">${P.label} · <b>${cur[2]}</b></span>
     <span class="sp"></span>
     <button class="icon-btn" data-notif aria-label="Notifications">${icon('bell')}<span class="badge-dot"></span></button>
-    <button class="icon-btn m-only" data-logout aria-label="Log out" title="Log out">${icon('logout')}</button>
   </div>`);
 
   // phones: bottom tab bar (first 4 + "More" when there are more than 5)
@@ -58,7 +57,10 @@ function buildShell() {
     `<a href="${pageFile(p[0])}"${p === cur ? ' class="on" aria-current="page"' : ''}>${icon(p[1])}<span>${p[2].split(' ')[0] === 'Book' ? 'Book' : p[2]}</span>${p[3] && p[3]() ? `<i class="cnt" data-cnt="${p[0]}">${p[3]()}</i>` : ''}</a>`).join('')
     }${many ? `<button type="button" data-sm-open aria-expanded="false"${onMore ? ' class="on"' : ''}>${icon('more')}<span>More</span></button>` : ''}</nav>`);
 
-  SM_LINKS = P.pages.map(p => [p[2], pageFile(p[0])]).concat([[isStaff(PORTAL) ? 'Sign out' : 'Log out', null]]);
+  // phones: the menu button and "More" open the sidebar as an 80% sheet with the page dimmed behind it
+  SM_LINKS = P.pages.map(p => [p[2], pageFile(p[0]), p[1], p === cur]).concat([[isStaff(PORTAL) ? 'Sign out' : 'Log out', null, 'logout']]);
+  // the phone top bar is white, so the status bar should be too
+  const tc = $('meta[name="theme-color"]'); if (tc && matchMedia('(max-width: 900px)').matches) tc.content = '#FFFFFF';
 
   // collapsible sidebar, remembered between pages
   let col = false;
@@ -95,6 +97,10 @@ function openNotifs() {
   if (PORTAL === 'student') {
     rows = DB.rateQueue.map((r, i) => row('star', `Rate your ${esc(r.c.type)} class`, `${dayName(r.date)} ${fmtShort(r.date)} · ${timeLabel(r.c.time)} · ${esc(r.c.ins)}`, `<button class="sbtn dark" data-rate="${i}">Rate</button>`));
     const next = BOOKINGS.slice().sort((a, b) => a.date - b.date)[0];
+    const last = ATTENDANCE.find(a => a.status !== 'pending');
+    if (last) rows.push(last.status === 'present'
+      ? row('check', 'Session counted · +1', `${esc(last.type)} · ${dayName(last.date)} ${fmtShort(last.date)} · ${GRADE.sessions} of ${GRADE.needSessions} sessions toward ${esc(GRADE.target)}`)
+      : row('info', 'Missed class · lesson used', `${esc(last.type)} · ${dayName(last.date)} ${fmtShort(last.date)} · not counted toward grading, no refund`));
     if (next) rows.push(row('cal', 'Booking confirmed', `${next.c.type} · ${dayName(next.date)} ${fmtShort(next.date)} · ${timeLabel(next.c.time)} · HQ Dojo`));
     const f = activePasses()[0]; if (f && daysBetween(TODAY, f.expires) <= 30) rows.push(row('clock', 'Lessons expiring soon', `${plural(f.left, 'lesson')} in your ${esc(f.name)} expire on ${fmtDate(f.expires)}`));
     rows.push(row('award', 'Grading applications close 29 Nov', 'Adult grading on 13 Dec at HQ Dojo'));
@@ -104,7 +110,6 @@ function openNotifs() {
     if (FEEDBACK.length) rows.push(row('star', 'New class feedback', `${plural(FEEDBACK.length, 'rating')} from students this week`));
   } else {
     rows.push(row('inbox', 'Membership applications', `${APPS.length} paid and waiting for approval`));
-    rows.push(row('doc', 'MC carry-forward requests', `${MC_REQUESTS.filter(r => r.status === 'PENDING').length} waiting for review`));
     rows.push(row('award', 'Promotion proposals', `${PROPOSALS.length} signed by instructors`));
   }
   try { sessionStorage.setItem(seenKey, '1'); } catch (_) {}
@@ -115,19 +120,6 @@ document.addEventListener('click', e => {
   if (e.target.closest('[data-notif]')) { openNotifs(); return; }
   const r = e.target.closest('[data-rate]'); if (r && typeof openRating === 'function') openRating(+r.dataset.rate);
 });
-
-/* ---------- MC carry-forward helpers (used by the student and admin portals) ---------- */
-const mcRange = r => { const [ys, ms, ds] = r.mc_start.split('-').map(Number), [ye, me, de] = r.mc_end.split('-').map(Number); return `${ds} ${MON[ms - 1]} – ${de} ${MON[me - 1]} ${ye}`; };
-
-const mcPill = s => s === 'APPROVED' ? '<span class="pill ok">Approved</span>' : s === 'REJECTED' ? '<span class="pill bad">Not approved</span>' : '<span class="pill warn">Pending HQ review</span>';
-
-function openMCView(r, admin) {
-  if (!r) return;
-  openModal(`<h3 id="modalTitle">Carry-forward ${r.id}</h3><p class="sub">${esc(r.student_name)} · ${esc(r.pass_label)}</p>
-    <div class="kv"><div><span>Lessons to move</span><span>${r.credits}</span></div><div><span>Current expiry</span><span>${fmtDate(r.old_expiry)}</span></div><div><span>New expiry</span><span>${fmtDate(r.new_expiry)} (+${plural(r.extend_days, 'day')})</span></div><div><span>MC dates</span><span>${mcRange(r)}</span></div><div><span>Status</span><span>${r.status === 'PENDING' ? 'Pending HQ review' : r.status === 'APPROVED' ? 'Approved' : 'Not approved'}</span></div><div><span>Submitted</span><span>${fmtDate(r.created_at)}</span></div>${r.note ? `<div><span>Note</span><span>${esc(r.note)}</span></div>` : ''}<div><span>Stored as</span><span style="overflow-wrap:anywhere">${esc(r.file_url)}</span></div></div>
-    <div class="mc-preview">${!PREVIEWS[r.id] ? `<div class="ct-novid" style="height:180px;background:var(--navy);border-radius:var(--r-md)">${icon('doc')}<b>MC on file</b><span>Open from the document store.</span></div>` : r.mime === 'application/pdf' ? `<iframe src="${PREVIEWS[r.id]}" title="Medical certificate"></iframe>` : `<img src="${PREVIEWS[r.id]}" alt="Uploaded medical certificate">`}</div>
-    ${admin && r.status === 'PENDING' ? `<div class="acts"><button class="sbtn dark" data-mc-ok="${r.id}" data-close>${icon('check')}Approve</button><button class="sbtn" data-mc-no="${r.id}" data-close>Not approved</button></div>` : ''}`, true);
-}
 
 if (ALLOWED) { buildShell(); syncNotifDot(); }
 

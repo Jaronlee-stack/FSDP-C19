@@ -150,6 +150,13 @@ const SPRITE = `<svg width="0" height="0" style="position:absolute" aria-hidden=
     <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></symbol>
     <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></symbol>
     <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
+    <symbol id="i-gift" viewBox="0 0 24 24"><rect x="3.5" y="8" width="17" height="4" rx="1"/><path d="M5 12v8h14v-8M12 8v12M12 8c-1.5-3-5-3.5-5-1.2S10 8 12 8zM12 8c1.5-3 5-3.5 5-1.2S14 8 12 8z"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4.5c0 3 1.5 4.5 3.7 4.8M16 6h3.5c0 3-1.5 4.5-3.7 4.8M12 13v4M8.5 20h7M10 17h4v3h-4z"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 21c-3.9 0-6.5-2.6-6.5-6.2 0-3.7 3-5.6 3.8-9.3 2 1.4 3 3.3 3 5 1-.6 1.7-1.7 1.9-3 2.3 1.9 4.3 4.6 4.3 7.5 0 3.5-2.6 6-6.5 6z"/></symbol>
+    <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9.5v5h3.5L12 18V6L7.5 9.5z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></symbol>
     <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8z"/></symbol>
 
     <!-- Ben fallback mascot (shows only if mascot-still.webp is missing) -->
@@ -175,11 +182,12 @@ document.body.insertAdjacentHTML('beforeend', `<div class="sm" id="sm" aria-hidd
   <aside class="sm-panel" aria-label="Menu">
     <div class="sm-head"><span class="brand"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><button class="icon-btn" data-sm-close aria-label="Close menu"><svg class="ic"><use href="#i-x"/></svg></button></div>
     <ul class="sm-list" id="smList"></ul>
-    <div class="sm-foot" id="smFoot"><small>Shinju-Kai</small><div class="links"><a href="__ROOT__landingpage/index.html">Website</a><a href="__ROOT__landingpage/login.html">Member log in</a><a href="__ROOT__landingpage/join.html">Join</a></div></div>
+    <div class="sm-foot" id="smFoot"><small>Shinju-Kai</small><div class="links"><a href="__ROOT__landingpage/index.html">Website</a><a href="__ROOT__student_portal/login.html">Member log in</a><a href="__ROOT__landingpage/join.html">Join</a></div></div>
   </aside>
 </div>
 <div class="overlay" id="modal" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="sheet-grab" aria-hidden="true"></div>
     <button class="icon-btn modal-x" data-close aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
     <div id="modalBody"></div>
   </div>
@@ -192,7 +200,7 @@ document.body.insertAdjacentHTML('beforeend', `<div class="sm" id="sm" aria-hidd
 </aside>`.replaceAll('__ROOT__', ROOT));
 
 /* [data-go] buttons jump between pages */
-const GO = { home: 'landingpage/index.html', login: 'landingpage/login.html', join: 'landingpage/join.html', trial: 'landingpage/trial.html', about: 'landingpage/about.html' };
+const GO = { home: 'landingpage/index.html', login: 'student_portal/login.html', join: 'landingpage/join.html', trial: 'landingpage/trial.html', about: 'landingpage/about.html' };
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-go]'); if (!b) return;
   e.preventDefault(); location.href = url(GO[b.dataset.go] || 'landingpage/index.html');
@@ -218,7 +226,9 @@ function closeModal() {
 }
 $('#modal').addEventListener('click', e => { if (e.target.id === 'modal' || e.target.closest('[data-close]')) closeModal(); });
 
-function openDrawer(title, body, foot = '') {
+let drawerOnClose = null;
+function openDrawer(title, body, foot = '', opts = {}) {
+  drawerOnClose = opts.onClose || null;
   $('#drawerTitle').textContent = title;
   $('#drawerBody').innerHTML = body;
   $('#drawerFoot').innerHTML = foot;
@@ -228,6 +238,7 @@ function openDrawer(title, body, foot = '') {
   $('#drawer').setAttribute('aria-hidden', 'false');
 }
 function closeDrawer() {
+  if (drawerOnClose) { const f = drawerOnClose; drawerOnClose = null; f(); }
   $('#drawer').classList.remove('open'); $('#drawerOv').classList.remove('open');
   $('#drawer').setAttribute('aria-hidden', 'true');
 }
@@ -327,22 +338,69 @@ function profileCard(el) {
 /* StaggeredMenu — public menu, and the "More" sheet in portals.
    Each page type fills SM_LINKS with [label, href] pairs; a null href is the log-out button. */
 let SM_LINKS = [];
+let smReturn = null;
 function openSM() {
-  $('#smList').innerHTML = SM_LINKS.map(([l, h], i) => h
-    ? `<li><a href="${h}" style="--i:${i}">${esc(l)}</a></li>`
-    : `<li><button type="button" data-logout style="--i:${i}">${esc(l)}</button></li>`).join('');
-  $('#smFoot').hidden = !!document.body.dataset.portal;
+  const nav = !!document.body.dataset.portal;   // portals: compact sidebar list with icons
+  $('#sm').classList.toggle('nav-mode', nav);
+  $('#smList').innerHTML = SM_LINKS.map(([l, h, ic, on], i) => h
+    ? `<li><a href="${h}" style="--i:${i}"${on ? ' class="on" aria-current="page"' : ''}>${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></a></li>`
+    : `<li><button type="button" data-logout style="--i:${i}">${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></button></li>`).join('');
+  $('#smFoot').hidden = nav;
+  smReturn = document.activeElement;
   $('#sm').classList.add('open'); $('#sm').setAttribute('aria-hidden', 'false');
+  document.documentElement.classList.add('sm-lock');
   $$('[data-sm-open]').forEach(b => b.setAttribute('aria-expanded', 'true'));
+  setTimeout(() => { const f = $('#smList a.on') || $('#smList a, #smList button'); f && f.focus({ preventScroll: true, focusVisible: false }); }, 60);
 }
 function closeSM() {
+  if (!$('#sm').classList.contains('open')) return;
+  const panel = $('.sm-panel'); panel.style.transform = ''; panel.style.transition = '';
   $('#sm').classList.remove('open'); $('#sm').setAttribute('aria-hidden', 'true');
+  document.documentElement.classList.remove('sm-lock');
   $$('[data-sm-open]').forEach(b => b.setAttribute('aria-expanded', 'false'));
+  if (smReturn && smReturn.focus) smReturn.focus({ preventScroll: true });
 }
 document.addEventListener('click', e => {
   if (e.target.closest('[data-sm-open]')) { $('#sm').classList.contains('open') ? closeSM() : openSM(); return; }
   if (e.target.closest('[data-sm-close]') || e.target.closest('#smList a')) closeSM();
 });
+
+/* swipe-to-dismiss: the menu follows the finger left, sheets follow it down.
+   Release past a third of the size (or with a quick flick) to close, otherwise it springs back. */
+function swipeDismiss(el, { axis, handle, canStart = () => true, onClose }) {
+  let start = null, last = null, d = 0;
+  const size = () => axis === 'x' ? el.offsetWidth : el.offsetHeight;
+  const pos = e => axis === 'x' ? e.clientX : e.clientY;
+  (handle || el).addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || !canStart(e)) return;
+    start = { p: pos(e), q: axis === 'x' ? e.clientY : e.clientX, t: performance.now() }; last = start; d = 0;
+  });
+  (handle || el).addEventListener('pointermove', e => {
+    if (!start) return;
+    const raw = pos(e) - start.p, cross = Math.abs((axis === 'x' ? e.clientY : e.clientX) - start.q);
+    if (!d && cross > Math.abs(raw)) { start = null; return; }        // the user is scrolling the other way
+    d = axis === 'x' ? Math.min(0, raw) : Math.max(0, raw);            // only toward the closed side
+    if (Math.abs(d) < 6) return;
+    el.style.transition = 'none';
+    el.style.transform = axis === 'x' ? `translateX(${d}px)` : `translateY(${d}px)`;
+    last = { p: pos(e), t: performance.now() };
+  });
+  const end = e => {
+    if (!start) return;
+    const v = (pos(e) - last.p) / Math.max(1, performance.now() - last.t);   // px per ms at release
+    const flick = axis === 'x' ? v < -0.5 : v > 0.5;
+    el.style.transition = ''; 
+    if (Math.abs(d) > size() / 3 || (flick && Math.abs(d) > 20)) { el.style.transform = ''; onClose(); }
+    else el.style.transform = '';
+    start = null; d = 0;
+  };
+  (handle || el).addEventListener('pointerup', end);
+  (handle || el).addEventListener('pointercancel', end);
+}
+swipeDismiss($('.sm-panel'), { axis: 'x', onClose: closeSM });
+const isSheet = () => matchMedia('(max-width: 600px)').matches;
+swipeDismiss($('#drawer'), { axis: 'y', handle: $('#drawer .drawer-h'), canStart: isSheet, onClose: () => closeDrawer() });
+swipeDismiss($('#modal .modal'), { axis: 'y', handle: $('#modal .sheet-grab'), canStart: isSheet, onClose: () => closeModal() });
 
 function peekRating(root, onChange) {
   const labels = ['Poor', 'Fair', 'Good', 'Great', 'Superb'];
@@ -540,6 +598,60 @@ const emailOk = v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
 function fldOf(el) { return el.closest('.fld'); }
 
 function mark(el, bad) { const f = typeof el === 'string' ? $(el) : el; if (f) f.classList.toggle('invalid', bad); return !bad; }
+
+/* ---------- optional voice-to-text (Web Speech API) ----------
+   Any <button data-dictate="textareaId"> toggles dictation into that box.
+   Typing always works; dictated text lands in the box and can be edited.
+   Browsers without the API get a friendly note instead of an error. */
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let dictation = null;
+function stopDictation() { if (dictation) try { dictation.rec.stop(); } catch (_) {} }
+function dictMsg(ta, text) { const m = $('.dict-msg', fldOf(ta)); if (m) { m.textContent = text; m.classList.toggle('show', !!text); } }
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-dictate]'); if (!btn) return;
+  const ta = $('#' + btn.dataset.dictate); if (!ta) return;
+  if (!SpeechRec) {
+    btn.classList.add('unsupported');
+    dictMsg(ta, "Voice typing isn't available in this browser. Type your notes instead, or open this page in Chrome or Edge to dictate.");
+    ta.focus(); return;
+  }
+  if (dictation && dictation.btn === btn) { stopDictation(); return; }
+  stopDictation();
+  const rec = new SpeechRec();
+  rec.lang = 'en-SG'; rec.interimResults = true; rec.continuous = true;
+  const base = ta.value.replace(/\s+$/, ''), sep = base ? ' ' : '';
+  const capNext = !base || /[.!?]$/.test(base);
+  let done = '';
+  const write = extra => {
+    let t = (done + extra).replace(/^\s+/, '');
+    if (capNext && t) t = t[0].toUpperCase() + t.slice(1);
+    ta.value = base + (t ? sep + t : '');
+    ta.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  rec.onresult = ev => {
+    let interim = '';
+    for (let i = ev.resultIndex; i < ev.results.length; i++) {
+      const r = ev.results[i];
+      if (r.isFinal) done += (done ? ' ' : '') + r[0].transcript.trim(); else interim += ' ' + r[0].transcript;
+    }
+    write(interim);
+  };
+  rec.onerror = ev => { const m = $('.dict-msg', fldOf(ta)); if (m) delete m.dataset.listening; dictMsg(ta,
+    ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'Microphone access is blocked. Allow it in your browser settings, or type instead.'
+    : ev.error === 'no-speech' ? "Didn't catch that. Tap Dictate and try again, or type instead."
+    : ev.error === 'network' ? 'Voice typing needs an internet connection. You can type instead.'
+    : ev.error === 'aborted' ? '' : 'Voice typing stopped. You can keep typing.'); };
+  rec.onend = () => {
+    if (dictation && dictation.rec === rec) dictation = null;
+    btn.classList.remove('on'); btn.setAttribute('aria-pressed', 'false'); $('span', btn).textContent = 'Dictate';
+    const m = $('.dict-msg', fldOf(ta)); if (m && m.dataset.listening) { delete m.dataset.listening; dictMsg(ta, ''); }
+  };
+  try { rec.start(); } catch (_) { dictMsg(ta, "Couldn't start voice typing. You can type instead."); return; }
+  dictation = { rec, btn };
+  btn.classList.add('on'); btn.setAttribute('aria-pressed', 'true'); $('span', btn).textContent = 'Stop';
+  dictMsg(ta, 'Listening. Speak, then tap Stop. You can edit the text after.');
+  const m = $('.dict-msg', fldOf(ta)); if (m) m.dataset.listening = 1;
+});
 
 function qrSVG(seed0 = 1834, size = 200) {
   // decorative check-in code (not a real QR)

@@ -19,61 +19,44 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="home">
-        <div class="g-side g-card">
-          <div class="hello ac">
-            <div>
-              <h1><span class="shiny on-dark" id="greet">Good evening, Lervyn.</span></h1>
-              <p>Seven more sessions and you're eligible for 3rd Kyu. Grading applications close on 29 Nov.</p>
-              <div class="mini">
-                <div><b class="num" id="helloLessons">18</b><span>Lessons left</span></div>
-                <div><b class="num" data-count="29">0</b><span>Sessions at this rank</span></div>
-                <div><b class="num" data-count="7">0</b><span>Months in rank</span></div>
-              </div>
-            </div>
+        <!-- one compact row: who you are, streak, lessons, belt. Each number appears once on this page. -->
+        <div class="home-top">
+          <h1 id="greet">Hi, Lervyn</h1>
+          <div class="hstats" role="list">
+            <div class="hs" role="listitem" id="hsStreak" title="Weeks in a row with at least one class attended"><span class="hs-ic flame"><svg class="ic"><use href="#i-flame"/></svg></span><span><b class="num" id="hsStreakN">0</b><small>week streak</small></span></div>
+            <a class="hs" role="listitem" href="packages.html" id="hsLessonsLink"><span class="hs-ic"><svg class="ic"><use href="#i-box"/></svg></span><span><b class="num" id="hsLessons">0</b><small id="hsLessonsL">lessons left</small></span></a>
+            <button type="button" class="hs belt-badge" role="listitem" id="beltBadge" aria-haspopup="dialog" aria-label="Show my membership card"><span class="hs-belt" id="hsBeltSwatch"></span><span><b id="hsBelt">4th Kyu</b><small>Your card</small></span></button>
           </div>
-          <!-- ProfileCard → digital student card -->
-          <div class="pcard ac" id="studentCard">
-            <div class="pcard-body">
-              <div class="pcard-tile">
-                <span class="pcard-holo"></span>
-                <div class="pcard-top"><span class="pcard-org"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><span class="pcard-kanji">合気道</span></div>
-                <div class="pcard-mid"><span class="pcard-av">LW</span><div><div class="pcard-name">Lervyn Wong</div><div class="pcard-rank"><i></i>4th Kyu · Brown</div></div></div>
-                <div class="pcard-bot"><span>MEMBER NO.<b>ASK-2025-1834</b></span><span style="text-align:right">PRINCIPAL DOJO<b>HQ · Thomson</b></span></div>
-                <span class="pcard-glare"></span>
-              </div>
-              <div class="pcard-foot"><span class="st">Active · Expires Jan 2027</span><button type="button" data-qr><svg class="ic"><use href="#i-nfc"/></svg>Check in</button></div>
-            </div>
+          <div class="home-ctrl">
+            <div class="view-toggle" id="homeView" role="group" aria-label="Home view"><button type="button" data-v="game" aria-pressed="true">Gamified</button><button type="button" data-v="std" aria-pressed="false">Standard</button></div>
+            <button type="button" class="icon-btn sound-btn" id="soundBtn" aria-pressed="true" aria-label="Sound on"><svg class="ic"><use href="#i-sound"/></svg></button>
           </div>
         </div>
 
-        <div class="g4 g4-card ac" data-stagger>
-          <div class="stat"><span class="l">Lessons remaining</span><span class="v" id="stLessons">18</span><span class="h" id="stLessonsH">Next expiry 15 Jan 2027</span></div>
-          <div class="stat"><span class="l">Sessions to 3rd Kyu</span><span class="v"><span data-count="29">0</span><small>/36</small></span><span class="h up">7 to go</span></div>
-          <div class="stat"><span class="l">Membership</span><span class="v" style="font-size:28px">Active</span><span class="h">Annual dues paid · Jan 2027</span></div>
-          <div class="stat dark"><span class="l">Next grading</span><span class="v">13 Dec</span><span class="h">Applications close 29 Nov</span></div>
-        </div>
+        <div class="home-grid">
+          <div class="home-main">
+            <div id="levelCards" class="lvl-stack"></div>
 
-        <div class="g-wide">
-          <div class="card ac">
-            <div class="card-h"><div><h3>Progress to 3rd Kyu</h3><span class="sub">6 months and 36 sessions at 4th Kyu</span></div>
-              <div class="view-toggle" id="progToggle"><button class="on" data-v="path">Belt path</button><button data-v="bar">Bar</button></div></div>
-            <div id="progPath"><div class="path" id="beltPath"></div></div>
-            <div id="progBar" hidden>
-              <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px"><b>29 of 36 sessions</b><span style="color:var(--muted)">81%</span></div>
-              <div class="bar red"><i data-w="81"></i></div>
-              <div style="display:flex;justify-content:space-between;font-size:13px;margin:18px 0 8px"><b>7 of 6 months</b><span style="color:var(--ok)">Met</span></div>
-              <div class="bar"><i data-w="100"></i></div>
+            <div class="card white next-belt" id="nextBelt"></div>
+
+            <div class="card white path-card" id="pathCard">
+              <div class="card-h"><div><h3>Your path</h3><span class="sub" id="pathSub">Every class you attend moves you one step</span></div></div>
+              <ol class="lpath" id="lpath" aria-label="Sessions toward your next grade"></ol>
             </div>
           </div>
-          <div class="card ac">
-            <div class="card-h"><div><h3>Your lessons</h3><span class="sub">Used from the pack that expires first</span></div><button class="sbtn" data-page-link="packages"><svg class="ic"><use href="#i-plus"/></svg>Top up</button></div>
-            <div class="rows" id="homePasses"></div>
-          </div>
-        </div>
 
-        <div class="card ac">
-          <div class="card-h"><h3>Upcoming classes</h3><button class="sbtn" data-page-link="book"><svg class="ic"><use href="#i-plus"/></svg>Book another</button></div>
-          <div id="upcoming"></div>
+          <div class="home-side">
+            <div class="card white">
+              <div class="card-h"><h3>Next class</h3><button class="sbtn" data-page-link="book"><svg class="ic"><use href="#i-plus"/></svg>Book</button></div>
+              <div id="nextClass"></div>
+            </div>
+            <div class="card white">
+              <div class="card-h"><div><h3>Recent attendance</h3><span class="sub">Only classes you attend count toward grading</span></div></div>
+              <div class="att-list" id="attList"></div>
+              <p class="att-rule"><svg class="ic"><use href="#i-info"/></svg><span>Missed a class? The lesson stays used and isn't counted. There are no make-up classes. Cancel at least 4 hours before to get the lesson back.</span></p>
+              <p class="proto-note">Prototype: mark your next class as <button type="button" data-sim="present">Present</button> or <button type="button" data-sim="noshow">No-show</button></p>
+            </div>
+          </div>
         </div>
       </section>
     </main>

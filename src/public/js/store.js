@@ -22,7 +22,7 @@ function signOut() {
 document.addEventListener('click', e => { if (e.target.closest('[data-logout]')) { e.preventDefault(); closeSM(); signOut(); } });
 
 /* ---------- prototype database ---------- */
-const DB_KEY = 'ask-prototype-v2';
+const DB_KEY = 'ask-prototype-v3';   // v3: MC removed, attendance + grading feedback added
 const reviveDates = (k, v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(v) ? new Date(v) : v;
 const DB = (() => {
   try { const raw = localStorage.getItem(DB_KEY); if (raw) return Object.assign(SEED(), JSON.parse(raw, reviveDates)); } catch (_) {}
@@ -36,7 +36,22 @@ document.addEventListener('click', e => { if (e.target.closest('[data-reset]')) 
 /* short names used throughout the page scripts */
 const MY_PASSES = DB.passes, STUDENTS = DB.students, APPS = DB.apps, MEMBERS = DB.members, SESSIONS = DB.sessions,
   GRAD_APPS = DB.gradApps, PROPOSALS = DB.proposals, CANDIDATES = DB.candidates, PAYS = DB.pays, GRADE = DB.grade,
-  MC_REQUESTS = DB.mcRequests, FEEDBACK = DB.feedback, BOOKINGS = DB.bookings;
+  FEEDBACK = DB.feedback, BOOKINGS = DB.bookings, ATTENDANCE = DB.attendance, GRADE_FB = DB.gradingFeedback;
 
-/* uploaded MC files only live for this page view (a real system would store them) */
-const PREVIEWS = {};
+/* the signed-in student's own row in the instructor's student list */
+const myStudent = () => STUDENTS.find(s => s.n === ME.name);
+
+/* attendance outcome for the signed-in student (called when an instructor ends a class).
+   present → +1 session toward the next grade. noshow → lesson stays used, no +1, no refund. */
+function recordMyAttendance(rec) {
+  const key = `${isoDate(rec.date)}|${rec.time}`;
+  const i = ATTENDANCE.findIndex(a => `${isoDate(a.date)}|${a.time}` === key);
+  if (i > -1) ATTENDANCE.splice(i, 1);
+  ATTENDANCE.unshift(rec);
+  const b = BOOKINGS.findIndex(x => x.key === key); if (b > -1) BOOKINGS.splice(b, 1);   // the booking is now history
+  if (rec.status === 'present') {
+    GRADE.sessions++;
+    const s = myStudent(); if (s) { s.s++; s.seen = 0; }
+    DB.levelUps.push({ kind: 'session', date: rec.date, type: rec.type });
+  }
+}

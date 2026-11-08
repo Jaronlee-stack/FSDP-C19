@@ -113,8 +113,9 @@ const newInv = () => 'INV-' + String(Date.now()).slice(-7);
 const GRADING_FEE = { '6th Kyu': 40, '5th Kyu': 40, '4th Kyu': 50, '3rd Kyu': 50, '2nd Kyu': 60, '1st Kyu': 60, '1st Dan': 120 };
 const LATE_FEE = 20;
 
-/* MC carry-forward requests (mirrors mc_extension_requests).
-   Each request moves `credits` lessons from one package to a later expiry. */
+/* student status labels used by the instructor portal.
+   'In progress' = still building sessions toward the next grade (was "Studying"). */
+const ST_PROGRESS = 'In progress', ST_QUALIFIED = 'Qualified';
 
 
 /* curriculum for the target rank. Leaf = [technique, YouTube id]; no id = video not uploaded yet.
@@ -143,26 +144,27 @@ const CURRICULUM = {
 /* Starting data for the prototype. store.js copies this into localStorage the first time,
    so bookings, payments and approvals carry over from page to page. */
 function SEED() {
+  const daysAgo = n => { const d = new Date(TODAY); d.setDate(d.getDate() - n); return d; };
   return {
     passes: [
-  { id: 'P-1834-25', name: '25-lesson pack', total: 25, left: 18, bought: new Date(2026, 8, 15), expires: new Date(2027, 0, 15), lots: [] }
+  { id: 'P-1834-25', name: '25-lesson pack', total: 25, left: 18, bought: new Date(2026, 8, 15), expires: new Date(2027, 0, 15) }
 ],
     unlimited: null,
     students: [
-  { n: 'Ahmad Karim', g: '4th Kyu', s: 29, need: 36, seen: 2, st: 'Studying', dojo: 'hq', age: 'Adult' },
+  { n: 'Ahmad Karim', g: '4th Kyu', s: 29, need: 36, seen: 2, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Jamie Tan', g: '3rd Kyu', s: 38, need: 36, seen: 1, st: 'Qualified', dojo: 'hq', age: 'Adult' },
-  { n: 'Ming Ng', g: '4th Kyu', s: 22, need: 36, seen: 4, st: 'Studying', dojo: 'hq', age: 'Adult' },
+  { n: 'Ming Ng', g: '4th Kyu', s: 22, need: 36, seen: 4, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Priya Lee', g: '1st Kyu', s: 62, need: 60, seen: 3, st: 'Qualified', dojo: 'hq', age: 'Adult' },
-  { n: 'David Koh', g: '5th Kyu', s: 14, need: 30, seen: 18, st: 'Studying', dojo: 'hq', age: 'Adult' },
-  { n: 'Lervyn Wong', g: '4th Kyu', s: 29, need: 36, seen: 2, st: 'Studying', dojo: 'hq', age: 'Adult' },
-  { n: 'Siti Rahman', g: '2nd Kyu', s: 44, need: 48, seen: 5, st: 'Studying', dojo: 'hq', age: 'Adult' },
-  { n: 'Marcus Lim', g: '6th Kyu', s: 9, need: 24, seen: 21, st: 'Studying', dojo: 'hq', age: 'Adult' },
-  { n: 'Hannah Teo', g: '5th Kyu', s: 31, need: 30, seen: 2, st: 'Studying', dojo: 'hq', age: 'Adult' },
-  { n: 'Kenji Sato', g: '3rd Kyu', s: 20, need: 36, seen: 6, st: 'Studying', dojo: 'hq', age: 'Adult' },
-  { n: 'Rachel Ong', g: '4th Kyu', s: 35, need: 36, seen: 1, st: 'Studying', dojo: 'hq', age: 'Adult' },
-  { n: 'Arjun Nair', g: '6th Kyu', s: 4, need: 24, seen: 3, st: 'Studying', dojo: 'hq', age: 'Adult' },
+  { n: 'David Koh', g: '5th Kyu', s: 14, need: 30, seen: 18, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Lervyn Wong', g: '4th Kyu', s: 29, need: 36, seen: 2, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Siti Rahman', g: '2nd Kyu', s: 44, need: 48, seen: 5, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Marcus Lim', g: '6th Kyu', s: 9, need: 24, seen: 21, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Hannah Teo', g: '5th Kyu', s: 31, need: 30, seen: 2, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Kenji Sato', g: '3rd Kyu', s: 20, need: 36, seen: 6, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Rachel Ong', g: '4th Kyu', s: 35, need: 36, seen: 1, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Arjun Nair', g: '6th Kyu', s: 4, need: 24, seen: 3, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Wei Jie Chua', g: '2nd Kyu', s: 50, need: 48, seen: 2, st: 'Qualified', dojo: 'hq', age: 'Adult' },
-  { n: 'Grace Yeo', g: '5th Kyu', s: 18, need: 30, seen: 15, st: 'Studying', dojo: 'hq', age: 'Adult' }
+  { n: 'Grace Yeo', g: '5th Kyu', s: 18, need: 30, seen: 15, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' }
 ],
     apps: [
   { n: 'Sarah Lee', dojo: 'hq', date: '1 Nov 2026', paid: 690, group: 'Adult', age: 27, gender: 'Female', nat: 'Singaporean', phone: '9001 2345', email: 'sarah.lee@email.com', ec: 'Daniel Lee (Spouse) · 9002 3456', exp: '—', prev: 'No', med: 'No', dogi: 'Cotton (Standard), size 3', pkg: '25 lessons', signer: 'Sarah Lee' },
@@ -189,8 +191,8 @@ function SEED() {
   { n: 'Wei Jie Chua', from: '2nd Kyu', to: '1st Kyu', dojo: 'hq', sub: '28 Oct', note: 'Weapons requirement met', sched: null }
 ],
     proposals: [
-  { n: 'Hannah Teo', from: '5th Kyu', to: '4th Kyu', by: 'Steven Goh Sensei', result: 'Pass', fb: 'Clean ukemi, good posture in ikkyo.' },
-  { n: 'Siti Rahman', from: '2nd Kyu', to: '1st Kyu', by: 'Robin Tan Sensei', result: 'Pass with merit', fb: 'Excellent jo kata. Ready for yudansha track.' }
+  { n: 'Hannah Teo', from: '5th Kyu', to: '4th Kyu', by: 'Steven Goh Sensei', result: 'Pass', well: 'Clean ukemi, good posture in ikkyo.', next: 'Keep your centre lower in iriminage.', fb: 'Clean ukemi, good posture in ikkyo.' },
+  { n: 'Siti Rahman', from: '2nd Kyu', to: '1st Kyu', by: 'Robin Tan Sensei', result: 'Pass with merit', well: 'Excellent jo kata.', next: 'Start preparing for the yudansha track.', fb: 'Excellent jo kata. Ready for yudansha track.' }
 ],
     candidates: [
   { n: 'Jamie Tan', from: '3rd Kyu', to: '2nd Kyu', done: false },
@@ -210,10 +212,29 @@ function SEED() {
   sessions: 29, needSessions: 36, feesPaid: true, qualified: false,
   submitted: null
 },
-    mcRequests: [
-  { id: 'MC-418220', student_id: 'ASK-2022-0788', student_name: 'Siti Rahman', pass_label: '50-lesson pack', mc_start: '2026-10-26', mc_end: '2026-10-30', credits: 2, extend_days: 5, old_expiry: new Date(2026, 11, 20), new_expiry: new Date(2026, 11, 25), file_url: 'mc-uploads/ASK-2022-0788/mc-oct.pdf', preview: null, mime: '', note: 'Fever, 5 days MC', status: 'PENDING', created_at: new Date(2026, 9, 31) }
-],
     feedback: [],
+    /* the signed-in student's past classes. status: 'present' (+1 session) | 'noshow' (lesson used, not counted) | 'pending' (waiting for the instructor) */
+    attendance: [
+  { date: daysAgo(3), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
+  { date: daysAgo(6), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
+  { date: daysAgo(10), time: '19:00', type: 'Adults', ins: 'James Tan Sensei', status: 'noshow' },
+  { date: daysAgo(13), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
+  { date: daysAgo(17), time: '11:00', type: 'Mixed', ins: 'Bob Tan Sensei', status: 'present' },
+  { date: daysAgo(24), time: '19:00', type: 'Adults', ins: 'Steven Goh Sensei', status: 'present' },
+  { date: daysAgo(31), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' }
+],
+    /* sessions counted (marked present) that the student hasn't seen on the gamified home yet */
+    levelUps: [{ kind: 'session', date: daysAgo(3), type: 'Adults' }],
+    /* instructor feedback from each grading the student has taken (newest first) */
+    gradingFeedback: [
+  { from: '5th Kyu', to: '4th Kyu', date: new Date(2026, 2, 13), by: 'Steven Goh Sensei', result: 'Pass',
+    well: 'Confident ukemi and a calm, upright posture. Your shomenuchi ikkyo has good timing.',
+    next: 'Keep your hips lower in iriminage and finish each throw before you turn away. Practise suwari-waza knee walking.' },
+  { from: '6th Kyu', to: '5th Kyu', date: new Date(2025, 11, 14), by: 'Bob Tan Sensei', result: 'Pass',
+    well: 'Good attendance and steady basics. Your rolls are safe on both sides.',
+    next: 'Relax your shoulders when you grab, and keep eye contact with your partner.' }
+],
+    classEnded: {},   // instructor "End class": { 'YYYY-MM-DD|HH:MM': { at, present: [names], noshow: [names] } }
     bookings: [], rateQueue: [], rated: [], prompted: [], seeded: false
   };
 }

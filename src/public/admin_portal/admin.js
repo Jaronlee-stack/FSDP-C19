@@ -3,24 +3,10 @@
 
 const adm = { memFilter: 'All', memQ: '', gradTab: 'apps' };
 
-/* MC approve / reject (admin) */
-document.addEventListener('click', e => {
-  const ok = e.target.closest('[data-mc-ok]'), no = e.target.closest('[data-mc-no]');
-  if (!ok && !no) return;
-  const r = MC_REQUESTS.find(x => x.id === (ok || no).dataset[ok ? 'mcOk' : 'mcNo']); if (!r) return;
-  r.status = ok ? 'APPROVED' : 'REJECTED';
-  MY_PASSES.forEach(p => p.lots.forEach(l => { if (l.req === r.id) l.status = r.status; }));
-  renderApps();
-  save();
-  toast(ok ? `${plural(r.credits, 'lesson')} for ${r.student_name} moved to ${fmtDate(r.new_expiry)}.` : `Request ${r.id} not approved. ${r.student_name} will be emailed.`, ok ? 'ok' : 'info');
-});
-
 function renderApps() {
-  if (!$('#appRows')) { setCount('applications', APPS.length + MC_REQUESTS.filter(r => r.status === 'PENDING').length); return; }
+  if (!$('#appRows')) { setCount('applications', APPS.length); return; }
   $('#appRows').innerHTML = APPS.length ? APPS.map((a, i) => `<div class="row"><span class="av${a.isNew ? ' navy' : ''}">${initials(a.n)}</span><div class="grow"><div class="t">${esc(a.n)}${a.group === 'Child' ? ` <span class="pill plain" style="height:20px;font-size:11px">Age ${a.age}</span>` : ''}${a.isNew ? ' <span class="pill bad plain" style="height:20px;font-size:11px">New</span>' : ''}</div><div class="d">${esc(dojoName(a.dojo))} · ${esc(a.date)} · ${money(a.paid)} paid${a.med.startsWith('Yes') ? ' · <b style="color:var(--warn)">medical note</b>' : ''}</div></div><div class="acts"><button class="sbtn" data-app="${i}">View form</button><button class="sbtn dark" data-approve="${i}">${icon('check')}Approve</button></div></div>`).join('') : '<p style="color:var(--muted)">All caught up. No applications waiting.</p>';
-  $('#mcAdminRows').innerHTML = MC_REQUESTS.length ? MC_REQUESTS.map(r => `<div class="row"><span class="av">${icon('doc')}</span><div class="grow"><div class="t">${esc(r.student_name)} · ${plural(r.credits, 'lesson')}</div><div class="d">${esc(r.pass_label)} · ${fmtShort(r.old_expiry)} → ${fmtDate(r.new_expiry)} · MC ${mcRange(r)}</div></div><div class="acts">${r.status === 'PENDING' ? `<button class="sbtn" data-mcv="${r.id}">Review</button><button class="sbtn dark" data-mc-ok="${r.id}">${icon('check')}Approve</button>` : `${mcPill(r.status)}<button class="sbtn ghost" data-mcv="${r.id}">View</button>`}</div></div>`).join('') : '<p style="color:var(--muted)">No requests.</p>';
-  const n = APPS.length + MC_REQUESTS.filter(r => r.status === 'PENDING').length;
-  setCount('applications', n);
+  setCount('applications', APPS.length);
 }
 
 function openApp(i) {
@@ -28,9 +14,15 @@ function openApp(i) {
   const rows = [['Name', a.n], ['Gender', a.gender], ['Age', a.age], ['Nationality', a.nat], ['Mobile', a.phone], ['Email', a.email], ['Emergency contact', a.ec], ['Martial arts experience', a.exp], ['Previous ASK member', a.prev], ['Medical history', a.med], ['Principal dojo', dojoName(a.dojo)], ['Dogi', a.dogi], ['Lesson package', a.pkg], ['Paid', money(a.paid)], ['Submitted', a.date], ['Terms & PDPA', 'Agreed']];
   openDrawer(`Application · ${a.n}`, `${a.med.startsWith('Yes') ? `<div class="note warn"><svg class="ic"><use href="#i-info"/></svg><span><b>Medical note:</b> ${esc(a.med.slice(6))}. Share with the principal dojo instructor.</span></div>` : ''}
     <div class="kv" style="margin:0;border-top:1px solid var(--line)">${rows.map(([k, v]) => `<div><span>${k}</span><span>${esc(v)}</span></div>`).join('')}</div>
+    ${(a.exps || []).length ? `<div class="app-exps"><h4>Experience and documents</h4>${a.exps.map((x, xi) => `<div class="app-exp"><b>${esc(x.art || 'Martial art')}</b>${x.grade ? `<span>${esc(x.grade)}</span>` : ''}
+      ${x.files.length ? `<div class="app-docs">${x.files.map((f, fi) => f.thumb ? `<button type="button" class="app-doc" data-doc="${xi}:${fi}" aria-label="Open ${esc(f.name)}"><img src="${f.thumb}" alt=""></button>` : `<span class="app-doc pdf" title="${esc(f.name)}">${icon('doc')}<small>PDF</small></span>`).join('')}</div>` : '<small class="app-nodoc">No documents attached</small>'}</div>`).join('')}</div>` : ''}
     <div class="sig-view"><span>Signed by <b>${esc(a.signer || a.n)}</b>${a.sig ? ` · ${esc(a.date)}` : ''}</span>${a.sig ? `<img src="${a.sig}" alt="Signature of ${esc(a.signer || a.n)}">` : '<em>Signature on the scanned paper form</em>'}</div>
     <div class="fld"><label for="app-grade">Starting grade</label><select id="app-grade"><option>6th Kyu (white belt)</option>${a.exp.includes('Aikido') ? '<option>Carry over after record check</option>' : ''}</select></div>`,
     `<button class="sbtn" id="appReject">Reject</button><button class="sbtn dark" data-approve="${i}">${icon('check')}Approve &amp; activate</button>`);
+  $('#drawer').querySelectorAll('[data-doc]').forEach(b => b.addEventListener('click', () => {
+    const [xi, fi] = b.dataset.doc.split(':').map(Number), f = a.exps[xi].files[fi];
+    openModal(`<h3 id="modalTitle">${esc(f.name)}</h3><p class="sub">${esc(a.n)} · ${esc(a.exps[xi].art)}</p><img class="doc-preview" src="${f.thumb}" alt="${esc(f.name)}">`);
+  }));
   $('#appReject').addEventListener('click', () => {
     openModal(`<h3 id="modalTitle">Reject ${esc(a.n)}?</h3><p class="sub">They'll get an email and a full refund of ${money(a.paid)}.</p><div class="fld" style="margin-top:16px"><label for="rej-why">Reason (sent to the applicant)</label><textarea id="rej-why" autofocus></textarea></div><div class="acts"><button class="sbtn red" id="doReject">Reject and refund</button><button class="sbtn" data-close>Back</button></div>`);
     $('#doReject').addEventListener('click', () => { APPS.splice(i, 1); save(); renderApps(); closeModal(); closeDrawer(); toast('Application rejected. Refund issued.', 'info'); });
@@ -100,7 +92,7 @@ function renderGrading() {
   if (adm.gradTab === 'apps') {
     $('#gradRows').innerHTML = GRAD_APPS.map((g, i) => `<div class="row"><span class="av">${initials(g.n)}</span><div class="grow"><div class="t">${g.n}</div><div class="d">${g.from} → ${g.to} · submitted ${g.sub} · ${g.note}</div></div><div class="acts">${g.sched ? `<span class="pill ok">${g.sched}</span>` : `<button class="sbtn dark" data-sched="${i}">${icon('cal')}Schedule</button>`}</div></div>`).join('');
   } else {
-    $('#gradRows').innerHTML = PROPOSALS.length ? PROPOSALS.map((p, i) => `<div class="row"><span class="av">${initials(p.n)}</span><div class="grow"><div class="t">${p.n} · ${p.result}</div><div class="d">${p.from} → ${p.to} · signed by ${p.by} · "${esc(p.fb)}"</div>${p.sig ? `<img class="sig-thumb" src="${p.sig}" alt="Signature of ${esc(p.by)}">` : ''}</div><div class="acts"><button class="sbtn dark" data-promote="${i}">${icon('award')}Approve promotion</button></div></div>`).join('') : '<p style="color:var(--muted)">No proposals waiting.</p>';
+    $('#gradRows').innerHTML = PROPOSALS.length ? PROPOSALS.map((p, i) => `<div class="row"><span class="av">${initials(p.n)}</span><div class="grow"><div class="t">${p.n} · ${p.result}</div><div class="d">${p.from} → ${p.to} · signed by ${esc(p.by)}</div>${p.well || p.next ? `<dl class="fb-mini">${p.well ? `<dt>Went well</dt><dd>${esc(p.well)}</dd>` : ''}${p.next ? `<dt>Work on next</dt><dd>${esc(p.next)}</dd>` : ''}</dl>` : `<div class="d">“${esc(p.fb)}”</div>`}${p.sig ? `<img class="sig-thumb" src="${p.sig}" alt="Signature of ${esc(p.by)}">` : ''}</div><div class="acts"><button class="sbtn dark" data-promote="${i}">${icon('award')}Approve promotion</button></div></div>`).join('') : '<p style="color:var(--muted)">No proposals waiting.</p>';
   }
 }
 
@@ -118,7 +110,11 @@ function openSchedule(i) {
 function promote(i) {
   const p = PROPOSALS.splice(i, 1)[0];
   const m = MEMBERS.find(x => x.n === p.n); if (m) m.g = p.to;
-  const s = STUDENTS.find(x => x.n === p.n); if (s) { s.g = p.to; s.s = 0; s.st = 'Studying'; }
+  const s = STUDENTS.find(x => x.n === p.n); if (s) { s.g = p.to; s.s = 0; s.st = ST_PROGRESS; }
+  if (p.n === ME.name) {   // the student sees a promotion celebration on their home page
+    DB.levelUps.push({ kind: 'promotion', to: p.to, date: new Date(TODAY) });
+    const f = GRADE_FB.find(x => x.to === p.to && x.result !== 'Refer'); if (f) f.status = 'Promoted';
+  }
   save(); renderGrading(); renderMembers();
   toast(`${p.n} promoted to ${p.to}`);
 }
@@ -135,9 +131,6 @@ runPage({
   $('#appRows').addEventListener('click', e => {
     const v = e.target.closest('[data-app]'); if (v) openApp(+v.dataset.app);
     const a = e.target.closest('[data-approve]'); if (a) approveApp(+a.dataset.approve);
-  });
-  $('#mcAdminRows').addEventListener('click', e => {
-    const v = e.target.closest('[data-mcv]'); if (v) openMCView(MC_REQUESTS.find(r => r.id === v.dataset.mcv), true);
   });
   },
   members() {
@@ -211,7 +204,7 @@ runPage({
 
 // search boxes: each one filters only its own list
 runPage({
-  applications() { filterList('#appSearch', '#appRows'); filterList('#mcSearch', '#mcAdminRows'); },
+  applications() { filterList('#appSearch', '#appRows'); },
   sessions() { filterList('#sesSearch', '#sesRows'); },
   grading() { filterList('#gradSearch', '#gradRows'); },
   payments() { filterList('#paySearch', '#adminPayRows'); }

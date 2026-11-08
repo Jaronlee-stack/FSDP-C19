@@ -10,8 +10,6 @@ const totalCredits = () => activePasses().reduce((a, p) => a + p.left, 0);
 const unlimitedOn = (d = TODAY) => !!DB.unlimited && DB.unlimited.until >= startOfDay(d);
 const activeCount = () => activePasses().length + (unlimitedOn() ? 1 : 0);
 const passFor = date => activePasses().find(p => p.expires >= startOfDay(date));
-const heldLots = p => p.lots.filter(l => l.status !== 'REJECTED');
-const carriedOf = p => heldLots(p).reduce((a, l) => a + l.n, 0);
 
 /* bookings are stored by date + start time, so they survive page changes */
 const bookKey = (date, c) => `${isoDate(date)}|${c.time}`;
@@ -41,13 +39,11 @@ function seedBookings() {
 /* ---------- lesson packages + expiry ---------- */
 function passRow(p, first) {
   const days = daysBetween(TODAY, p.expires), soon = days <= 30;
-  const lots = heldLots(p), carried = carriedOf(p);
   const pct = Math.round(p.left / p.total * 100);
   return `<div class="passrow">
     <div class="pr-top"><div><b>${esc(p.name)}</b>${first ? ' <span class="pill navy plain" style="height:20px;font-size:11px">Used first</span>' : ''}<span class="d">Bought ${fmtDate(p.bought)}</span></div><div class="pr-left"><b class="num">${p.left}</b><span>of ${p.total} left</span></div></div>
     <div class="bar${soon ? ' red' : ''}"><i style="width:${pct}%"></i></div>
-    <div class="pr-exp">${icon('clock')}<span><b>${p.left - carried}</b> ${p.left - carried === 1 ? 'lesson expires' : 'lessons expire'} on <b>${fmtDate(p.expires)}</b>${days >= 0 ? ` · ${plural(days, 'day')} left` : ''}</span>${soon ? '<span class="pill warn">Expiring soon</span>' : ''}</div>
-    ${lots.map(l => `<div class="pr-exp lot">${icon('flag')}<span><b>${l.n}</b> carried forward to <b>${fmtDate(l.until)}</b> (MC)</span><span class="pill ${l.status === 'APPROVED' ? 'ok' : 'warn'}">${l.status === 'APPROVED' ? 'Approved' : 'Pending HQ'}</span></div>`).join('')}
+    <div class="pr-exp">${icon('clock')}<span><b>${p.left}</b> ${p.left === 1 ? 'lesson expires' : 'lessons expire'} on <b>${fmtDate(p.expires)}</b>${days >= 0 ? ` · ${plural(days, 'day')} left` : ''}</span>${soon ? '<span class="pill warn">Expiring soon</span>' : ''}</div>
   </div>`;
 }
 
@@ -55,11 +51,11 @@ function passRow(p, first) {
 function renderPassViews() {
   const act = activePasses(), tot = totalCredits(), first = act[0], unl = unlimitedOn(), U = DB.unlimited;
   const set = (sel, fn) => { const el = $(sel); if (el) fn(el); };
-  set('#helloLessons', el => el.textContent = unl ? '∞' : tot);
-  set('#stLessons', el => el.textContent = unl ? '∞' : tot);
-  set('#stLessonsH', el => el.textContent = unl ? `Unlimited until ${fmtShort(U.until)}` : first ? `Next expiry ${fmtDate(first.expires)}` : 'No active package');
+  set('#hsLessons', el => el.textContent = unl ? '∞' : tot.toLocaleString('en-SG'));
+  set('#hsLessonsL', el => el.textContent = unl ? 'Unlimited' : tot === 1 ? 'lesson left' : tot ? 'lessons left' : 'Top up');
+  set('#hsLessonsLink', el => el.classList.toggle('warn', !unl && tot === 0));
   set('#homePasses', el => el.innerHTML = (unl ? `<div class="row"><span class="av navy">${icon('box')}</span><div class="grow"><div class="t">Unlimited</div><div class="d">Renews ${fmtDate(U.until)} · book as many classes as you like</div></div><span class="pill ok">Active</span></div>` : '') +
-    (act.length ? act.map(p => { const d = daysBetween(TODAY, p.expires); return `<div class="row"><span class="av">${icon('box')}</span><div class="grow"><div class="t">${plural(p.left, 'lesson')} · ${esc(p.name)}</div><div class="d">Expire ${fmtDate(p.expires)}${carriedOf(p) ? ` · ${carriedOf(p)} carried to a later date` : ''}</div></div><span class="pill ${d <= 30 ? 'warn' : 'plain'}">${plural(d, 'day')}</span></div>`; }).join('')
+    (act.length ? act.map(p => { const d = daysBetween(TODAY, p.expires); return `<div class="row"><span class="av">${icon('box')}</span><div class="grow"><div class="t">${plural(p.left, 'lesson')} · ${esc(p.name)}</div><div class="d">Expire ${fmtDate(p.expires)}</div></div><span class="pill ${d <= 30 ? 'warn' : 'plain'}">${plural(d, 'day')}</span></div>`; }).join('')
       : (unl ? '' : '<p style="color:var(--muted);font-size:14px;padding:8px 0">No lessons left. Top up to keep booking.</p>')));
 
   const soon = first && daysBetween(TODAY, first.expires) <= 30;
@@ -71,12 +67,6 @@ function renderPassViews() {
   set('#myPasses', el => el.innerHTML = (unl ? `<div class="passrow"><div class="pr-top"><div><b>Unlimited</b><span class="d">Started ${fmtDate(U.since)}</span></div><div class="pr-left"><b>∞</b><span>classes</span></div></div><div class="pr-exp">${icon('clock')}<span>Renews on <b>${fmtDate(U.until)}</b> · 3-month minimum</span><span class="pill ok">Active</span></div></div>` : '') +
     (act.map((p, i) => passRow(p, i === 0 && act.length > 1)).join('') || (unl ? '' : '<p style="color:var(--muted);font-size:14px">You have no active packages.</p>')));
   set('#passCapNote', el => el.textContent = `${activeCount()} of ${MAX_PACKAGES} packages held · you can hold up to ${MAX_PACKAGES} at a time`);
-  set('#mc-pass', sel => {
-    const cur = sel.value;
-    sel.innerHTML = act.map(p => `<option value="${p.id}"${p.id === cur ? ' selected' : ''}>${esc(p.name)} · ${p.left} left · expires ${fmtShort(p.expires)}</option>`).join('');
-    $('#mcCard').hidden = !act.length;
-    if (sel.syncMC) sel.syncMC();
-  });
 }
 
 function renderShop() {
@@ -103,7 +93,7 @@ function confirmCancel(key) {
     BOOKINGS.splice(i, 1);
     const p = MY_PASSES.find(x => x.id === u.passId);
     if (p && refund) p.left++;
-    save(); renderPassViews(); renderUpcoming(); renderBook(); closeModal();
+    save(); renderPassViews(); renderUpcoming(); renderBook(); if ($('#nextClass')) renderNextClass(); closeModal();
     toast(refund && p ? 'Class cancelled. 1 lesson returned.' : 'Class cancelled.');
   });
 }
@@ -179,7 +169,12 @@ function openBooking(i) {
     ${pass ? `<div><span>Lesson expires</span><span>${fmtDate(pass.expires)}</span></div>` : ''}
     <div><span>Balance after</span><span>${after}</span></div></div>
     ${!unl && !pass ? `<div class="note warn"><svg class="ic"><use href="#i-info"/></svg><span>${totalCredits() ? 'Your lessons expire before this date. Pick an earlier class or top up.' : 'You have no lessons left. Top up first.'}</span></div>` : ''}
-    <p style="font-size:13px;color:var(--muted);margin-top:12px">Cancel at least 4 hours before class to get the lesson back. No-shows are not refunded.</p>
+    ${unl || pass ? `<ul class="rules" aria-label="Booking rules">
+      <li><span class="ri">${icon('box')}</span><span>${unl ? 'Booking is covered by your Unlimited plan.' : '<b>1 lesson is used now</b>, when you book.'}</span></li>
+      <li><span class="ri ok">${icon('check')}</span><span><b>Attend and get +1 session</b> toward ${esc(GRADE.target)} once your instructor marks you present.</span></li>
+      <li><span class="ri warn">${icon('x')}</span><span><b>Miss it and the lesson stays used.</b> No refund, and it doesn't count toward grading. There are no make-up classes.</span></li>
+      <li><span class="ri">${icon('clock')}</span><span>Can't make it? <b>Cancel at least 4 hours before</b> to get the lesson back.</span></li>
+    </ul>` : ''}
     <div class="acts">${!unl && !pass ? `<a class="btn btn-dark arrow" href="packages.html">Top up<span class="dot">${icon('arrow')}</span></a>` : `<button class="btn btn-dark arrow" id="doBook" autofocus>Confirm booking<span class="dot">${icon('arrow')}</span></button>`}</div>`);
   const btn = $('#doBook'); if (!btn) return;
   btn.addEventListener('click', () => {
@@ -208,7 +203,7 @@ function openBuy(id) {
     <div class="slide" id="buySlide"><div class="fill"></div><div class="lbl"><em>Slide to pay ${money(p.amt)}</em></div><div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${icon('arrow')}</div></div>`);
   slideCommit($('#buySlide'), () => {
     if (p.lessons === Infinity) DB.unlimited = { since: new Date(TODAY), until: exp };
-    else MY_PASSES.push({ id: 'P-' + String(Date.now()).slice(-6), name: p.name, total: p.lessons, left: p.lessons, bought: new Date(TODAY), expires: exp, lots: [] });
+    else MY_PASSES.push({ id: 'P-' + String(Date.now()).slice(-6), name: p.name, total: p.lessons, left: p.lessons, bought: new Date(TODAY), expires: exp });
     PAYS.unshift({ item: p.lessons === Infinity ? 'Unlimited · 2 weeks' : p.t, date: fmtDate(new Date()), method: 'Visa •••• 4242', amt: p.amt, st: 'Paid', inv: newInv() });
     save(); renderPays(); renderPassViews(); renderBook();
     setTimeout(() => { closeModal(); toast(`${p.t} added. Receipt sent by email.`); }, 500);
@@ -239,7 +234,12 @@ function checkEnded() {
   const now = new Date();
   for (let i = BOOKINGS.length - 1; i >= 0; i--) {
     const u = BOOKINGS[i];
-    if (classEnd(u.date, u.c) < now) { BOOKINGS.splice(i, 1); queueRating({ c: u.c, date: u.date, end: classEnd(u.date, u.c), key: u.key }); }
+    if (classEnd(u.date, u.c) < now) {
+      BOOKINGS.splice(i, 1);
+      // until the instructor ends the class, the outcome is unknown: no +1 yet, and the lesson stays used either way
+      if (!ATTENDANCE.some(a => `${isoDate(a.date)}|${a.time}` === u.key)) ATTENDANCE.unshift({ date: u.date, time: u.c.time, type: u.c.type, ins: u.c.ins, status: 'pending' });
+      queueRating({ c: u.c, date: u.date, end: classEnd(u.date, u.c), key: u.key });
+    }
   }
 }
 function queueRating(r) {
@@ -249,8 +249,10 @@ function queueRating(r) {
 /* pop up the first rating the student hasn't been asked about yet */
 function promptRating() {
   checkEnded(); save(); syncNotifDot(); renderUpcoming();
+  if ($('#attList')) { renderNextClass(); renderAttendance(); }
   const i = DB.rateQueue.findIndex(r => !DB.prompted.includes(r.key));
   if (i < 0 || $('#modal').classList.contains('open')) return;
+  if ($('#levelCards') && gameView() && DB.levelUps.length) return;   // don't cover the level-up moment; ask on a later visit
   DB.prompted.push(DB.rateQueue[i].key); save();
   openRating(i);
 }
@@ -419,85 +421,6 @@ function openTechnique(path) {
     ${vid ? '' : `<div class="acts"><a class="sbtn" href="https://www.youtube.com/results?search_query=${encodeURIComponent('aikido ' + title)}" target="_blank" rel="noopener">${icon('ur')}Find demonstrations</a></div>`}`, true);
 }
 
-/* ---------- MC carry-forward (SSP-11) ---------- */
-function initMC() {
-  const from = $('#mc-from'), to = $('#mc-to'), file = $('#mc-file'), nIn = $('#mc-n'), sel = $('#mc-pass');
-  const dateOf = el => { const v = el.dataset.iso; if (!v) return null; const [y, m, d] = v.split('-').map(Number); return new Date(y, m - 1, d); };
-  const days = () => { const a = dateOf(from), b = dateOf(to); return a && b && b >= a ? Math.round((b - a) / 864e5) + 1 : 0; };
-  const pass = () => MY_PASSES.find(p => p.id === sel.value);
-  const maxN = () => { const p = pass(); return p ? Math.max(0, p.left - carriedOf(p)) : 0; };
-  const clampN = () => { const m = maxN(); let n = parseInt(nIn.value, 10); if (!n || n < 1) n = 1; n = Math.min(n, Math.max(1, m)); nIn.value = n; nIn.max = Math.max(1, m); return n; };
-
-  const sync = () => {
-    const p = pass(); if (!p) { $('#mcDays').textContent = 'You need an active package to carry lessons forward.'; return; }
-    const n = clampN(), d = days(), ext = Math.min(14, d), m = maxN();
-    $('#mcNHint').textContent = `Count the classes you would have attended while on MC. Up to ${plural(m, 'lesson')} from this package.`;
-    if (!d) { $('#mcDays').innerHTML = `Pick your MC dates to see the new expiry for these ${plural(n, 'lesson')}.`; return; }
-    const until = addDays(p.expires, ext), rest = p.left - carriedOf(p) - n;
-    $('#mcDays').innerHTML = `<span><b>${plural(n, 'lesson')}</b> will move to a new expiry of <b>${fmtDate(until)}</b> (+${plural(ext, 'day')}${d > 14 ? ', the maximum' : ', matching your MC'}). The other <b>${rest}</b> still ${rest === 1 ? 'expires' : 'expire'} on <b>${fmtDate(p.expires)}</b>.</span>`;
-  };
-  sel.syncMC = sync;
-
-  $('#mcForm').addEventListener('click', e => {
-    const b = e.target.closest('[data-st]'); if (!b) return;
-    nIn.value = (parseInt(nIn.value, 10) || 1) + +b.dataset.st;
-    mark('#mcForm .stepper', false); fldOf(nIn).classList.remove('invalid');
-    sync();
-  });
-  $('#mcForm').addEventListener('change', e => { const f = fldOf(e.target); if (f && (e.target.dataset.iso || e.target === file || e.target === nIn)) f.classList.remove('invalid'); sync(); });
-  $('#mcForm').addEventListener('input', e => { const f = fldOf(e.target); if (f) f.classList.remove('invalid'); if (e.target === nIn && nIn.value) sync(); });
-
-  $('#mcForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const p = pass(); if (!p) return;
-    const a = dateOf(from), b = dateOf(to), f = file.files[0], n = clampN();
-    let bad = 0;
-    if (!mark(fldOf(from), !a)) bad++;
-    $('#mcToErr').textContent = a && b && b < a ? 'End date must be on or after the start date.' : 'Enter the last day on your MC.';
-    if (!mark(fldOf(to), !b || (a && b < a))) bad++;
-    $('#mcNErr').textContent = maxN() ? `Choose between 1 and ${maxN()}.` : 'All lessons in this package are already being carried forward.';
-    if (!mark(fldOf(nIn), !maxN() || n < 1 || n > maxN())) bad++;
-    const ferr = !f ? 'Upload a photo or PDF of your MC.' : !/^image\/|^application\/pdf$/.test(f.type) ? 'Use a photo (JPG, PNG) or a PDF.' : f.size > 10 * 1024 * 1024 ? 'File is over 10 MB. Try a smaller one.' : '';
-    $('#mcFileErr').textContent = ferr || 'Upload a photo or PDF of your MC.';
-    if (!mark(fldOf(file), !!ferr)) bad++;
-    if (bad) { toast(bad === 1 ? 'One field needs your attention.' : `${bad} fields need your attention.`, 'bad'); return; }
-
-    const btn = $('#mcSubmit');
-    btn.disabled = true; btn.innerHTML = `${icon('upload')}Uploading…`;
-    setTimeout(() => {
-      const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      const ext = Math.min(14, days()), until = addDays(p.expires, ext), id = 'MC-' + String(Date.now()).slice(-6);
-      MC_REQUESTS.unshift({
-        id, student_id: ME.no, student_name: ME.name,
-        pass_id: p.id, pass_label: p.name,
-        mc_start: iso(a), mc_end: iso(b),
-        credits: n, extend_days: ext, old_expiry: p.expires, new_expiry: until,
-        file_url: `mc-uploads/${ME.no}/${Date.now()}-${f.name.replace(/\s+/g, '-')}`,
-        mime: f.type,
-        note: $('#mc-note').value.trim(),
-        status: 'PENDING', created_at: new Date()
-      });
-      p.lots.push({ n, until, status: 'PENDING', req: id });
-      PREVIEWS[id] = URL.createObjectURL(f);
-      save();
-      $('#mcForm').reset(); nIn.value = 1;
-      [from, to].forEach(el => { el.value = ''; el.dpSet && el.dpSet(null); });
-      renderPassViews(); renderMC();
-      btn.disabled = false; btn.innerHTML = `${icon('upload')}Submit request`;
-      toast(`MC uploaded. HQ will review moving ${plural(n, 'lesson')}.`);
-    }, 700);
-  });
-
-  $('#mcRows').addEventListener('click', e => { const b = e.target.closest('[data-mc]'); if (b) openMCView(MC_REQUESTS.find(r => r.id === b.dataset.mc)); });
-  renderMC();
-  sync();
-}
-
-function renderMC() {
-  const mine = MC_REQUESTS.filter(r => r.student_id === ME.no);
-  $('#mcRows').innerHTML = mine.map(r => `<div class="row"><span class="av">${icon('doc')}</span><div class="grow"><div class="t">${plural(r.credits, 'lesson')} → new expiry ${fmtDate(r.new_expiry)}</div><div class="d">${esc(r.pass_label)} · MC ${mcRange(r)} · uploaded ${fmtDate(r.created_at)}</div></div><div class="acts">${mcPill(r.status)}<button class="sbtn" data-mc="${r.id}">View</button></div></div>`).join('');
-}
-
 function openCheckIn() {
   openModal(`<h3 id="modalTitle">Check in</h3><p class="sub">Tap your phone on the NFC tag at the dojo door, or show this code to your instructor.</p>
     <div style="display:grid;place-items:center;margin:22px 0">${qrSVG()}</div>
@@ -506,23 +429,273 @@ function openCheckIn() {
   $('#ciGo').addEventListener('click', () => { location.href = url('student_portal/checkin.html'); });
 }
 
+/* =====================================================================
+   HOME — one number per idea, plus the gamified path
+   ===================================================================== */
+const VIEW_KEY = 'ask-home-view', SOUND_KEY = 'ask-sound';
+const pref = (k, d) => { try { return localStorage.getItem(k) || d; } catch (_) { return d; } };
+const setPref = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+const soundOn = () => pref(SOUND_KEY, 'on') === 'on';
+const gameView = () => pref(VIEW_KEY, 'game') === 'game';
+const MILESTONE = 6;   // a reward chest every 6 sessions
+
+/* membership card (shown on Profile, and when the belt badge on Home is tapped) */
+function memberCardHTML() {
+  return `<div class="pcard" id="memberCard"><div class="pcard-body"><div class="pcard-tile"><span class="pcard-holo"></span>
+    <div class="pcard-top"><span class="pcard-org"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><span class="pcard-kanji">合気道</span></div>
+    <div class="pcard-mid"><span class="pcard-av">${initials(ME.name)}</span><div><div class="pcard-name">${esc(ME.name)}</div><div class="pcard-rank" style="--belt:${beltOf(ME.grade)}"><i></i>${esc(ME.grade)}</div></div></div>
+    <div class="pcard-bot"><span>MEMBER NO.<b>${esc(ME.no)}</b></span><span style="text-align:right">PRINCIPAL DOJO<b>${esc(DOJOS.find(d => d.id === ME.dojo).short)}</b></span></div>
+    <span class="pcard-glare"></span></div>
+    <div class="pcard-foot"><span class="st">Active · Expires Jan 2027</span><button type="button" data-qr>${icon('nfc')}Check in</button></div></div></div>`;
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
+
+/* weeks in a row (this week or last, backwards) with at least one class attended */
+function streakWeeks() {
+  const weeks = new Set(ATTENDANCE.filter(a => a.status === 'present').map(a => +mondayOf(a.date)));
+  let w = mondayOf(TODAY), n = 0;
+  if (!weeks.has(+w)) w = addDays(w, -7);
+  while (weeks.has(+w)) { n++; w = addDays(w, -7); }
+  return n;
+}
+
+/* --- sound: a short chime made with the Web Audio API (no audio files). Only ever called from a tap. --- */
+let actx = null;
+function chime(big) {
+  if (!soundOn()) return;
+  const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+  try {
+    actx = actx || new AC();
+    if (actx.state === 'suspended') actx.resume();
+    const t0 = actx.currentTime + 0.01;
+    const notes = big ? [523.25, 659.25, 783.99, 1046.5, 1318.5] : [880, 1318.5];
+    notes.forEach((f, i) => {
+      const t = t0 + i * (big ? 0.1 : 0.085), len = big ? (i === notes.length - 1 ? 1.1 : 0.5) : 0.45;
+      [['sine', 1, 0.2], ['triangle', 2, 0.04]].forEach(([type, mult, vol]) => {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = type; o.frequency.value = f * mult;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + len);
+        o.connect(g).connect(actx.destination); o.start(t); o.stop(t + len + 0.05);
+      });
+    });
+  } catch (_) {}
+}
+
+/* --- confetti for the big moments (transform + opacity only, skipped with reduced motion) --- */
+function confetti() {
+  if (reduce || !document.body.animate) return;
+  const layer = document.createElement('div'); layer.className = 'confetti'; layer.setAttribute('aria-hidden', 'true');
+  const cols = ['#C1272D', '#16213B', '#E9C84A', '#1F7A4D', '#F2B8BA', '#8B5A2B'];
+  const W = innerWidth, H = innerHeight;
+  for (let i = 0; i < 90; i++) {
+    const p = document.createElement('i');
+    p.style.background = cols[i % cols.length];
+    p.style.left = (W / 2 + (Math.random() - 0.5) * 120) + 'px'; p.style.top = (H * 0.42) + 'px';
+    if (i % 3 === 0) p.style.borderRadius = '50%';
+    layer.appendChild(p);
+    const ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * Math.min(W, 520) * 0.6;
+    const dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist * 0.7 - 120, fall = H * 0.5 + Math.random() * 160;
+    const rot = (Math.random() - 0.5) * 1080, dur = 1300 + Math.random() * 700;
+    p.animate([
+      { transform: 'translate(0,0) rotate(0) scale(1)', opacity: 1 },
+      { transform: `translate(${dx}px,${dy}px) rotate(${rot / 2}deg) scale(1)`, opacity: 1, offset: 0.35 },
+      { transform: `translate(${dx * 1.15}px,${dy + fall}px) rotate(${rot}deg) scale(.8)`, opacity: 0 }
+    ], { duration: dur, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
+  }
+  document.body.appendChild(layer);
+  setTimeout(() => layer.remove(), 2200);
+}
+
+const home = { shown: 0 };   // sessions currently drawn on the path (gamified view)
+const pendingSessions = () => DB.levelUps.filter(l => l.kind === 'session').length;
+
+function renderHomeTop() {
+  const h = new Date().getHours();
+  $('#greet').textContent = `Good ${h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'}, ${ME.name.split(' ')[0]}`;
+  const n = streakWeeks();
+  $('#hsStreakN').textContent = n;
+  $('#hsStreak').classList.toggle('cold', !n);
+  $('#hsStreak').querySelector('small').textContent = n === 1 ? 'week streak' : 'week streak';
+  $('#hsBelt').textContent = ME.grade;
+  $('#hsBeltSwatch').style.setProperty('--belt', beltOf(ME.grade));
+  const game = gameView();
+  $$('#homeView button').forEach(b => { const on = (b.dataset.v === 'game') === game; b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
+  const snd = $('#soundBtn'); snd.hidden = !game;
+  snd.setAttribute('aria-pressed', soundOn()); snd.setAttribute('aria-label', soundOn() ? 'Sound on. Tap to mute' : 'Sound off. Tap to turn on');
+  snd.innerHTML = icon(soundOn() ? 'sound' : 'mute');
+}
+
+function renderNextBelt(count) {
+  const need = GRADE.needSessions, pct = Math.min(1, count / need), left = Math.max(0, need - count);
+  const monthsMet = GRADE.monthsInRank >= GRADE.needMonths;
+  $('#nextBelt').innerHTML = `
+    <div class="nb-head">
+      <span class="nb-belt" style="--belt:${beltOf(GRADE.target)}" aria-hidden="true"></span>
+      <div class="nb-title"><span>Next belt</span><h2>${esc(GRADE.targetLabel)}</h2></div>
+      <div class="nb-count"><b class="num" id="nbCount">${count}</b><span>/ ${need} sessions</span></div>
+    </div>
+    <div class="pbar" role="progressbar" aria-label="Sessions toward ${esc(GRADE.target)}" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${count}"><i id="nbFill" style="transform:scaleX(${pct})"></i></div>
+    <p class="nb-sub" id="nbSub">${left ? `<b>${plural(left, 'more session')}</b> to be ready for grading.` : `<b>Sessions done.</b> Your instructor can now mark you Qualified.`} Next grading ${fmtShort(GRADE.date)}, apply by ${fmtShort(GRADE.close)}.</p>
+    <p class="nb-months ${monthsMet ? 'ok' : ''}">${icon(monthsMet ? 'check' : 'clock')}<span>${GRADE.monthsInRank} of ${GRADE.needMonths} months at ${esc(ME.grade)}${monthsMet ? ' · met' : ''}</span></p>`;
+}
+
+function renderPath(count, anim) {
+  const need = GRADE.needSessions, nxt = BOOKINGS.slice().sort((a, b) => a.date - b.date)[0];
+  const first = Math.max(1, Math.min(count - 1, need - 8));
+  const lastReg = Math.min(need - 1, Math.max(count + 5, first + 7));
+  const ZIG = [0, 1, 1.5, 1, 0, -1, -1.5, -1];
+  const nodes = [];
+  if (first > 1) nodes.push(`<li class="lp-cap"><span>${icon('check')}Sessions 1–${first - 1} done</span></li>`);
+  let k = 0;
+  const node = (n, kind) => {
+    const st = n <= count ? 'done' : n === count + 1 ? 'now' : 'locked';
+    const ic = kind === 'trophy' ? 'trophy' : kind === 'chest' ? 'gift' : st === 'done' ? 'check' : st === 'locked' ? 'lock' : 'star';
+    const label = kind === 'trophy' ? `Session ${n} · ready for ${GRADE.target}` : kind === 'chest' ? `Session ${n} · milestone` : `Session ${n}`;
+    const tip = st === 'now' ? `<span class="lp-tip">${nxt ? `Next: ${dayName(nxt.date)} ${fmtShort(nxt.date)}` : 'Book a class'}</span>` : '';
+    nodes.push(`<li class="lp-node ${st} ${kind || ''}" style="--x:${ZIG[k++ % ZIG.length]}" data-n="${n}"><span class="lp-dot" aria-label="${label}, ${st === 'done' ? 'completed' : st === 'now' ? 'up next' : 'locked'}">${icon(ic)}</span>${tip}${kind === 'trophy' ? `<span class="lp-end">${esc(GRADE.target)}</span>` : ''}</li>`);
+  };
+  for (let n = first; n <= lastReg; n++) node(n, n % MILESTONE === 0 ? 'chest' : '');
+  if (lastReg < need - 1) nodes.push(`<li class="lp-gap" style="--x:${ZIG[k++ % ZIG.length]}"><span>${plural(need - 1 - lastReg, 'more session')}</span></li>`);
+  node(need, 'trophy');
+  $('#lpath').innerHTML = nodes.join('');
+  $('#pathSub').textContent = count >= need ? 'Path complete. Time to prepare for grading.' : 'Every class you attend moves you one step. No-shows don\'t.';
+  if (anim && !reduce) {
+    const doneNode = $(`#lpath [data-n="${count}"] .lp-dot`), nowNode = $('#lpath .lp-node.now .lp-dot');
+    doneNode && doneNode.animate([{ transform: 'scale(.86)' }, { transform: 'scale(1.16)', offset: .45 }, { transform: 'scale(.96)', offset: .75 }, { transform: 'scale(1)' }], { duration: 560, easing: 'cubic-bezier(.23,1,.32,1)' });
+    nowNode && nowNode.animate([{ transform: 'translateY(8px) scale(.9)', opacity: .4 }, { transform: 'translateY(-4px) scale(1.04)', opacity: 1, offset: .6 }, { transform: 'none', opacity: 1 }], { duration: 520, delay: 140, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'backwards' });
+  }
+}
+
+function renderLevelCards() {
+  const box = $('#levelCards');
+  const promo = DB.levelUps.find(l => l.kind === 'promotion'), n = pendingSessions();
+  const cards = [];
+  if (promo) cards.push(`<button type="button" class="lvl-card promo" data-claim="promotion"><span class="lvl-ic">${icon('award')}</span><span class="lvl-t"><b>Promoted to ${esc(promo.to)}</b><small>Tap to celebrate</small></span><span class="lvl-go">${icon('arrow')}</span></button>`);
+  if (n) {
+    const l = DB.levelUps.find(x => x.kind === 'session');
+    cards.push(`<button type="button" class="lvl-card" data-claim="session"><span class="lvl-plus num">+1</span><span class="lvl-t"><b>Session counted</b><small>${esc(l.type)} · ${dayName(new Date(l.date))} ${fmtShort(new Date(l.date))} · marked present.${n > 1 ? ` ${n} waiting.` : ''} Tap to move forward.</small></span><span class="lvl-go">${icon('arrow')}</span></button>`);
+  }
+  box.innerHTML = cards.join('');
+  box.hidden = !cards.length;
+}
+
+function renderNextClass() {
+  const list = BOOKINGS.slice().sort((a, b) => a.date - b.date), el = $('#nextClass');
+  if (!list.length) { el.innerHTML = `<div class="empty-mini">${icon('cal')}<p><b>No class booked</b><span>Book a class at HQ to keep your streak going.</span></p><button class="sbtn dark" data-page-link="book">Book a class</button></div>`; return; }
+  const u = list[0], cutoff = new Date(classStart(u.date, u.c) - 4 * 36e5);
+  el.innerHTML = `<div class="sess"><div class="date"><span>${DAY[u.date.getDay()]}</span><b>${u.date.getDate()}</b></div><div><div class="t">${esc(u.c.type)} · ${timeLabel(u.c.time)}</div><div class="d">HQ Dojo · ${esc(u.c.ins)}</div><div class="d">${u.unlimited ? 'Unlimited plan' : '1 lesson used'} · free cancel until ${dayName(cutoff)} ${timeLabelAt(cutoff)}</div></div><button class="sbtn" data-cancel="${u.key}">Cancel</button></div>
+    ${list.length > 1 ? `<button type="button" class="more-link" data-page-link="book">${plural(list.length - 1, 'more class')} booked</button>` : ''}`;
+}
+const timeLabelAt = d => `${d.getHours() % 12 || 12}${d.getMinutes() ? ':' + String(d.getMinutes()).padStart(2, '0') : ''} ${d.getHours() < 12 ? 'AM' : 'PM'}`;
+
+function renderAttendance() {
+  const list = ATTENDANCE.slice().sort((a, b) => b.date - a.date || b.time.localeCompare(a.time)).slice(0, 6);
+  $('#attList').innerHTML = list.length ? list.map(a => {
+    const d = new Date(a.date);
+    const pill = a.status === 'present' ? '<span class="att-st ok">Attended <b>+1</b></span>'
+      : a.status === 'noshow' ? '<span class="att-st warn">No-show<small>Lesson used, not counted</small></span>'
+      : '<span class="att-st">Awaiting instructor</span>';
+    return `<div class="att-row ${a.status}"><span class="att-date"><b>${d.getDate()}</b>${MON[d.getMonth()]}</span><span class="att-main"><b>${esc(a.type)} · ${timeLabel(a.time)}</b><small>${dayName(d)} · ${esc(a.ins)}</small></span>${pill}</div>`;
+  }).join('') : `<div class="empty-mini">${icon('clock')}<p><b>No classes yet</b><span>Classes you attend show here, each with +1 toward your next grade.</span></p></div>`;
+}
+
+function renderHome(anim) {
+  const game = gameView();
+  if (!game) DB.levelUps = DB.levelUps.filter(l => l.kind !== 'session');   // Standard view: no claiming, just the real count
+  home.shown = game ? GRADE.sessions - pendingSessions() : GRADE.sessions;
+  document.body.classList.toggle('home-std', !game);
+  renderHomeTop(); renderPassViews();
+  renderNextBelt(home.shown);
+  if (game) { renderLevelCards(); renderPath(home.shown, anim); } else { const promo = DB.levelUps.find(l => l.kind === 'promotion'); $('#levelCards').hidden = !promo; $('#levelCards').innerHTML = promo ? `<div class="note"><svg class="ic"><use href="#i-award"/></svg><span><b>Promoted to ${esc(promo.to)}.</b> Congratulations.</span><button class="sbtn ghost" data-claim="promotion">Dismiss</button></div>` : ''; }
+  renderNextClass(); renderAttendance();
+  save();
+}
+
+/* the level-up moment: one tap = one counted session joins the path */
+function claim(kind, btn) {
+  if (kind === 'promotion') {
+    DB.levelUps = DB.levelUps.filter(l => l.kind !== 'promotion'); save();
+    if (gameView()) { chime(true); confetti(); toast('Congratulations on your new grade.'); }
+    renderHome(false); return;
+  }
+  const i = DB.levelUps.findIndex(l => l.kind === 'session'); if (i < 0) return;
+  DB.levelUps.splice(i, 1); save();
+  const before = home.shown, after = before + 1, need = GRADE.needSessions, big = after >= need && before < need;
+  chime(big);
+  const go = () => {
+    home.shown = after;
+    renderLevelCards();
+    renderNextBelt(before);                     // draw at the old value, then let the bar fill to the new one
+    const fill = $('#nbFill');
+    requestAnimationFrame(() => requestAnimationFrame(() => { fill.style.transform = `scaleX(${Math.min(1, after / need)})`; }));
+    const c = $('#nbCount'); c.textContent = after; c.closest('.nb-count').classList.add('bump');
+    $('.pbar').setAttribute('aria-valuenow', after);
+    renderPath(after, true);
+    const now = $('#lpath .lp-node.now') || $('#lpath .lp-node.trophy');
+    if (now) now.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
+    if (big) { confetti(); setTimeout(() => toast(`${after} of ${need} sessions. You're ready for ${GRADE.target} grading once your instructor marks you Qualified.`), 400); }
+    else toast(`+1 session · ${after} of ${need}`);
+    setTimeout(() => renderNextBelt(after), 700);
+  };
+  if (btn && !reduce && btn.animate) btn.animate([{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.96)', opacity: 0 }], { duration: 180, easing: 'cubic-bezier(.23,1,.32,1)', fill: 'forwards' }).onfinish = go;
+  else go();
+}
+
+function openMemberCard() {
+  openModal(`<h3 id="modalTitle">Membership card</h3><p class="sub">${esc(ME.grade)} · ${esc(dojoName(ME.dojo))}</p><div style="margin-top:16px">${memberCardHTML()}</div>`);
+  profileCard($('#memberCard'));
+}
+
+/* prototype: stand in for the instructor marking your next class */
+function simulateNext(status) {
+  const b = BOOKINGS.slice().sort((x, y) => x.date - y.date)[0];
+  let rec;
+  if (b) rec = { date: b.date, time: b.c.time, type: b.c.type, ins: b.c.ins, status };
+  else {
+    const p = activePasses()[0]; if (p) p.left--;   // as if it had been booked: the lesson is used either way
+    rec = { date: addDays(TODAY, -1), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status };
+  }
+  recordMyAttendance(rec);
+  save(); renderHome(false);
+  toast(status === 'present' ? 'Marked present. Your +1 is waiting on Home.' : 'No-show recorded. Lesson used, no refund, not counted.', status === 'present' ? 'ok' : 'info');
+}
+
+/* grading feedback the student sees (instructor writes it in the grading form) */
+function renderFeedback() {
+  const el = $('#fbList'); if (!el) return;
+  el.innerHTML = GRADE_FB.length ? GRADE_FB.map(f => {
+    const pass = f.result !== 'Refer', d = new Date(f.date);
+    return `<article class="fb-item">
+      <div class="fb-head">
+        <div class="fb-rank"><span class="belt" style="--belt:${beltOf(f.from)}"><i></i>${esc(f.from)}</span>${icon('arrow')}<span class="belt" style="--belt:${beltOf(f.to)}"><i></i>${esc(f.to)}</span></div>
+        <span class="pill ${pass ? 'ok' : 'warn'}">${esc(f.result)}${f.status ? ` · ${esc(f.status)}` : ''}</span>
+      </div>
+      <p class="fb-meta">${fmtDate(d)} · Examiner ${esc(f.by)}</p>
+      <div class="fb-notes">
+        <div class="fb-note well"><h4>${icon('check')}What went well</h4><p>${esc(f.well)}</p></div>
+        <div class="fb-note next"><h4>${icon('arrow')}What to work on next</h4><p>${esc(f.next)}</p></div>
+      </div>
+    </article>`;
+  }).join('') : `<div class="empty-mini">${icon('award')}<p><b>No feedback yet</b><span>After your first grading, your examiner's notes on what went well and what to work on next will appear here.</span></p></div>`;
+}
+
 /* ---------- pages ---------- */
 runPage({
   home() {
-    const h = new Date().getHours();
-    $('#greet').textContent = `Good ${h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'}, Lervyn.`;
-    profileCard($('#studentCard'));
-    const nowIdx = BELTS.findIndex(b => b.g === ME.grade);
-    $('#beltPath').innerHTML = BELTS.map((b, i) => `${i ? `<span class="link${i <= nowIdx ? ' done' : ''}"></span>` : ''}<div class="node${i < nowIdx ? ' done' : i === nowIdx ? ' now' : ''}" style="--belt:${b.c}"><i></i><span>${b.g}${i === nowIdx ? '<br>You' : ''}</span></div>`).join('');
-    $('#progToggle').addEventListener('click', e => {
-      const b = e.target.closest('button'); if (!b) return;
-      $$('#progToggle button').forEach(x => x.classList.toggle('on', x === b));
-      const bar = b.dataset.v === 'bar';
-      $('#progPath').hidden = bar; $('#progBar').hidden = !bar;
-      if (bar) $$('#progBar .bar i').forEach(i => requestAnimationFrame(() => i.style.width = i.dataset.w + '%'));
+    seedBookings();
+    renderHome(false);
+    $('#homeView').addEventListener('click', e => {
+      const b = e.target.closest('[data-v]'); if (!b || (b.dataset.v === 'game') === gameView()) return;
+      setPref(VIEW_KEY, b.dataset.v); renderHome(false);
     });
-    $('[data-qr]').addEventListener('click', openCheckIn);
-    renderUpcoming();
+    $('#soundBtn').addEventListener('click', () => { setPref(SOUND_KEY, soundOn() ? 'off' : 'on'); renderHomeTop(); if (soundOn()) chime(false); });
+    $('#beltBadge').addEventListener('click', openMemberCard);
+    $('.page').addEventListener('click', e => {
+      const c = e.target.closest('[data-claim]'); if (c) { claim(c.dataset.claim, c.closest('.lvl-card')); return; }
+      const sim = e.target.closest('[data-sim]'); if (sim) simulateNext(sim.dataset.sim);
+    });
   },
   book() {
     $('#wkPrev').addEventListener('click', () => { stu.week = Math.max(0, stu.week - 1); stu.agDay = null; renderBook(); });
@@ -536,9 +709,8 @@ runPage({
   packages() {
     document.addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) openBuy(b.dataset.buy); });
     renderShop();
-    initMC();
   },
-  grading() { initGradingApp(); initCurriculum(); },
+  grading() { initGradingApp(); initCurriculum(); renderFeedback(); },
   payments() {
     renderPays();
     $('#payRows').addEventListener('click', e => {
@@ -549,6 +721,7 @@ runPage({
     document.addEventListener('click', e => { const b = e.target.closest('[data-pdf]'); if (b) downloadReceipt(+b.dataset.pdf); });
   },
   profile() {
+    $('#profileCard').innerHTML = memberCardHTML(); profileCard($('#memberCard'));
     $('#profileForm').addEventListener('submit', e => { e.preventDefault(); toast('Profile saved'); });
     $('#pwBtn').addEventListener('click', () => openModal(`<h3 id="modalTitle">Change password</h3><p class="sub">Use at least 8 characters.</p><form id="pwForm" style="display:grid;gap:14px;margin-top:18px" novalidate><div class="fld"><label for="pw1">Current password</label><input id="pw1" type="password" autofocus></div><div class="fld"><label for="pw2">New password</label><input id="pw2" type="password"><span class="err">At least 8 characters.</span></div><button class="sbtn dark" type="submit" style="justify-self:start">Update password</button></form>`));
     document.addEventListener('submit', e => {
