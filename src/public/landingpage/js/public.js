@@ -30,8 +30,6 @@ document.body.insertAdjacentHTML('afterbegin', `  <header class="nav">
             ${NAV_CLASSES.map(([id, n]) => ddItem('class.html#' + id, n)).join('')}
           </div>
         </div>
-        <a href="fees.html" data-nav="fees">Fees</a>
-        <a href="about.html#ab-instructors">Instructors</a>
         <div class="dd">
           <a href="dojos.html">Dojos<svg class="ic"><use href="#i-chev"/></svg></a>
           <div class="dd-menu">
@@ -39,6 +37,8 @@ document.body.insertAdjacentHTML('afterbegin', `  <header class="nav">
             ${DOJOS.map(d => ddItem('dojo.html#' + d.id, d.name)).join('')}
           </div>
         </div>
+        <a href="fees.html" data-nav="fees">Fees</a>
+        <a href="about.html#ab-instructors">Instructors</a>
         <a href="index.html#faq">FAQ</a>
       </nav>
       <div class="nav-acts">
@@ -73,8 +73,8 @@ document.querySelector('main').insertAdjacentHTML('afterend', `  <footer class="
 /* signed-in members get a shortcut back to their portal */
 if (AUTH.role === 'student') { const l = $('.nav-login'); l.textContent = 'My portal'; l.href = url('student_portal/index.html'); }
 
-SM_LINKS = [['About', 'about.html'], ['Classes', 'classes.html'], ['Fees', 'fees.html'], ['Instructors', 'about.html#ab-instructors'],
-  ['Dojos', 'dojos.html'], ['Book a trial', 'trial.html#trial'], ['Join now', 'join.html'], ['Log in', '../student_portal/login.html']];
+SM_LINKS = [['About', 'about.html'], ['Classes', 'classes.html'], ['Dojos', 'dojos.html'], ['Fees', 'fees.html'],
+  ['Instructors', 'about.html#ab-instructors'], ['Book a trial', 'trial.html#trial'], ['Join now', 'join.html'], ['Log in', '../student_portal/login.html']];
 
 // close the nav dropdowns after a choice (hover/focus would keep them open)
 $$('.dd').forEach(dd => {
