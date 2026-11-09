@@ -303,11 +303,59 @@ function countUps(root) {
   $$('[data-count]', root).forEach(el => { if (!el.dataset.cuDone) cuObserver.observe(el); });
 }
 
+/* Profile / member card tilt.
+   Desktop: follows the mouse.  Phones: follows the finger while touching,
+   follows the phone's motion (gyro) otherwise, and gently sways on its own
+   if the phone gives no motion data (no permission / not https). */
+const pcTouchDev = matchMedia('(hover: none), (pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+const pcClamp = v => Math.max(-1, Math.min(1, v));
+const pcGyro = { cards: new Set(), on: false, asking: false, live: false, base: null, x: 0, y: 0 };
+function pcOrient(e) {
+  if (e.beta == null || e.gamma == null) return;
+  const ang = (screen.orientation && screen.orientation.angle) ?? window.orientation ?? 0;
+  // map device axes to screen axes so it still feels right in landscape
+  let h = e.gamma, v = e.beta;                       // portrait
+  if (ang === 90) { h = e.beta; v = -e.gamma; }
+  else if (ang === -90 || ang === 270) { h = -e.beta; v = e.gamma; }
+  else if (ang === 180) { h = -e.gamma; v = -e.beta; }
+  const g = pcGyro;
+  if (!g.base) g.base = { h, v };                    // however they hold the phone = "flat"
+  g.base.h += (h - g.base.h) * 0.015;                // slowly re-centre when they change posture
+  g.base.v += (v - g.base.v) * 0.015;
+  g.x = pcClamp((h - g.base.h) / 16);
+  g.y = pcClamp((v - g.base.v) / 16);
+  g.live = true;
+  g.cards.forEach(c => (c.isConnected ? c._pcWake() : g.cards.delete(c)));
+}
+function pcGyroStart() {
+  if (pcGyro.on || pcGyro.asking || reduce || !('DeviceOrientationEvent' in window)) return;
+  const go = () => { pcGyro.on = true; addEventListener('deviceorientation', pcOrient); };
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {   // iOS: must come from a tap
+    pcGyro.asking = true;
+    DeviceOrientationEvent.requestPermission()
+      .then(r => { if (r === 'granted') go(); })
+      .catch(() => {})
+      .finally(() => { pcGyro.asking = false; });
+  } else go();
+}
+
 function profileCard(el) {
   if (!el || el.dataset.pc) return;
   el.dataset.pc = 1;
   const s = { x: 0, y: 0, tx: 0, ty: 0, a: 0, ta: 0 };
-  let raf = 0;
+  let raf = 0, touching = false, seen = true;
+  const t0 = performance.now();
+  const autoMove = () => pcTouchDev && !reduce && !touching && seen;
+  const aimAuto = () => {
+    if (!autoMove()) return;
+    if (pcGyro.live) {
+      s.tx = pcGyro.x; s.ty = pcGyro.y;
+      s.ta = Math.min(1, 0.35 + Math.hypot(pcGyro.x, pcGyro.y) * 0.8);
+    } else {                                          // no motion data: slow idle sway
+      const t = (performance.now() - t0) / 1000;
+      s.tx = Math.sin(t * 0.8) * 0.35; s.ty = Math.cos(t * 0.6) * 0.25; s.ta = 0.45;
+    }
+  };
   const write = () => {
     el.style.setProperty('--rx', (s.y * 12).toFixed(2) + 'deg');
     el.style.setProperty('--ry', (-s.x * 14).toFixed(2) + 'deg');
@@ -316,22 +364,45 @@ function profileCard(el) {
     el.style.setProperty('--act', s.a.toFixed(3));
   };
   const frame = () => {
-    s.x += (s.tx - s.x) * 0.12; s.y += (s.ty - s.y) * 0.12; s.a += (s.ta - s.a) * 0.1;
+    if (!el.isConnected) { raf = 0; pcGyro.cards.delete(el); return; }
+    aimAuto();
+    const k = touching ? 0.22 : 0.12;                 // snappier under the finger
+    s.x += (s.tx - s.x) * k; s.y += (s.ty - s.y) * k; s.a += (s.ta - s.a) * 0.1;
     write();
-    if (Math.abs(s.tx - s.x) + Math.abs(s.ty - s.y) + Math.abs(s.ta - s.a) > 0.002) raf = requestAnimationFrame(frame); else raf = 0;
+    const moving = Math.abs(s.tx - s.x) + Math.abs(s.ty - s.y) + Math.abs(s.ta - s.a) > 0.002;
+    raf = (moving || (autoMove() && !pcGyro.live)) ? requestAnimationFrame(frame) : 0;
   };
   const wake = () => { if (!raf) raf = requestAnimationFrame(frame); };
-  const aim = e => {
-    if (e.pointerType === 'touch') return; // no tilt while scrolling on phones
+  el._pcWake = wake;
+  const point = (x, y) => {
     const r = el.getBoundingClientRect();
-    s.tx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
-    s.ty = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+    s.tx = pcClamp(((x - r.left) / r.width) * 2 - 1);
+    s.ty = pcClamp(((y - r.top) / r.height) * 2 - 1);
     s.ta = 1; wake();
   };
-  if (reduce) return;
+  const rest = () => { s.tx = 0; s.ty = 0; s.ta = 0; wake(); };
+
+  /* mouse / pen */
+  const aim = e => { if (e.pointerType !== 'touch') point(e.clientX, e.clientY); };
   el.addEventListener('pointermove', aim);
   el.addEventListener('pointerenter', aim);
-  el.addEventListener('pointerleave', () => { s.tx = 0; s.ty = 0; s.ta = 0; wake(); });
+  el.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') rest(); });
+
+  /* finger: tilt toward where they press and follow the drag */
+  el.addEventListener('touchstart', e => { touching = true; const t = e.touches[0]; point(t.clientX, t.clientY); }, { passive: true });
+  el.addEventListener('touchmove', e => { const t = e.touches[0]; if (t) point(t.clientX, t.clientY); }, { passive: true });
+  const release = () => { touching = false; pcGyroStart(); if (!autoMove()) rest(); else wake(); };
+  el.addEventListener('touchend', release, { passive: true });
+  el.addEventListener('touchcancel', release, { passive: true });
+
+  if (reduce) return;                                 // reduced motion: only moves when the user moves it
+  if (pcTouchDev) {
+    pcGyro.cards.add(el);
+    pcGyroStart();                                     // Android starts now; iOS waits for the first tap on the card
+    if ('IntersectionObserver' in window) {            // pause the loop while the card is off-screen
+      new IntersectionObserver(([en]) => { seen = en.isIntersecting; if (seen) wake(); }).observe(el);
+    }
+  }
   s.x = 0.62; s.y = -0.55; s.a = 1; write(); wake();
 }
 

@@ -767,3 +767,6 @@ html.sm-lock .ben-fab, html.sm-lock .ben-panel { opacity: 0; pointer-events: non
 .pcard-foot button { flex: none; white-space: nowrap; }
 .pcard-foot .st { min-width: 0; }
 @media (max-width: 380px) { .pcard-tile { aspect-ratio: auto; min-height: 190px; gap: 12px; } .pcard-name { font-size: 17px; } }
+/* phones: card tilts under the finger — sideways drags tilt it, up/down still scrolls the page; no text-select / grey flash on press */
+.pcard-body { touch-action: pan-y; -webkit-tap-highlight-color: transparent; }
+.pcard-tile { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
