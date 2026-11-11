@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="sessions" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="sessions">
+        <div class="page-h"><div><h1>Sessions</h1><p>Recurring classes. Each session gets a code written to its dojo's NFC tag. Only HQ sessions are bookable online.</p></div><div class="acts"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="sesSearch" type="search" placeholder="Class or instructor" aria-label="Search by class or instructor" autocomplete="off"></label><button class="sbtn dark" id="newSession"><svg class="ic"><use href="#i-plus"/></svg>New session</button></div></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Class</th><th>When</th><th>Dojo</th><th>Instructor</th><th>Booked</th><th>Code</th><th></th></tr></thead><tbody id="sesRows"></tbody></table></div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

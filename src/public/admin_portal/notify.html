@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="notify" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="notify">
+        <div class="page-h"><div><h1>Notifications</h1><p>Send to everyone, one dojo, a grade, or a single student.</p></div></div>
+        <div class="g-side">
+          <form class="card white composer" id="notifyForm" novalidate>
+            <div class="fld"><span class="lbl">Send to</span><div class="seg" id="audSeg">
+              <input type="radio" name="aud" id="a1" value="All members" checked><label for="a1">All members</label>
+              <input type="radio" name="aud" id="a2" value="One dojo"><label for="a2">One dojo</label>
+              <input type="radio" name="aud" id="a3" value="By grade"><label for="a3">By grade</label>
+              <input type="radio" name="aud" id="a4" value="One student"><label for="a4">One student</label></div></div>
+            <div class="fld" id="audExtra" hidden><label for="n-target" id="audLabel">Dojo</label><select id="n-target" data-search="Type a name or member no."></select></div>
+            <div class="fld"><label for="n-title">Title</label><input id="n-title" maxlength="60" placeholder="e.g. HQ closed on Deepavali"></div>
+            <div class="fld"><label for="n-body">Message</label><textarea id="n-body" maxlength="240" placeholder="Keep it short. It shows as a push notification and in the portal."></textarea><span class="hint"><span id="nCount">0</span>/240</span></div>
+            <label class="check"><input type="checkbox" id="n-email" checked><span>Also send by email</span></label>
+            <button class="btn btn-red arrow" type="submit" style="justify-self:start">Send notification<span class="dot"><svg class="ic"><use href="#i-send"/></svg></span></button>
+          </form>
+          <div class="card"><div class="card-h"><h3>Preview</h3><span class="sub" id="audPreview">All members · 1,248</span></div>
+            <div class="preview-phone"><div class="push"><small><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI · now</small><b id="pvTitle">Your title</b><span id="pvBody" style="color:rgba(255,255,255,.75)">Your message appears here.</span></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

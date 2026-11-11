@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Instructor · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="instructor" data-page="students" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="students">
+        <div class="page-h"><div><h1>My students</h1><p>Everyone who trains in your classes.</p></div></div>
+        <div class="list-bar">
+          <div class="filters" id="stuFilter"></div>
+          <label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="stuSearch" placeholder="Search by name" aria-label="Search students"></label>
+        </div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Student</th><th>Grade</th><th>Sessions</th><th>Last seen</th><th>Status</th></tr></thead><tbody id="stuRows"></tbody></table></div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="instructor.js"></script>
+</body>
+</html>

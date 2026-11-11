@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- A folder URL without the trailing slash (e.g. /src/public/landingpage, as `npx serve` shows it) would make every
+     relative link point one folder too high. Send the browser to the slash version first, before anything loads. -->
+<script>(function () { var l = location, p = l.pathname; if (/\/index$/.test(p)) p = p.slice(0, -5); else if (/\/$|\.html?$/.test(p)) return; else p += '/'; l.replace(p + l.search + l.hash); })();</script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF7F1">
+<title>Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/public.css">
+</head>
+<body data-root="../" data-page="home">
+
+<main>
+    <!-- HERO: just the animated logo and name. Everything else lives on its own page. -->
+    <section class="lp-hero" id="top">
+      <div class="lp-sun" aria-hidden="true"></div>
+      <div class="lp-petals" id="lpPetals" aria-hidden="true"></div>
+      <div class="lp-center">
+        <div class="lp-logo-wrap">
+          <svg class="lp-enso" viewBox="0 0 200 200" aria-hidden="true"><path class="e1" d="M100 16a84 84 0 1 1-56 21"/><path class="e2" d="M100 26a74 74 0 1 1-49 18"/></svg>
+          <div class="lp-logo" id="lpLogo"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="Aikido Shinju-Kai logo"></div>
+        </div>
+        <h1 class="lp-title" aria-label="Aikido Shinju-Kai, 合気道"><span class="lp-words" id="lpWords" aria-hidden="true"></span></h1>
+        <p class="lp-sub" id="lpSub" aria-hidden="true"></p>
+        <div class="lp-ctas">
+          <a class="btn btn-red" href="trial.html#trial">Book a Trial · S$29<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></a>
+          <a class="btn btn-dark arrow" href="join.html">Become a Member<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        </div>
+      </div>
+      <div class="lp-loop">
+        <div class="loop" id="dojoLoop" aria-label="Dojo locations"><div class="loop-track"></div></div>
+      </div>
+    </section>
+
+    <!-- EXPLORE: one tile per main page -->
+    <section class="sec wrap lp-explore" id="explore">
+      <div class="sec-head ac">
+        <div><span class="eyebrow">Start here</span><h2>Train with purpose.<br>Grow with discipline.</h2></div>
+        <p>Classes every day for adults and children at our HQ Dojo and dojos across Singapore.</p>
+      </div>
+      <div class="lp-tiles ac" data-stagger>
+        <a class="lp-tile" href="classes.html" style="--img:url('https://aikidoshinjukai.com.sg/images/classes/adult/1.jpg')"><span class="k" aria-hidden="true">稽古</span><div><small>12 programmes</small><h3>Classes</h3></div><span class="go"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="lp-tile" href="fees.html" style="--img:url('https://aikidoshinjukai.com.sg/images/classes/mixed/1.jpg')"><span class="k" aria-hidden="true">会費</span><div><small>From S$29</small><h3>Fees</h3></div><span class="go"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="lp-tile" href="dojos.html" style="--img:url('https://aikidoshinjukai.com.sg/images/classes/children/1.jpg')"><span class="k" aria-hidden="true">道場</span><div><small>Across Singapore</small><h3>Dojos</h3></div><span class="go"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+        <a class="lp-tile" href="about.html#ab-instructors" style="--img:url('https://aikidoshinjukai.com.sg/images/classes/weapons/1.jpg')"><span class="k" aria-hidden="true">先生</span><div><small>70 certified</small><h3>Instructors</h3></div><span class="go"><svg class="ic"><use href="#i-arrow"/></svg></span></a>
+      </div>
+    </section>
+
+    <!-- THREE STEPS -->
+    <section class="wrap">
+      <div class="lp-steps ac" data-stagger>
+        <div class="lp-step"><b>01</b><h3>Try a class</h3><p>One trial session at HQ for S$29. No uniform needed.</p></div>
+        <div class="lp-step"><b>02</b><h3>Join</h3><p>S$60 once: registration, handbook, membership book and year-one dues.</p></div>
+        <div class="lp-step"><b>03</b><h3>Train &amp; grade</h3><p>Book classes and track your path to the next belt in the student portal.</p></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="sec wrap" id="faq">
+      <div class="faq">
+        <div class="faq-intro ac"><span class="eyebrow">Questions</span><h2>Before you join</h2><p>Quick answers about membership, booking and grading. <a href="fees.html" style="color:var(--red);font-weight:600">See all fees</a></p></div>
+        <div class="ac">
+          <div class="qa open"><button aria-expanded="true">Do I need martial arts experience?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>No. Most members start with none. New members begin at white belt. If you trained in Aikido before, bring your record book and certificates and we'll verify your grade.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">Which classes can I book online?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>Online booking covers classes at the HQ Dojo in Thomson V One. Community club dojos run term courses that you register for through the club or your instructor.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">What does the S$60 cover?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>Registration, the student handbook, your membership book and year-one annual dues. After that, annual membership is S$48 a year.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">Are there discounts?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>Seniors aged 65 and above get 40% off. Full-time students aged 17 to 25 and NSFs get 50% off.</p></div></div></div>
+          <div class="qa"><button aria-expanded="false">When can I take my first grading?<span class="pm"><svg class="ic"><use href="#i-plus"/></svg></span></button><div class="ans"><div><p>After at least 3 months of membership with no outstanding fees and enough training sessions. Your student portal tracks this for you.</p></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" style="padding-bottom:96px">
+      <div class="cta ac">
+        <div class="cta-l">
+          <span class="ben-big"><img src="../img/aiko-avatar.png" alt=""><img class="bb" src="../img/aiko-bubble.png" alt=""></span>
+          <div><span class="eyebrow">Still curious?</span><h2>Ask Ben, our dojo assistant</h2><p>Ben answers questions about classes, fees, dojo locations and grading at any hour.</p></div>
+        </div>
+        <button class="btn btn-red" data-ben-open>Chat with Ben<span class="dot"><svg class="ic"><use href="#i-plus"/></svg></span></button>
+      </div>
+    </section>
+  </main>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="js/public.js"></script>
+<script src="../js/ben.js"></script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="applications" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="applications">
+        <div class="page-h"><div><h1>Requests</h1><p>Paid membership applications and package extension requests waiting for HQ.</p></div></div>
+        <div class="card white">
+          <div class="card-h"><div><h3>Membership applications</h3><span class="sub">Approve to activate the student account and print the student card.</span></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="appSearch" type="search" placeholder="Search applicants" aria-label="Search membership applications" autocomplete="off"></label></div>
+          <div class="rows" id="appRows"></div>
+        </div>
+        <div class="card white">
+          <div class="card-h"><div><h3>Package extensions</h3><span class="sub">Members who sent an MC, or used Compassion Guaranteed on a children's 1-month pass. Approving moves the package's expiry date.</span></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="mcSearch" type="search" placeholder="Search requests" aria-label="Search package extension requests" autocomplete="off"></label></div>
+          <div class="rows" id="mcRows"></div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

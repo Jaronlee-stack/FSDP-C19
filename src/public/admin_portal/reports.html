@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="reports" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="reports">
+        <div class="page-h"><div><h1>Reports</h1><p>Export for meetings and audits.</p></div></div>
+        <div class="g3 ac" data-stagger>
+          <div class="card white"><div class="card-h"><h3>Attendance</h3></div><p style="color:var(--muted);font-size:14px">By dojo, class or date range.</p><svg class="spark" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 60 L30 52 L60 56 L90 40 L120 44 L150 30 L180 34 L210 22 L240 28 L270 16 L300 20" fill="none" stroke="#16213B" stroke-width="2.5"/><path d="M0 60 L30 52 L60 56 L90 40 L120 44 L150 30 L180 34 L210 22 L240 28 L270 16 L300 20 L300 80 L0 80Z" fill="rgba(22,33,59,.06)"/><circle cx="300" cy="20" r="4" fill="#C1272D"/></svg><button class="sbtn" data-export="attendance"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button></div>
+          <div class="card white"><div class="card-h"><h3>Student progression</h3></div><p style="color:var(--muted);font-size:14px">Grades, hours and grading history.</p><svg class="spark" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 70 L50 62 L100 58 L150 46 L200 38 L250 30 L300 18" fill="none" stroke="#16213B" stroke-width="2.5"/><path d="M0 70 L50 62 L100 58 L150 46 L200 38 L250 30 L300 18 L300 80 L0 80Z" fill="rgba(22,33,59,.06)"/><circle cx="300" cy="18" r="4" fill="#C1272D"/></svg><button class="sbtn" data-export="progression"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button></div>
+          <div class="card white"><div class="card-h"><h3>Payment status</h3></div><p style="color:var(--muted);font-size:14px">Active, lapsed and overdue accounts.</p><svg class="spark" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true"><path d="M0 40 L50 36 L100 44 L150 34 L200 38 L250 30 L300 32" fill="none" stroke="#16213B" stroke-width="2.5"/><path d="M0 40 L50 36 L100 44 L150 34 L200 38 L250 30 L300 32 L300 80 L0 80Z" fill="rgba(22,33,59,.06)"/><circle cx="300" cy="32" r="4" fill="#C1272D"/></svg><button class="sbtn" data-export="payments"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button></div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>

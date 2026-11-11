@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Dojo · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/public.css">
+</head>
+<body data-root="../" data-page="dojo">
+
+<div class="ab-hero">
+    <div class="ab-hero-card">
+      <div class="bg" id="djBg" role="img" aria-label=""></div>
+      <div class="ab-hero-in">
+        <div>
+          <span class="eyebrow on-dark" id="djEyebrow">Dojo</span>
+          <h1 id="djTitle">Dojo</h1>
+          <p id="djAddr"></p>
+          <div class="cp-acts" id="djActs"></div>
+        </div>
+        <div class="kanji" aria-hidden="true">道場</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="ab-nav wrap" aria-label="Back to all dojos">
+    <div class="ab-nav-in"><a href="dojos.html">All dojos</a><a href="dojos.html" data-jump="dj-where">Where</a><a href="dojos.html" data-jump="dj-classes">Classes</a></div>
+  </nav>
+
+  <main class="wrap">
+    <div id="djClosed" hidden></div>
+    <section class="ab-sec" id="dj-where">
+      <div class="ab-h ac"><div><span class="eyebrow">At a glance</span><h2>Where to find us</h2></div><div class="lead"><p>Bring water and wear comfortable clothes for your first class. Members collect their student card at their principal dojo.</p></div></div>
+      <div class="cp-facts ac" id="djFacts" data-stagger></div>
+      <div class="dj-map-grid ac">
+        <div class="dj-map"><iframe id="djMap" title="Map of this dojo" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe><a class="map-open" id="djMapOpen" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-map"/></svg>Open in Maps</a></div>
+        <div class="dj-info" id="djInfo"></div>
+      </div>
+    </section>
+    <section class="ab-sec" id="dj-classes">
+      <div class="ab-h ac"><div><span class="eyebrow">Classes</span><h2 id="djSchedH">Weekly timetable</h2></div><div class="lead"><p>Classes are 60 minutes. Not sure which one suits you? <a href="classes.html" style="color:var(--red);font-weight:600">Compare all classes</a>.</p></div></div>
+      <div class="ac" id="djSched"></div>
+    </section>
+    <section class="ab-sec" id="djNearWrap">
+      <div class="ab-h ac"><div><span class="eyebrow">Nearby</span><h2 id="djNearH">More dojos nearby</h2></div><div class="lead"><p>Members can choose any dojo as their principal dojo.</p></div></div>
+      <div class="dojo-grid ac" id="djNear" data-stagger></div>
+    </section>
+    <section class="ab-sec">
+      <div class="cp-pn" id="djPN"></div>
+    </section>
+  </main>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="js/public.js"></script>
+<script src="../js/ben.js"></script>
+</body>
+</html>

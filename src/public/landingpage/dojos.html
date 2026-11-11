@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Dojos · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/public.css">
+</head>
+<body data-root="../" data-page="dojos">
+
+<div class="ab-hero">
+    <div class="ab-hero-card">
+      <div class="bg" role="img" aria-label="" style="background-image:url('https://aikidoshinjukai.com.sg/images/classes/children/1.jpg')"></div>
+      <div class="ab-hero-in">
+        <div>
+          <span class="eyebrow on-dark" >Our dojos</span>
+          <h1 >Find a dojo<br>near you</h1>
+          <p ><span id="dojoCount">12</span> dojos across Singapore, led from our permanent HQ at Thomson V One. Every dojo has its own page with its address, map and how to train there.</p>
+          
+        </div>
+        <div class="kanji" aria-hidden="true">道場</div>
+      </div>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section class="ab-sec" id="find">
+      <div class="dojos ac">
+        <div class="dojos-head">
+          <div><span class="eyebrow on-dark">Map</span><h2>Swipe through our dojos</h2></div>
+          <div style="display:grid;gap:14px;justify-items:start">
+            <p>The map follows whichever dojo is in front. Community dojos run term courses through the club; HQ classes can be booked online.</p>
+            <div class="tools" id="regionFilter"></div>
+          </div>
+        </div>
+        <div class="dojos-grid">
+          <div class="dc" id="dojoCarousel" tabindex="0" role="group" aria-roledescription="carousel" aria-label="Dojo locations">
+            <div class="dc-stage"></div>
+            <button class="dc-arrow prev" type="button" aria-label="Previous dojo"><svg class="ic"><use href="#i-left"/></svg></button>
+            <button class="dc-arrow next" type="button" aria-label="Next dojo"><svg class="ic"><use href="#i-right"/></svg></button>
+            <div class="dc-dots" role="tablist" aria-label="Dojos"></div>
+          </div>
+          <div class="map-panel" id="mapPanel">
+            <div class="map-spin"><i></i></div>
+            <iframe id="dojoMap" title="Map of the selected dojo" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="map-info" aria-live="polite"><b id="mapName">ASK Headquarters Dojo</b><span class="ad" id="mapAddr"></span><div class="row2" id="mapTags"></div></div>
+            <a class="map-open" id="mapOpen" href="#" target="_blank" rel="noopener"><svg class="ic"><use href="#i-map"/></svg>Open in Maps</a>
+            <a class="map-page" id="mapPage" href="dojo.html#hq">Dojo page<svg class="ic"><use href="#i-arrow"/></svg></a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="ab-sec">
+      <div class="ab-h ac"><div><span class="eyebrow">Every dojo</span><h2>Pick a dojo to see its page</h2></div><div class="lead"><p>Training packages bought online are valid at the HQ Dojo. Community dojos run term courses; the HQ office can tell you each dojo's current timetable.</p></div></div>
+      <div class="dojo-grid ac" id="dojoGrid" data-stagger></div>
+    </section>
+  </main>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="js/public.js"></script>
+<script src="../js/ben.js"></script>
+</body>
+</html>
