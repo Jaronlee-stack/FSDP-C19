@@ -396,8 +396,7 @@ const gradeChecks = () => [
   ['Member for at least 3 months', `${GRADE.memberMonths} months`, GRADE.memberMonths >= 3],
   [`${GRADE.needMonths} months at current grade`, `${GRADE.monthsInRank} months`, GRADE.monthsInRank >= GRADE.needMonths],
   [`${GRADE.needSessions} sessions at current grade`, `${GRADE.sessions} / ${GRADE.needSessions}`, GRADE.sessions >= GRADE.needSessions],
-  ['No outstanding membership fees', GRADE.feesPaid ? 'Paid' : 'Overdue', GRADE.feesPaid],
-  ['Instructor marks you Qualified', GRADE.qualified ? 'Qualified' : 'Pending', GRADE.qualified]
+  ['No outstanding membership fees', GRADE.feesPaid ? 'Paid' : 'Overdue', GRADE.feesPaid]
 ];
 
 const gradeEligible = () => gradeChecks().every(c => c[2]);
@@ -429,8 +428,8 @@ function renderStuGrading() {
 function initGradingApp() {
   $('#ga-book').addEventListener('change', () => fldOf($('#ga-book')).classList.remove('invalid'));
   $('#gaDemo').addEventListener('click', () => {
-    GRADE.sessions = GRADE.needSessions; GRADE.qualified = true;
-    const s = STUDENTS.find(x => x.n === ME.name); if (s) { s.s = Math.max(s.s, s.need); s.st = 'Qualified'; }
+    GRADE.sessions = GRADE.needSessions;
+    const s = STUDENTS.find(x => x.n === ME.name); if (s) s.s = Math.max(s.s, s.need);
     save();
     renderStuGrading();
     toast('Prototype: requirements marked as met', 'info');
@@ -619,7 +618,7 @@ function renderNextBelt(count) {
       <div class="nb-count"><b class="num" id="nbCount">${count}</b><span>/ ${need} sessions</span></div>
     </div>
     <div class="pbar" role="progressbar" aria-label="Sessions toward ${esc(GRADE.target)}" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${count}"><i id="nbFill" style="transform:scaleX(${pct})"></i></div>
-    <p class="nb-sub" id="nbSub">${left ? `<b>${plural(left, 'more session')}</b> to be ready for grading.` : `<b>Sessions done.</b> Your instructor can now mark you Qualified.`} Next grading ${fmtShort(GRADE.date)}, apply by ${fmtShort(GRADE.close)}.</p>
+    <p class="nb-sub" id="nbSub">${left ? `<b>${plural(left, 'more session')}</b> to be ready for grading.` : `<b>Sessions done.</b> You're ready to apply.`} Next grading ${fmtShort(GRADE.date)}, apply by ${fmtShort(GRADE.close)}.</p>
     <p class="nb-months ${monthsMet ? 'ok' : ''}">${icon(monthsMet ? 'check' : 'clock')}<span>${GRADE.monthsInRank} of ${GRADE.needMonths} months at ${esc(ME.grade)}${monthsMet ? ' · met' : ''}</span></p>`;
 }
 
@@ -817,7 +816,7 @@ document.addEventListener('click', e => {
   const n = e.target.closest('[data-gp]'); if (!n) return;
   const k = n.dataset.gp, num = +n.dataset.n, need = GRADE.needSessions, cnt = GP.count;
   if (k === 'chest') { const r = rewardFor(num); toast(num <= cnt ? `${r.name} (${r.d.toLowerCase()}) unlocked at session ${num}.` : `Attend ${plural(num - cnt, 'more class', )} to unlock the ${r.name} (${r.d.toLowerCase()}).`, 'info'); return; }
-  if (k === 'trophy') { toast(cnt >= need ? `All ${need} sessions done. Your instructor can now mark you Qualified for ${GRADE.target}.` : `${plural(need - cnt, 'more session')} until you're ready for ${GRADE.target} grading.`, 'info'); return; }
+  if (k === 'trophy') { toast(cnt >= need ? `All ${need} sessions done. You're ready to apply for ${GRADE.target} grading.` : `${plural(need - cnt, 'more session')} until you're ready for ${GRADE.target} grading.`, 'info'); return; }
   if (k === 'done') toast(`Session ${num} · completed`, 'info');
   else if (k === 'locked') toast(`Session ${num} unlocks after ${plural(num - cnt - 1, 'more class')}.`, 'info');
   else if (k === 'now') toast('Attend your next class and get marked present to step forward.', 'info');
@@ -856,6 +855,17 @@ function renderAttendance() {
   }).join('') : `<div class="empty-mini">${icon('clock')}<p><b>No classes yet</b><span>Classes you attend show here, each with +1 toward your next grade.</span></p></div>`;
 }
 
+/* notes from instructors: the three newest on the home page, the full history in a drawer */
+const NOTE_KIND = { class: ['Class note', 'k-class'], student: ['For you', 'k-student'], grading: ['Grading note', 'k-grading'] };
+const noteRow = r => `<article class="note-row"><div class="note-top"><span class="note-kind ${NOTE_KIND[r.kind][1]}">${NOTE_KIND[r.kind][0]}</span><span>${esc(r.label)}</span><span>${esc(r.by)}</span></div><p>${esc(r.text)}</p></article>`;
+function renderNotes() {
+  const list = $('#notesList'); if (!list) return;
+  const all = remarksForStudent(ME.name);
+  list.innerHTML = all.length ? all.slice(0, 3).map(noteRow).join('')
+    : `<div class="empty-mini">${icon('doc')}<p><b>No notes yet</b><span>After a class, your instructor can leave a note here about what you learnt and what to work on.</span></p></div>`;
+  $('#notesAll').hidden = all.length <= 3;
+}
+
 function renderHome(anim) {
   const game = gameView();
   const hc = $('#homeCard');
@@ -867,7 +877,7 @@ function renderHome(anim) {
   renderHomeTop(); renderPassViews();
   renderNextBelt(home.shown);
   if (game) { renderLevelCards(); renderPath(home.shown, anim); } else { const promo = DB.levelUps.find(l => l.kind === 'promotion'); $('#levelCards').hidden = !promo; $('#levelCards').innerHTML = promo ? `<div class="note"><svg class="ic"><use href="#i-award"/></svg><span><b>Promoted to ${esc(promo.to)}.</b> Congratulations.</span><button class="sbtn ghost" data-claim="promotion">Dismiss</button></div>` : ''; }
-  renderNextClass(); renderAttendance();
+  renderNextClass(); renderAttendance(); renderNotes();
   save();
 }
 
@@ -893,7 +903,7 @@ function claim(kind, btn) {
     renderPath(after, true);
     const now = $('#gpath .gp-av') || $('#gpath .gp-node.trophy');
     if (now) now.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-    if (big) { confetti(); setTimeout(() => toast(`${after} of ${need} sessions. You're ready for ${GRADE.target} grading once your instructor marks you Qualified.`), 400); }
+    if (big) { confetti(); setTimeout(() => toast(`${after} of ${need} sessions. You're ready to apply for ${GRADE.target} grading.`), 400); }
     else toast(`+1 session · ${after} of ${need}`);
     setTimeout(() => renderNextBelt(after), 700);
   };
@@ -950,6 +960,7 @@ runPage({
     });
     $('#soundBtn').addEventListener('click', () => { setPref(SOUND_KEY, soundOn() ? 'off' : 'on'); renderHomeTop(); if (soundOn()) chime(false); });
     $('#beltBadge').addEventListener('click', openMemberCard);
+    $('#notesAll').addEventListener('click', () => openDrawer('Notes from your instructors', `<div class="notes-list">${remarksForStudent(ME.name).map(noteRow).join('')}</div>`));
     $('.page').addEventListener('click', e => {
       const c = e.target.closest('[data-claim]'); if (c) { claim(c.dataset.claim, c.closest('.lvl-card')); return; }
       const sim = e.target.closest('[data-sim]'); if (sim) simulateNext(sim.dataset.sim);

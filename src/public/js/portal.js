@@ -13,7 +13,7 @@ const PORTALS = {
   },
   instructor: {
     label: 'Instructor', dir: 'instructor_portal/', login: 'admin_portal/signin.html?denied', me: ['BT', 'Bob Tan Sensei', '6th Dan · HQ Dojo'],
-    pages: [['today', 'home', 'Today'], ['students', 'users', 'Students'], ['timetable', 'cal', 'Timetable'], ['grading', 'award', 'Grading', () => CANDIDATES.filter(c => !c.done).length], ['profile', 'user', 'Profile']]
+    pages: [['today', 'home', 'Schedule'], ['grading', 'award', 'Grading'], ['profile', 'user', 'Profile']]
   },
   admin: {
     label: 'HQ Admin', dir: 'admin_portal/', login: 'admin_portal/signin.html?denied', me: ['HQ', 'HQ Office', 'Administrator'],
@@ -25,12 +25,38 @@ const PORTAL = document.body.dataset.portal, P = PORTALS[PORTAL];
 const ALLOWED = AUTH.role === PORTAL;
 const pageFile = key => url(P.dir + (key === P.pages[0][0] ? 'index' : key) + '.html');
 
+/* ---------- examiner access ----------
+   The Examiner role is added on top of the instructor role only while that instructor is on a scheduled grading
+   panel, and only during the shift. Everyone else never sees Grading and is sent home if they open its address.
+   Prototype only: this runs in the browser, so the real check must be repeated on the server. */
+function examinerShift() {
+  if (PORTAL !== 'instructor') return null;
+  const at = (d, t) => { const x = startOfDay(d); x.setHours(+t.slice(0, 2), +t.slice(3), 0, 0); return x; }, now = new Date();
+  // access opens 15 minutes before the start, as on the timetable
+  return DB.panels.find(sh => sh.examiners.includes(P.me[1]) && (sh.demoOn || (now >= new Date(+at(sh.date, sh.from) - 15 * 60000) && now <= at(sh.date, sh.to)))) || null;
+}const GATED = ALLOWED && PORTAL === 'instructor' && PAGE === 'grading' && !examinerShift();
+
 /* ---------- guard: wrong or no account → that portal's sign-in ---------- */
 if (!ALLOWED) location.replace(url(P.login));
+else if (GATED) location.replace(url(P.dir + 'index.html?nograding'));
 else document.body.classList.add('ok');
 
 /* ---------- shell ---------- */
+function buildSoloShell() {
+  const shell = $('.shell'), main = $('.main', shell), onProfile = PAGE === 'profile';
+  shell.classList.add('solo');
+  document.title = `${onProfile ? 'Profile' : PAGE === 'grading' ? 'Grading' : 'Schedule'} · ${P.label} · Aikido Shinju-Kai`;
+  main.insertAdjacentHTML('afterbegin', `<div class="topbar solo-bar">
+    <a class="brand" href="${pageFile('today')}"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt=""><span class="t">SHINJU-KAI</span><span class="role-tag">${P.label}</span></a>
+    <span class="sp"></span>
+    ${examinerShift() ? '<span class="pill navy plain" title="You are on the grading panel for this shift">Examiner</span>' : ''}
+    <button class="icon-btn" data-notif aria-label="Notifications">${icon('bell')}<span class="badge-dot"></span></button>
+    <a class="prof-btn${onProfile ? ' on' : ''}" href="${pageFile('profile')}" aria-label="Profile"${onProfile ? ' aria-current="page"' : ''}><span class="av navy">${P.me[0]}</span></a>
+  </div>`);
+}
+
 function buildShell() {
+  if (PORTAL === 'instructor') return buildSoloShell();
   const shell = $('.shell'), main = $('.main', shell);
   const cur = P.pages.find(p => p[0] === PAGE) || P.pages[0];
   document.title = `${cur[2]} · ${P.label} · Aikido Shinju-Kai`;
@@ -104,13 +130,17 @@ function openNotifs() {
     if (last) rows.push(last.status === 'present'
       ? row('check', 'Session counted · +1', `${esc(last.type)} · ${dayName(last.date)} ${fmtShort(last.date)} · ${GRADE.sessions} of ${GRADE.needSessions} sessions toward ${esc(GRADE.target)}`)
       : row('info', 'Missed class · lesson used', `${esc(last.type)} · ${dayName(last.date)} ${fmtShort(last.date)} · not counted toward grading, no refund`));
+    const nr = remarksForStudent(ME.name).find(r => daysBetween(r.at, TODAY) <= 7);
+    if (nr) rows.push(row('doc', `Note from ${esc(nr.by)}`, `${esc(nr.label)} · ${esc(nr.text.length > 70 ? nr.text.slice(0, 70) + '…' : nr.text)}`, `<a class="sbtn" href="${pageFile('home')}">Read</a>`));
     if (next) rows.push(row('cal', 'Booking confirmed', `${next.c.type} · ${dayName(next.date)} ${fmtShort(next.date)} · ${timeLabel(next.c.time)} · HQ Dojo`));
     const f = activePasses()[0]; if (f && daysBetween(TODAY, f.expires) <= 30) rows.push(row('clock', 'Lessons expiring soon', `${plural(f.left, 'lesson')} in your ${esc(f.name)} expire on ${fmtDate(f.expires)}`));
     rows.push(row('award', 'Grading applications close 29 Nov', 'Adult grading on 13 Dec at HQ Dojo'));
   } else if (PORTAL === 'instructor') {
-    rows.push(row('award', 'Grading on 13 Dec', `${CANDIDATES.filter(c => !c.done).length} candidates waiting for results`));
+    const sh = examinerShift();
+    if (sh) rows.push(row('award', 'Grading shift is open', `${esc(sh.venue)} · ${fmtDate(sh.date)} · ${sh.from}–${sh.to}. You are on the examiner panel, ${CANDIDATES.filter(c => !c.done).length} candidates to score.`, `<a class="sbtn dark" href="${pageFile('grading')}">Open grading</a>`));
     rows.push(row('flag', 'Low attendance', `${STUDENTS.filter(isDeclining).length} students not seen in 14+ days`));
-    if (FEEDBACK.length) rows.push(row('star', 'New class feedback', `${plural(FEEDBACK.length, 'rating')} from students this week`));
+    const wk = FEEDBACK.filter(f => f.ins === P.me[1] && daysBetween(f.date, TODAY) <= 7);
+    if (wk.length) rows.push(row('star', 'New class feedback', `${plural(wk.length, 'rating')} from students this week. See your profile.`));
   } else {
     rows.push(row('inbox', 'Membership applications', `${APPS.length} paid and waiting for approval`));
     const mcp = MC_REQS.filter(r => r.status === 'pending').length;
@@ -126,7 +156,7 @@ document.addEventListener('click', e => {
   const r = e.target.closest('[data-rate]'); if (r && typeof openRating === 'function') openRating(+r.dataset.rate);
 });
 
-if (ALLOWED) { buildShell(); syncNotifDot(); }
+if (ALLOWED && !GATED) { buildShell(); syncNotifDot(); }
 
 /* runs the current page's setup from the portal's own script */
-function runPage(map) { if (ALLOWED && map[PAGE]) map[PAGE](); }
+function runPage(map) { if (ALLOWED && !GATED && map[PAGE]) map[PAGE](); }
