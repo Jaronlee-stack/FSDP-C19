@@ -82,6 +82,13 @@ const CLASSES = [
   { day: 6, time: '11:00', type: 'Weapons', ins: 'Robin Tan Sensei', cap: 12, booked: 7 }
 ].map(c => ({ ...c, dojo: HQ }));
 
+/* one-to-one lessons. Only the instructor sees these: they are arranged with the office, so they are not on the booking timetable. */
+const PRIVATE_CLASSES = [
+  { day: 0, time: '17:00', type: 'Advanced', ins: 'Bob Tan Sensei', cap: 1, booked: 1, private: true, student: 'Priya Lee' },
+  { day: 2, time: '18:00', type: 'Adults', ins: 'Bob Tan Sensei', cap: 1, booked: 1, private: true, student: 'Jamie Tan' },
+  { day: 5, time: '10:00', type: 'Intermediate', ins: 'Bob Tan Sensei', cap: 1, booked: 1, private: true, student: 'Ming Ng' }
+].map(c => ({ ...c, dojo: HQ }));
+
 const BELTS = [
   { g: '6th Kyu', c: '#FFFFFF' }, { g: '5th Kyu', c: '#E9C84A' }, { g: '4th Kyu', c: '#8B5A2B' },
   { g: '3rd Kyu', c: '#A0702F' }, { g: '2nd Kyu', c: '#6E4520' }, { g: '1st Kyu', c: '#4E3015' }, { g: '1st Dan', c: '#14161B' }
@@ -213,10 +220,43 @@ function SEED() {
   target: '3rd Kyu', targetLabel: '3rd Kyu (Brown)',
   date: new Date(2026, 11, 13), close: new Date(2026, 10, 29),
   memberMonths: 17, monthsInRank: 7, needMonths: 6,
-  sessions: 29, needSessions: 36, feesPaid: true, qualified: false,
+  sessions: 29, needSessions: 36, feesPaid: true,
   submitted: null
 },
-    feedback: [],
+    /* anonymous class ratings (no student name is ever stored). Seeded so the instructor profile has something to show. */
+    feedback: [
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(2), rating: 5, tags: ['Clear explanations', 'Felt safe'], note: 'Sensei broke ikkyo down step by step. I finally understand the entry.' },
+  { ins: 'Bob Tan Sensei', type: 'Intermediate', date: daysAgo(3), rating: 5, tags: ['Learned something new'], note: 'Loved the new variation. Challenging but fair.' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(6), rating: 4, tags: ['Good pace', 'Fun partner work'], note: '' },
+  { ins: 'Bob Tan Sensei', type: 'Mixed', date: daysAgo(8), rating: 5, tags: ['Felt safe', 'Clear explanations'], note: 'Felt welcome as a newer student. Thank you for the extra tips on ukemi.' },
+  { ins: 'Bob Tan Sensei', type: 'Advanced', date: daysAgo(10), rating: 4, tags: ['Learned something new'], note: 'Great technique focus. Would like a little more time on weapons.' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(13), rating: 3, tags: ['Good pace'], note: 'Class ran a few minutes over and the warm-up felt rushed.' },
+  { ins: 'Bob Tan Sensei', type: 'Intermediate', date: daysAgo(16), rating: 5, tags: ['Clear explanations', 'Learned something new'], note: 'Very clear demonstrations. Easy to follow even from the back row.' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(20), rating: 4, tags: ['Fun partner work'], note: '' },
+  { ins: 'Bob Tan Sensei', type: 'Mixed', date: daysAgo(23), rating: 5, tags: ['Felt safe', 'Good pace'], note: 'Calm, patient and encouraging.' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(27), rating: 2, tags: [], note: 'The mat was crowded, so partner work was hard to do safely.' },
+  { ins: 'Bob Tan Sensei', type: 'Advanced', date: daysAgo(31), rating: 4, tags: ['Clear explanations'], note: '' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(36), rating: 5, tags: ['Learned something new', 'Felt safe'], note: 'Best class this month.' }
+],
+    fbSeed: true,
+    /* instructor remarks. kind: 'class' (whole class, keyed by date|time), 'student' (one student in one class) or 'grading' (a note for the examiner panel, kept per student) */
+    remarks: [
+  { kind: 'grading', key: 'seed-g1', student: 'Jamie Tan', text: 'Strong ukemi and calm under pressure. Keep the hips lower in iriminage.', at: daysAgo(4), by: 'Bob Tan Sensei', label: 'Adults · Thu' },
+  { kind: 'grading', key: 'seed-g2', student: 'Priya Lee', text: 'Ready for Shodan. Jo kata is excellent, but rushes the opening of ikkyo.', at: daysAgo(6), by: 'Bob Tan Sensei', label: 'Advanced · Tue' },
+  /* what the signed-in student can read back: notes for the classes they attended */
+  { kind: 'class', key: `${isoDate(daysAgo(3))}|19:00`, student: null, text: 'We drilled ikkyo omote and ura. At home, practise stepping off the line before you pivot. Next class: shomen uchi variations.', at: daysAgo(3), by: 'Bob Tan Sensei', label: `Adults · ${dayName(daysAgo(3))} ${fmtShort(daysAgo(3))}` },
+  { kind: 'student', key: `${isoDate(daysAgo(3))}|19:00`, student: 'Lervyn Wong', text: 'Your ukemi is improving. Keep your chin tucked on back rolls and breathe out as you land.', at: daysAgo(3), by: 'Bob Tan Sensei', label: `Adults · ${dayName(daysAgo(3))} ${fmtShort(daysAgo(3))}` },
+  { kind: 'class', key: `${isoDate(daysAgo(6))}|19:00`, student: null, text: 'Today was shihonage. The key is to extend through the arm, not lift with the shoulder.', at: daysAgo(6), by: 'Bob Tan Sensei', label: `Adults · ${dayName(daysAgo(6))} ${fmtShort(daysAgo(6))}` },
+  { kind: 'grading', key: `${isoDate(daysAgo(6))}|19:00`, student: 'Lervyn Wong', text: 'On track for the next grading. Keep up your attendance and work on your suwari-waza.', at: daysAgo(6), by: 'Bob Tan Sensei', label: `Adults · ${dayName(daysAgo(6))} ${fmtShort(daysAgo(6))}` }
+],
+    /* grading panels. The 13 Dec one is the real date. The test session is today, 20:00-21:00, so the lock on the timetable can be seen: it opens at 19:45.
+       Only the examiners listed can open the grading page, and only during the shift. */
+    panels: [
+  { date: new Date(2026, 11, 13), from: '09:00', to: '12:30', venue: 'HQ Dojo', lead: 'Bob Tan Sensei',
+    examiners: ['Bob Tan Sensei', 'Steven Goh Sensei', 'Robin Tan Sensei'], demoOn: false },
+  { label: 'Test session', date: (() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; })(), from: '20:00', to: '21:00', venue: 'HQ Dojo', lead: 'Bob Tan Sensei',
+    examiners: ['Bob Tan Sensei'], demoOn: false }
+],
     /* the signed-in student's past classes. status: 'present' (+1 session) | 'noshow' (lesson used, not counted) | 'pending' (waiting for the instructor) */
     attendance: [
   { date: daysAgo(3), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },

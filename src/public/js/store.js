@@ -28,6 +28,11 @@ const DB = (() => {
   try { const raw = localStorage.getItem(DB_KEY); if (raw) return Object.assign(SEED(), JSON.parse(raw, reviveDates)); } catch (_) {}
   return SEED();
 })();
+if (DB.rmSeed !== 2) {   // databases saved before the sample remarks existed: add them once, skipping any already there
+  SEED().remarks.forEach(r => { if (!DB.remarks.some(x => x.kind === r.kind && x.student === r.student && x.text === r.text)) DB.remarks.push(r); });
+  DB.rmSeed = 2;
+}
+if (!DB.fbSeed) { SEED().feedback.forEach(f => DB.feedback.push(f)); DB.fbSeed = true; }   // saved before sample feedback existed
 function save() { try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch (_) {} }
 window.addEventListener('pagehide', save);   // every change is kept when you move to another page
 function resetDemo() { try { localStorage.removeItem(DB_KEY); sessionStorage.clear(); } catch (_) {} location.href = url('landingpage/index.html'); }
@@ -40,6 +45,12 @@ const MY_PASSES = DB.passes, STUDENTS = DB.students, APPS = DB.apps, MEMBERS = D
 
 /* the signed-in student's own row in the instructor's student list */
 const myStudent = () => STUDENTS.find(s => s.n === ME.name);
+
+/* the instructor remarks a student can read: notes for classes they attended, plus remarks and grading notes written about them. Newest first. */
+function remarksForStudent(name) {
+  const keys = new Set(ATTENDANCE.filter(a => a.status === 'present').map(a => `${isoDate(new Date(a.date))}|${a.time}`));
+  return DB.remarks.filter(r => r.student === name || (r.kind === 'class' && !r.student && keys.has(r.key))).sort((a, b) => new Date(b.at) - new Date(a.at));
+}
 
 /* attendance outcome for the signed-in student (called when an instructor ends a class).
    present → +1 session toward the next grade. noshow → lesson stays used, no +1, no refund. */

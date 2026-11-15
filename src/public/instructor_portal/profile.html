@@ -16,20 +16,37 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="profile">
-        <div class="page-h"><div><h1>Profile</h1></div></div>
-        <div class="ins-profile">
+        <div class="page-h"><div><h1>Profile</h1><p>Your details, and what students say about your classes.</p></div></div>
+        <div class="ins-grid">
+          <div class="ins-profile">
           <div class="pcard icard" id="insCard"><div class="pcard-body"><div class="pcard-tile"><span class="pcard-holo"></span>
-            <div class="icard-photo"><img src="https://aikidoshinjukai.com.sg/images/instructors/bob-tan.jpg" alt="Bob Tan Sensei" onerror="this.remove()"><span class="ini" aria-hidden="true">BT</span></div>
+            <div class="icard-photo"><span class="ini" aria-hidden="true">BT</span></div>
             <span class="icard-org"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><span class="icard-kanji" aria-hidden="true">先生</span>
             <div class="icard-id"><div class="pcard-name">Bob Tan Sensei</div><div class="pcard-rank"><i></i>6th Dan</div></div>
             <span class="pcard-glare"></span></div>
             <ul class="icard-info">
-              <li><svg class="ic"><use href="#i-award"/></svg><span>General Affairs Council · IAD Senior Director</span></li>
+              <li><svg class="ic"><use href="#i-award"/></svg><span>6th Dan · Black belt</span></li>
+              <li><svg class="ic"><use href="#i-id"/></svg><span>Instructor ID · ASK-INS-0042</span></li>
               <li><svg class="ic"><use href="#i-pin"/></svg><span>HQ · Thomson</span></li>
-              <li><svg class="ic"><use href="#i-mail"/></svg><span>bob.tan@aikidoshinjukai.com.sg</span></li>
             </ul>
           </div></div>
-          <button class="sbtn ghost" data-logout><svg class="ic"><use href="#i-logout"/></svg>Sign out</button>
+        </div>
+          <div class="ins-main">
+            <div class="stats" id="insStats"></div>
+            <div class="card white">
+              <div class="card-h"><div><h2>Student ratings</h2><span class="sub">Out of 5 stars, given after each class.</span></div></div>
+              <div id="fbSummary"></div>
+            </div>
+            <div class="card white">
+              <div class="card-h"><div><h2>Written comments</h2><span class="sub" id="fbCount"></span></div></div>
+              <div class="fb-list" id="fbList"></div>
+            </div>
+            <label class="demo-row"><input type="checkbox" id="demoPanel"><span><b>Demo: put me on the grading panel</b><small>Prototype only. In the real system the office schedules the panel, and Grading opens during each examiner's shift.</small></span></label>
+          </div>
+        </div>
+        <div class="acct-bar">
+          <button class="sbtn" id="forgotPw"><svg class="ic"><use href="#i-lock"/></svg>Forgot password</button>
+          <button class="sbtn" data-logout><svg class="ic"><use href="#i-logout"/></svg>Sign out</button>
         </div>
       </section>
     </main>
