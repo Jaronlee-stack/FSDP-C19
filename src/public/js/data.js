@@ -281,6 +281,7 @@ function SEED() {
     classEnded: {},   // instructor "End class": { 'YYYY-MM-DD|HH:MM': { at, present: [names], noshow: [names] } }
     /* package extension requests (MC / compassion). status: 'pending' | 'approved' | 'rejected' */
     mcRequests: [],
-    bookings: [], rateQueue: [], rated: [], prompted: [], seeded: false
+    bookings: [], rateQueue: [], rated: [], prompted: [], seeded: false,
+    checkIns: []   // student check-ins (mock location-QR scans): { dojo, at, key, type, time, ins, date }
   };
 }

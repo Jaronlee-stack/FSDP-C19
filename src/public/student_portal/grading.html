@@ -17,33 +17,21 @@
     <main class="main">
       <section class="page on" data-page="grading">
         <div class="page-h"><div><h1>Grading</h1><p>Eligibility is worked out from your sessions and time in rank.</p></div><span class="pill warn" id="gaStatus">Not yet eligible</span></div>
-        <div class="g-wide">
-          <div class="card ac">
-            <div class="card-h"><h3>Checklist · 3rd Kyu</h3><span class="sub">Adult grading · 13 Dec 2026</span></div>
-            <div class="checks" id="gaChecks"></div>
-            <p id="gaDemoWrap" style="font-size:12px;color:var(--muted);margin-top:12px">Prototype: <button type="button" id="gaDemo" style="border:0;background:none;padding:0;color:var(--red);font-weight:600;font-size:12px">Simulate all requirements met</button></p>
-          </div>
-          <div class="card ac">
-            <div class="card-h"><h3>Grading calendar</h3></div>
-            <div class="rows">
-              <div class="row"><div class="grow"><div class="t">13 Sep 2026</div><div class="d">Applications 2 – 30 Aug</div></div><span class="pill plain">Closed</span></div>
-              <div class="row"><div class="grow"><div class="t">13 Dec 2026</div><div class="d">Applications 1 – 29 Nov</div></div><span class="pill ok">Open</span></div>
-              <div class="row"><div class="grow"><div class="t">14 Mar 2027</div><div class="d">Applications 1 – 28 Feb</div></div><span class="pill plain">Upcoming</span></div>
-            </div>
-          </div>
+        <div class="card ac">
+          <div class="card-h"><h3>Checklist · 3rd Kyu</h3><span class="sub">Adult grading · 13 Dec 2026</span></div>
+          <div class="checks" id="gaChecks"></div>
+          <p id="gaDemoWrap" style="font-size:12px;color:var(--muted);margin-top:12px">Prototype: <button type="button" id="gaDemo" style="border:0;background:none;padding:0;color:var(--red);font-weight:600;font-size:12px">Simulate all requirements met</button></p>
         </div>
+
+        <!-- Grading calendar: on hold (feedback), not shown for now -->
 
         <!-- instructor feedback written after each grading -->
         <div class="card white ac">
-          <div class="card-h"><div><h3>Feedback from your gradings</h3><span class="sub">Notes from your examiner after each grading</span></div></div>
+          <div class="card-h"><div><h3>Feedback from your gradings</h3><span class="sub">Tap a grading to read your examiner's notes</span></div></div>
           <div class="fb-list" id="fbList"></div>
         </div>
 
-        <!-- Curriculum tree (SSP-03) -->
-        <div class="card white ac">
-          <div class="card-h"><div><h3>Curriculum · 3rd Kyu</h3><span class="sub">Techniques for your next grading. Tap one to watch the demonstration.</span></div><button type="button" class="sbtn" id="ctToggle">Expand all</button></div>
-          <div class="ctree" id="ctree"></div>
-        </div>
+        <!-- Curriculum tree: moved to Home, opens from the progression tree button -->
 
         <div class="card white ac">
           <div class="card-h"><div><h3>Grading application</h3><span class="sub" id="gaSub">Unlocks when every item on the checklist is met</span></div><span class="pill plain" id="gaLock"><svg class="ic" style="width:13px;height:13px"><use href="#i-lock"/></svg>Locked</span></div>

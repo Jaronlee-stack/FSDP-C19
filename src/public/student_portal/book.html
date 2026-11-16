@@ -16,13 +16,19 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="book">
-        <div class="page-h"><div><h1>Book a class</h1><p>Book up to 1 month ahead and at least 1 day before. Each class uses 1 lesson.</p></div>
+        <div class="page-h"><div><h1>Book a class <button type="button" class="help-btn" data-help="bookHelp" aria-expanded="false" aria-controls="bookHelp" aria-label="How booking works"><svg class="ic"><use href="#i-help"/></svg></button></h1><p>Pick a class to book.</p></div>
           <div class="week-nav"><button class="icon-btn" id="wkPrev" aria-label="Previous week"><svg class="ic"><use href="#i-left"/></svg></button><b id="wkLabel">3 – 9 Nov 2026</b><button class="icon-btn" id="wkNext" aria-label="Next week"><svg class="ic"><use href="#i-right"/></svg></button></div></div>
         <div class="hq-banner">
           <span class="ib"><svg class="ic"><use href="#i-pin"/></svg></span>
           <div><b>ASK Headquarters Dojo</b><span>Thomson V One, 9 Sin Ming Road, #B1-02</span></div>
-          <span class="sp"></span>
-          <span class="hq-note">Online booking is for HQ classes. Community club dojos run term courses; check with your instructor.</span>
+        </div>
+        <div class="help-panel" id="bookHelp" hidden>
+          <ul>
+            <li>Book up to <b>1 month ahead</b> and at least <b>1 day before</b>.</li>
+            <li>Each class uses <b>1 lesson</b>.</li>
+            <li>Cancel at least <b>4 hours before</b> to get the lesson back.</li>
+            <li>Online booking is for HQ classes. Community club dojos run term courses; check with your instructor.</li>
+          </ul>
         </div>
         <div class="tt-legend"><span><i></i>Open</span><span><i class="k"></i>Children</span><span><i class="b"></i>Booked</span><span><i class="x"></i>Not for your grade or group</span></div>
         <div class="tt tt-desk"><div class="tt-grid" id="bookGrid"></div></div>

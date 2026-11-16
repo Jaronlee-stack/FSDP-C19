@@ -151,9 +151,6 @@ body[data-portal]:not(.ok) { visibility: hidden; }
 .pkg.best .d, .pkg.best .amt small { color: rgba(255,255,255,.65); }
 .pkg.best .per { color: #8FE0B1; }
 .pkg .sbtn { margin-top: 6px; justify-self: start; }
-.credit-banner { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 24px; align-items: center; background: var(--mist); border-radius: var(--r-xl); padding: 26px 28px; }
-.credit-banner .big { font-size: 64px; font-weight: 700; letter-spacing: -.05em; line-height: 1; font-variant-numeric: tabular-nums; }
-.credit-banner .big small { display: block; font-size: 13px; letter-spacing: 0; font-weight: 600; color: var(--muted); }
 
 /* lesson packages with expiry */
 .passrow { display: grid; gap: 10px; padding: 16px 0; border-bottom: 1px solid var(--line); }
@@ -249,9 +246,6 @@ body[data-portal]:not(.ok) { visibility: hidden; }
   .topbar .crumb { font-size: 14px; }
   .main { gap: 12px; }
   .g2, .g3 { grid-template-columns: minmax(0, 1fr); }
-  .credit-banner { grid-template-columns: auto minmax(0, 1fr); gap: 14px 18px; padding: 20px; border-radius: 22px; }
-  .credit-banner .big { font-size: 48px; }
-  .credit-banner > .pill { grid-column: 1 / -1; justify-self: start; }
   .bars > div { grid-template-columns: 110px minmax(0, 1fr) 40px; }
   .page-h { padding: 4px 2px 2px; }
   .week-nav { width: 100%; justify-content: space-between; }
@@ -402,7 +396,7 @@ a.hs:active, button.hs:active { transform: scale(.97); }
 
 /* next belt */
 .next-belt { display: grid; gap: 14px; }
-.nb-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 14px; align-items: center; }
+.nb-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 14px; align-items: center; }
 .nb-belt { width: 48px; height: 48px; border-radius: 14px; background: var(--mist); display: grid; place-items: center; }
 .nb-belt::after { content: ""; width: 30px; height: 9px; border-radius: 3px; background: var(--belt); box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
 .nb-title { min-width: 0; }
@@ -599,14 +593,14 @@ body.home-std .game-only, body.home-game .std-only { display: none; }
    RESPONSIVE: tablets and phones
    ===================================================================== */
 @media (max-width: 1100px) {
-  /* one column: stats row first, then next belt, the path, and the membership card last */
+  /* one column: the student card first, then the stats row, next belt and the path */
   .home-grid { grid-template-columns: minmax(0, 1fr); }
   .home-main, .home-side { display: contents; }
   .hstats { order: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .lvl-stack { order: 2; }
   .next-belt { order: 3; }
   .path-card, .std-only { order: 4; }
-  .home-pcard { order: 5; display: grid; justify-items: center; }
+  .home-pcard { order: -1; display: grid; justify-items: center; }
   .home-pcard .pcard { max-width: 420px; }
   .hstats .hs { padding: 12px 14px; border-radius: var(--r-md); }
   .hstats .hs b { font-size: 20px; }
@@ -728,7 +722,6 @@ body.home-std .game-only, body.home-game .std-only { display: none; }
 /* =====================================================================
    PACKAGES: discounts, rules, extension (MC) requests
    ===================================================================== */
-.pk-info { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 14px; }
 .disc-row { display: grid; grid-template-columns: 86px minmax(0, 1fr); gap: 14px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
 .disc-row:first-of-type { border-top: 0; padding-top: 0; }
 .disc-amt { font-size: 30px; font-weight: 800; letter-spacing: -.04em; color: var(--red); line-height: 1; }
@@ -753,7 +746,6 @@ body.home-std .game-only, body.home-game .std-only { display: none; }
 .mc-list-wrap { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
 .mc-list-h, .mc-past-h { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
 .mc-past-h { margin-top: 16px; }
-@media (max-width: 900px) { .pk-info { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 560px) { .mc-kinds { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 520px) { .gpath { margin: 4px -16px 0; } .path-card { padding-bottom: 12px; } }
 
@@ -1128,3 +1120,47 @@ html:has(body[data-portal="instructor"]) { scrollbar-gutter: stable; }
 .grade-slot.gs-locked > *:not(.gb-lock) { opacity: .4; }
 .gb-lock { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
 .gb-lock .ic { width: 30px; height: 30px; padding: 14px; box-sizing: content-box; border-radius: 50%; background: #fff; color: #7A5C12; box-shadow: 0 10px 22px -12px rgba(20,22,27,.45), inset 0 0 0 1.5px #7A5C12; stroke-width: 2; }
+
+/* ---------- student feedback round: help toggle, folds, curriculum button, demo scanner ---------- */
+.help-btn { width: 28px; height: 28px; border-radius: 50%; border: 0; background: var(--mist); color: var(--ink); display: inline-grid; place-items: center; vertical-align: middle; margin-left: 8px; padding: 0; flex: none; }
+.help-btn .ic { width: 16px; height: 16px; }
+.help-btn:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .help-btn:hover { background: var(--mist-2); } }
+@media (max-width: 640px) { .help-btn { width: 32px; height: 32px; } }
+.help-panel { background: var(--mist); border-radius: var(--r-sm); padding: 14px 16px; font-size: 13px; color: var(--muted); }
+.help-panel[hidden] { display: none; }
+.help-panel ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; }
+.help-panel b { color: var(--ink); }
+.nb-tree { background: #fff; }
+.nb-tree .ic { width: 20px; height: 20px; }
+.fb-fold { background: var(--mist); border-radius: var(--r-md); }
+.fb-fold + .fb-fold { margin-top: 8px; }
+.fb-fold > summary { list-style: none; display: flex; align-items: center; gap: 10px 14px; flex-wrap: wrap; padding: 14px 16px; min-height: 44px; cursor: pointer; border-radius: var(--r-md); }
+.fb-fold > summary::-webkit-details-marker { display: none; }
+.fb-fold > summary:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.fb-fold > summary .chev { margin-left: auto; width: 16px; height: 16px; color: var(--muted); transition: transform .2s var(--ease-out); }
+.fb-fold[open] > summary .chev { transform: rotate(90deg); }
+.fb-sum-date { font-size: 13px; font-weight: 600; color: var(--muted); }
+.fb-body { padding: 0 16px 16px; display: grid; gap: 10px; }
+.fb-fold .fb-note { background: #fff; }
+@media (hover: hover) and (pointer: fine) { .fb-fold > summary:hover { background: var(--mist-2); } }
+.pk-fold > summary { list-style: none; display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; border-radius: var(--r-md); }
+.pk-fold > summary::-webkit-details-marker { display: none; }
+.pk-fold > summary:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.pk-fold > summary span { display: grid; gap: 2px; }
+.pk-fold > summary small { font-size: 13px; color: var(--muted); font-weight: 400; }
+.pk-fold > summary .chev { margin-left: auto; color: var(--muted); transition: transform .2s var(--ease-out); flex: none; }
+.pk-fold[open] > summary .chev { transform: rotate(90deg); }
+.pk-fold .pk-rules { margin-top: 16px; }
+.pk-termslink { margin: 14px 0 0; font-size: 13px; color: var(--muted); }
+.pk-termslink a { color: var(--red); font-weight: 600; }
+.pk-terms { margin-top: 14px; }
+.scan-frame { position: relative; width: min(100%, 220px); aspect-ratio: 1; margin: 18px auto; border-radius: var(--r-md); background: var(--mist); display: grid; place-items: center; }
+.scan-frame .scan-ic { width: 56px; height: 56px; color: var(--muted); }
+.scan-frame i { position: absolute; width: 28px; height: 28px; border: 3px solid var(--navy); }
+.scan-frame .c1 { top: 12px; left: 12px; border-right: 0; border-bottom: 0; border-top-left-radius: 8px; }
+.scan-frame .c2 { top: 12px; right: 12px; border-left: 0; border-bottom: 0; border-top-right-radius: 8px; }
+.scan-frame .c3 { bottom: 12px; left: 12px; border-right: 0; border-top: 0; border-bottom-left-radius: 8px; }
+.scan-frame .c4 { bottom: 12px; right: 12px; border-left: 0; border-top: 0; border-bottom-right-radius: 8px; }
+.scan-pick { margin-top: 16px; display: grid; gap: 10px; font-size: 13px; }
+.scan-pick > b { color: var(--muted); font-weight: 600; }

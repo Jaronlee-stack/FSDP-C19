@@ -4,6 +4,13 @@
 
 const stu = { week: 0, slots: [], agDay: null };
 
+/* "?" buttons: [data-help="panelId"] shows or hides that panel and keeps aria-expanded in sync */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-help]'); if (!b) return;
+  const p = document.getElementById(b.dataset.help); if (!p) return;
+  const open = p.hidden; p.hidden = !open; b.setAttribute('aria-expanded', String(open));
+});
+
 /* credits: lessons are taken from the active pack that expires first */
 const activePasses = () => MY_PASSES.filter(p => p.left > 0 && p.expires >= TODAY).sort((a, b) => a.expires - b.expires);
 const totalCredits = () => activePasses().reduce((a, p) => a + p.left, 0);
@@ -49,7 +56,7 @@ function passRow(p, first) {
 
 /* fills whichever lesson/expiry widgets exist on this page */
 function renderPassViews() {
-  const act = activePasses(), tot = totalCredits(), first = act[0], unl = unlimitedOn(), U = DB.unlimited;
+  const act = activePasses(), tot = totalCredits(), unl = unlimitedOn(), U = DB.unlimited;
   const set = (sel, fn) => { const el = $(sel); if (el) fn(el); };
   set('#hsLessons', el => el.textContent = unl ? '∞' : tot.toLocaleString('en-SG'));
   set('#hsLessonsL', el => el.textContent = unl ? 'Unlimited' : tot === 1 ? 'lesson left' : tot ? 'lessons left' : 'Top up');
@@ -58,12 +65,6 @@ function renderPassViews() {
     (act.length ? act.map(p => { const d = daysBetween(TODAY, p.expires); return `<div class="row"><span class="av">${icon('box')}</span><div class="grow"><div class="t">${plural(p.left, 'lesson')} · ${esc(p.name)}</div><div class="d">Expire ${fmtDate(p.expires)}</div></div><span class="pill ${d <= 30 ? 'warn' : 'plain'}">${plural(d, 'day')}</span></div>`; }).join('')
       : (unl ? '' : '<p style="color:var(--muted);font-size:14px;padding:8px 0">No lessons left. Top up to keep booking.</p>')));
 
-  const soon = first && daysBetween(TODAY, first.expires) <= 30;
-  set('#creditBanner', el => el.innerHTML = unl
-    ? `<div class="big num">∞<small>Unlimited</small></div><div><b>Unlimited until ${fmtDate(U.until)}</b><p style="color:var(--muted);font-size:14px;margin-top:4px">Renews every 2 weeks. While it runs, your ${plural(tot, 'lesson')} in packs ${tot === 1 ? 'is' : 'are'} not used.</p></div><span class="pill ok">Active</span>`
-    : first
-      ? `<div class="big num">${tot}<small>lessons left</small></div><div><b>Next expiry: ${fmtDate(first.expires)}</b><p style="color:var(--muted);font-size:14px;margin-top:4px">${plural(first.left, 'lesson')} in your ${esc(first.name)} ${first.left === 1 ? 'expires' : 'expire'} in ${plural(daysBetween(TODAY, first.expires), 'day')}. Lessons are always used from the pack that expires first.</p></div><span class="pill ${soon ? 'warn' : 'ok'}">${soon ? 'Expiring soon' : 'Active'}</span>`
-      : `<div class="big num">0<small>lessons left</small></div><div><b>No active package</b><p style="color:var(--muted);font-size:14px;margin-top:4px">Buy a package below to start booking HQ classes.</p></div><span class="pill bad">Top up</span>`);
   set('#myPasses', el => el.innerHTML = (unl ? `<div class="passrow"><div class="pr-top"><div><b>Unlimited</b><span class="d">Started ${fmtDate(U.since)}</span></div><div class="pr-left"><b>∞</b><span>classes</span></div></div><div class="pr-exp">${icon('clock')}<span>Renews on <b>${fmtDate(U.until)}</b> · 3-month minimum</span><span class="pill ok">Active</span></div></div>` : '') +
     (act.map((p, i) => passRow(p, i === 0 && act.length > 1)).join('') || (unl ? '' : '<p style="color:var(--muted);font-size:14px">You have no active packages.</p>')));
   set('#passCapNote', el => el.textContent = `${activeCount()} of ${MAX_PACKAGES} packages held · you can hold up to ${MAX_PACKAGES} at a time`);
@@ -499,17 +500,62 @@ function openTechnique(path) {
     <div class="ct-video">${vid
       ? `<iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${esc(title)} demonstration" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
       : `<div class="ct-novid">${icon('play')}<b>Demonstration coming soon</b><span>HQ is recording this technique for the syllabus library.</span></div>`}</div>
-    ${vid ? '' : `<div class="acts"><a class="sbtn" href="https://www.youtube.com/results?search_query=${encodeURIComponent('aikido ' + title)}" target="_blank" rel="noopener">${icon('ur')}Find demonstrations</a></div>`}`, true);
+    <div class="acts"><button type="button" class="sbtn" data-curriculum>${icon('left')}Back to curriculum</button>${vid ? '' : `<a class="sbtn" href="https://www.youtube.com/results?search_query=${encodeURIComponent('aikido ' + title)}" target="_blank" rel="noopener">${icon('ur')}Find demonstrations</a>`}</div>`, true);
+}
+
+/* the curriculum tree opens from the progression tree buttons on Home (Next belt card, path card) */
+function openCurriculum() {
+  openModal(`<h3 id="modalTitle">Curriculum · ${esc(CURRICULUM.rank)}</h3><p class="sub">Techniques for your next grading. Tap one to watch the demonstration.</p>
+    <div class="acts" style="margin-top:12px"><button type="button" class="sbtn" id="ctToggle">Expand all</button></div>
+    <div class="ctree" id="ctree" style="margin-top:12px"></div>`, true);
+  initCurriculum();
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-curriculum]')) openCurriculum(); });
+
+/* ---------- check-in (mockup): the student scans the location QR code ---------- */
+/* the booked class happening today (or still to start), closest to now */
+function todaysBooking() {
+  const now = new Date();
+  return BOOKINGS
+    .filter(u => daysBetween(TODAY, u.date) === 0 && classEnd(u.date, u.c) >= now)
+    .sort((a, b) => classStart(a.date, a.c) - classStart(b.date, b.c))[0] || null;
+}
+
+function scanFail(msg) {
+  const el = $('#ciMsg'); if (!el) { toast(msg, 'bad'); return; }
+  el.hidden = false; el.innerHTML = `<svg class="ic"><use href="#i-info"/></svg><span>${esc(msg)}</span>`;
+}
+
+/* MOCKUP: the real flow is "scan the location QR code posted by the admin at your dojo". Here the picker stands in
+   for that QR, and nothing is read from a camera. Rule (also mocked): only a student with a class booked today at
+   that location can check in. A successful scan counts as present (+1 session), like an instructor marking present. */
+function handleDojoScan(dojoId) {
+  const d = DOJOS.find(x => x.id === dojoId);
+  if (!d) return scanFail('That is not an ASK location QR code.');
+  const b = todaysBooking();
+  if (!b) {
+    const done = (DB.checkIns || []).some(c => daysBetween(TODAY, new Date(c.at)) === 0);
+    return scanFail(done ? 'You are already checked in for today\u2019s class.' : 'No booking found for today. Book a class to check in.');
+  }
+  const at = b.c.dojo || HQ;   // online bookings are HQ classes
+  if (d.id !== at) return scanFail(`That code is for ${d.name}. Your class today is at ${dojoName(at)}.`);
+  recordMyAttendance({ date: b.date, time: b.c.time, type: b.c.type, ins: b.c.ins, status: 'present' });   // also drops the booking, +1 session, level-up card
+  DB.checkIns = DB.checkIns || [];
+  DB.checkIns.unshift({ dojo: d.id, at: new Date(), key: b.key, type: b.c.type, time: b.c.time, ins: b.c.ins, date: b.date });
+  save();
+  location.href = url('student_portal/checkin.html');
 }
 
 function openCheckIn() {
-  openModal(`<h3 id="modalTitle">Check in</h3><p class="sub">Tap your phone on the NFC tag at the dojo door, or show this code to your instructor.</p>
-    <div style="display:grid;place-items:center;margin:22px 0">${qrSVG()}</div>
-    <div class="kv"><div><span>Member</span><span>${ME.name}</span></div><div><span>Member no.</span><span class="num">${ME.no}</span></div></div>
-    <div class="acts"><button class="sbtn dark" id="ciGo">${icon('nfc')}Complete check-in</button></div>`);
-  $('#ciGo').addEventListener('click', () => { location.href = url('student_portal/checkin.html'); });
+  openModal(`<h3 id="modalTitle">Scan to check in</h3><p class="sub">Scan the location QR code posted at your dojo.</p>
+    <div class="scan-frame" id="ciFrame"><i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i><svg class="ic scan-ic" aria-hidden="true"><use href="#i-scan"/></svg></div>
+    <div class="note warn" id="ciMsg" role="alert" hidden></div>
+    <div class="scan-pick"><b>Demo scanner: pick the location QR you are scanning</b>
+      <div class="fld"><label for="ciLoc">Location QR</label><select id="ciLoc">${DOJOS.map(d => `<option value="${d.id}">${esc(d.short)}</option>`).join('')}</select></div>
+      <div class="acts"><button type="button" class="sbtn dark" id="ciSim">${icon('scan')}Simulate scan</button></div>
+    </div>`);
+  $('#ciSim').addEventListener('click', () => handleDojoScan($('#ciLoc').value));
 }
-
 /* =====================================================================
    HOME — one number per idea, plus the gamified path
    ===================================================================== */
@@ -527,7 +573,7 @@ function memberCardHTML(id = 'memberCard') {
     <div class="pcard-mid"><span class="pcard-av">${initials(ME.name)}</span><div><div class="pcard-name">${esc(ME.name)}</div><div class="pcard-rank" style="--belt:${beltOf(ME.grade)}"><i></i>${esc(ME.grade)}</div></div></div>
     <div class="pcard-bot"><span>MEMBER NO.<b>${esc(ME.no)}</b></span><span style="text-align:right">PRINCIPAL DOJO<b>${esc(DOJOS.find(d => d.id === ME.dojo).short)}</b></span></div>
     <span class="pcard-glare"></span></div>
-    <div class="pcard-foot"><span class="st">Active · Expires Jan 2027</span><button type="button" data-qr>${icon('nfc')}Check in</button></div></div></div>`;
+    <div class="pcard-foot"><span class="st">Active · Expires Jan 2027</span><button type="button" data-qr>${icon('scan')}Scan to check in</button></div></div></div>`;
 }
 document.addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
 
@@ -616,6 +662,7 @@ function renderNextBelt(count) {
       <span class="nb-belt" style="--belt:${beltOf(GRADE.target)}" aria-hidden="true"></span>
       <div class="nb-title"><span>Next belt</span><h2>${esc(GRADE.targetLabel)}</h2></div>
       <div class="nb-count"><b class="num" id="nbCount">${count}</b><span>/ ${need} sessions</span></div>
+      <button type="button" class="icon-btn nb-tree" data-curriculum aria-label="View ${esc(GRADE.targetLabel)} curriculum" title="Curriculum">${icon('tree')}</button>
     </div>
     <div class="pbar" role="progressbar" aria-label="Sessions toward ${esc(GRADE.target)}" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${count}"><i id="nbFill" style="transform:scaleX(${pct})"></i></div>
     <p class="nb-sub" id="nbSub">${left ? `<b>${plural(left, 'more session')}</b> to be ready for grading.` : `<b>Sessions done.</b> You're ready to apply.`} Next grading ${fmtShort(GRADE.date)}, apply by ${fmtShort(GRADE.close)}.</p>
@@ -773,6 +820,7 @@ function renderPath(count, anim) {
         <span class="gp-when">${done ? `Ask your instructor about ${esc(GRADE.target)} grading` : nxt ? `${dayName(nxt.date)} ${fmtShort(nxt.date)} · ${timeLabel(nxt.c.time)} ${esc(nxt.c.type)}` : 'No class booked yet'}</span>
         <span class="gp-bar"><i style="width:${pct}%"></i><em>${count}/${need}</em></span>
         ${tease}
+        <button type="button" class="more-link" data-curriculum>${icon('tree')}See curriculum</button>
         ${!done && !nxt ? '<button type="button" class="sbtn dark gp-book" data-page-link="book">Book a class</button>' : ''}
       </div>`;
   }
@@ -935,17 +983,21 @@ function renderFeedback() {
   const el = $('#fbList'); if (!el) return;
   el.innerHTML = GRADE_FB.length ? GRADE_FB.map(f => {
     const pass = /^Pass/.test(f.result), d = new Date(f.date);
-    return `<article class="fb-item">
-      <div class="fb-head">
-        <div class="fb-rank"><span class="belt" style="--belt:${beltOf(f.from)}"><i></i>${esc(f.from)}</span>${icon('arrow')}<span class="belt" style="--belt:${beltOf(f.to)}"><i></i>${esc(f.to)}</span></div>
+    return `<details class="fb-fold">
+      <summary>
+        <span class="fb-sum-date">${fmtDate(d)}</span>
+        <span class="fb-rank"><span class="belt" style="--belt:${beltOf(f.from)}"><i></i>${esc(f.from)}</span>${icon('arrow')}<span class="belt" style="--belt:${beltOf(f.to)}"><i></i>${esc(f.to)}</span></span>
         <span class="pill ${pass ? 'ok' : f.result === 'Fail' ? 'bad' : 'warn'}">${esc(f.result)}${f.status ? ` · ${esc(f.status)}` : ''}</span>
+        <svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg>
+      </summary>
+      <div class="fb-body">
+        <p class="fb-meta">Examiner ${esc(f.by)}</p>
+        <div class="fb-notes">
+          <div class="fb-note well"><h4>${icon('check')}What went well</h4><p>${esc(f.well)}</p></div>
+          <div class="fb-note next"><h4>${icon('arrow')}What to work on next</h4><p>${esc(f.next)}</p></div>
+        </div>
       </div>
-      <p class="fb-meta">${fmtDate(d)} · Examiner ${esc(f.by)}</p>
-      <div class="fb-notes">
-        <div class="fb-note well"><h4>${icon('check')}What went well</h4><p>${esc(f.well)}</p></div>
-        <div class="fb-note next"><h4>${icon('arrow')}What to work on next</h4><p>${esc(f.next)}</p></div>
-      </div>
-    </article>`;
+    </details>`;
   }).join('') : `<div class="empty-mini">${icon('award')}<p><b>No feedback yet</b><span>After your first grading, your examiner's notes on what went well and what to work on next will appear here.</span></p></div>`;
 }
 
@@ -980,7 +1032,7 @@ runPage({
     renderShop();
     initMC();
   },
-  grading() { initGradingApp(); initCurriculum(); renderFeedback(); },
+  grading() { initGradingApp(); renderFeedback(); },
   payments() {
     renderPays();
     $('#payRows').addEventListener('click', e => {
@@ -993,6 +1045,7 @@ runPage({
   profile() {
     $('#profileCard').innerHTML = memberCardHTML(); profileCard($('#memberCard'));
     $('#profileForm').addEventListener('submit', e => { e.preventDefault(); toast('Profile saved'); });
+    if (location.hash === '#terms') { const d = $('#terms details'); if (d) { d.open = true; $('#terms').scrollIntoView(); } }
     $('#pwBtn').addEventListener('click', () => openModal(`<h3 id="modalTitle">Change password</h3><p class="sub">Use at least 8 characters.</p><form id="pwForm" style="display:grid;gap:14px;margin-top:18px" novalidate><div class="fld"><label for="pw1">Current password</label><input id="pw1" type="password" autofocus></div><div class="fld"><label for="pw2">New password</label><input id="pw2" type="password"><span class="err">At least 8 characters.</span></div><button class="sbtn dark" type="submit" style="justify-self:start">Update password</button></form>`));
     document.addEventListener('submit', e => {
       if (e.target.id !== 'pwForm') return; e.preventDefault();
@@ -1010,9 +1063,7 @@ function checkInClass() {
   const now = new Date();
   const windowOpen = (date, c) => classStart(date, c).getTime() - 30 * 60000; // doors 30 min before
   // 1) a booked class happening today, closest to now
-  const bookedToday = BOOKINGS
-    .filter(u => daysBetween(TODAY, u.date) === 0 && classEnd(u.date, u.c) >= now)
-    .sort((a, b) => classStart(a.date, a.c) - classStart(b.date, b.c))[0];
+  const bookedToday = todaysBooking();
   if (bookedToday) return { c: bookedToday.c, date: bookedToday.date, booked: true };
   // 2) next eligible HQ class on the mat now or later today
   const day = (TODAY.getDay() + 6) % 7;
@@ -1030,7 +1081,9 @@ function renderCheckIn() {
   $('#ciNo').textContent = ME.no;
   $('#ciTime').textContent = `${fmtTime(now)} · ${fmtDate(now)}`;
 
-  const info = checkInClass();
+  const scan = (DB.checkIns || [])[0], recent = scan && Date.now() - new Date(scan.at) < 10 * 60000 ? scan : null;
+  const where = recent ? dojoName(recent.dojo) : 'HQ Dojo · Thomson V One';
+  const info = recent && recent.type ? { c: { type: recent.type, time: recent.time, ins: recent.ins }, date: new Date(recent.date), booked: true } : checkInClass();
   if (info) {
     const { c, date, booked } = info;
     $('#ciSub').textContent = booked
@@ -1043,12 +1096,12 @@ function renderCheckIn() {
           <div class="ci-class-name">${esc(c.type)}${booked ? '' : ' <span class="ci-tag">Drop-in</span>'}</div>
           <div class="ci-class-row">${icon('clock')}<span>${timeLabel(c.time)} – ${timeLabel(String(+c.time.slice(0, 2) + 1).padStart(2, '0') + ':00')}</span></div>
           <div class="ci-class-row">${icon('user')}<span>${esc(c.ins)}</span></div>
-          <div class="ci-class-row">${icon('pin')}<span>HQ Dojo · Thomson V One</span></div>
+          <div class="ci-class-row">${icon('pin')}<span>${esc(where)}</span></div>
         </div>
         <span class="ci-ok" aria-label="Checked in">${icon('check')}</span>
       </div>`;
   } else {
-    $('#ciDetail').innerHTML = `<div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Attendance recorded at HQ Dojo. No class is scheduled right now — show this to your instructor if asked.</span></div>`;
+    $('#ciDetail').innerHTML = `<div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Attendance recorded at ${esc(where)}. No class is scheduled right now — show this to your instructor if asked.</span></div>`;
   }
 }
 

@@ -57,10 +57,11 @@ function remarksForStudent(name) {
 function recordMyAttendance(rec) {
   const key = `${isoDate(rec.date)}|${rec.time}`;
   const i = ATTENDANCE.findIndex(a => `${isoDate(a.date)}|${a.time}` === key);
+  const already = i > -1 && ATTENDANCE[i].status === 'present';   // e.g. checked in by scan, then the instructor ends the class
   if (i > -1) ATTENDANCE.splice(i, 1);
   ATTENDANCE.unshift(rec);
   const b = BOOKINGS.findIndex(x => x.key === key); if (b > -1) BOOKINGS.splice(b, 1);   // the booking is now history
-  if (rec.status === 'present') {
+  if (rec.status === 'present' && !already) {
     GRADE.sessions++;
     const s = myStudent(); if (s) { s.s++; s.seen = 0; }
     DB.levelUps.push({ kind: 'session', date: rec.date, type: rec.type });
