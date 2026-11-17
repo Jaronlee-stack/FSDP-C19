@@ -60,7 +60,7 @@ function initPass() {
 
   slideCommit($('#passSlide'), completePass, validatePass);
   $('#passAgain').addEventListener('click', () => {
-    $$('#v-pass [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '1'));
+    $$('#passForm [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '1'));
     $('#passSlide').reset(); passState.sig.reset(); window.scrollTo(0, 0);
   });
   syncWho();
@@ -153,7 +153,7 @@ function completePass() {
   $('#ticket').innerHTML = `<div class="ticket-main"><span class="ref">Booking ${ref} · paid ${money(p.amt)}</span><h3>${esc(p.t)}</h3>
     <div class="kv" style="margin:0"><div><span>Name</span><span>${esc(val('g-name'))}</span></div><div><span>Dojo</span><span>${esc(dojoName(HQ))}</span></div><div><span>Date</span><span>${dayName(dt)} ${fmtDate(dt)}</span></div><div><span>${p.need === 'time' ? 'Preferred time' : 'Class'}</span><span>${type ? esc(type) + ' · ' : ''}${timeLabel(t)}</span></div><div><span>Waiver signed by</span><span>${esc(signer)}</span></div></div></div>
     <div class="ticket-side">${qrSVG(+String(Date.now()).slice(-4), 150)}<small>Show this at the front desk</small></div>`;
-  $$('#v-pass [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '2'));
+  $$('#passForm [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '2'));
   window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   toast('Payment received. Booking confirmed.');
 }
