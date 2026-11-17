@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="revenue" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="revenue">
+        <div class="page-h"><div><h1>Revenue</h1><p id="revSub">Payments received this month through Stripe.</p></div><div class="acts wrap"><button class="sbtn dark" id="revExport"><svg class="ic"><use href="#i-download"/></svg>Export CSV</button></div></div>
+        <div class="g3" id="revStats"></div>
+        <div class="g-wide">
+          <div class="card white"><div class="card-h"><div><h3>Received by item</h3><span class="sub">This month, paid payments only</span></div></div><div class="bars" id="revBars"></div><div class="tbl-wrap" style="margin-top:14px"><table class="tbl"><thead><tr><th>Item</th><th>Payments</th><th>Amount</th></tr></thead><tbody id="revItems"></tbody></table></div></div>
+          <div class="card white"><div class="card-h"><div><h3>Failed payments</h3><span class="sub">Unlimited auto-billing and online charges that Stripe declined</span></div></div><div class="rows" id="revFailed"></div></div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="admin-shell.js"></script>
+<script src="admin-desk.js"></script>
+<script src="admin-business.js"></script>
+</body>
+</html>

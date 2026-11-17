@@ -17,8 +17,9 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="grading">
-        <div class="page-h"><div><h1>Grading</h1><p>Schedule applicants, then approve instructor proposals to promote.</p></div></div>
-        <div class="list-bar"><div class="filters" id="gradTabs"><button class="fpill on" data-g="apps">Applications <span class="n">3</span></button><button class="fpill" data-g="props">Promotion proposals <span class="n">2</span></button></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="gradSearch" type="search" placeholder="Search by name" aria-label="Search by name" autocomplete="off"></label></div>
+        <div class="page-h"><div><h1>Grading</h1><p>Read only. A belt changes only through a grading result sent by the examiners.</p></div></div>
+        <!-- DEBUG PANEL (placeholder): a control to choose pass or fail for a grading result so both outcomes can be shown in a demo. The button "Apply result (demo)" stands in for it for now. Not built yet. -->
+        <div class="list-bar"><div class="filters" id="gradTabs"><button class="fpill on" data-g="apps">Applications <span class="n">3</span></button><button class="fpill" data-g="props">Instructor results <span class="n">2</span></button></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="gradSearch" type="search" placeholder="Search by name" aria-label="Search by name" autocomplete="off"></label></div>
         <div class="card white"><div class="rows" id="gradRows"></div></div>
       </section>
     </main>
@@ -28,6 +29,7 @@
 <script src="../js/data.js"></script>
 <script src="../js/store.js"></script>
 <script src="../js/portal.js"></script>
+<script src="admin-shell.js"></script>
 <script src="admin.js"></script>
 </body>
 </html>

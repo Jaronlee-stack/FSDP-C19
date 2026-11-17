@@ -1,0 +1,3840 @@
+{
+ "checks": [
+  {
+   "feat": "FEAT-002",
+   "id": "verify-feat2-ran-to-completion",
+   "pass": false,
+   "msg": "page.evaluate: TypeError: Cannot read properties of undefined (reading 'n')\n    at eval (eval at evaluate (:370:30), <anonymous>:1:280)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at c:\\Users\\CedrikHwang\\FSDP-C19\\.admin-fix-tmp\\verify\\verify-feat2.mjs:98:27",
+   "at": "2026-11-17T03:15:13.175Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "FEAT-001-script-ran-to-end",
+   "pass": false,
+   "msg": "page.evaluate: TypeError: Cannot read properties of null (reading 'textContent')\n    at eval (eval at evaluate (:370:30), <anonymous>:1:48)\n    at UtilityScript.evaluate (<anonymous>:372:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at c:\\Users\\CedrikHwang\\FSDP-C19\\.admin-fix-tmp\\verify\\verify-feat1.mjs:112:28",
+   "at": "2026-11-17T03:18:40.344Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "verify-feat3-ran-to-completion",
+   "pass": false,
+   "msg": "ReferenceError: MEMBERS is not defined\n    at file:///C:/Users/CedrikHwang/FSDP-C19/.admin-fix-tmp/verify/verify-feat3.mjs:332:85\n    at Array.every (<anonymous>)\n    at file:///C:/Users/CedrikHwang/FSDP-C19/.admin-fix-tmp/verify/verify-feat3.mjs:332:61",
+   "at": "2026-11-17T03:41:11.745Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "verify-feat4-ran-to-completion",
+   "pass": false,
+   "msg": "page.click: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('[data-it=\"retention\"]')\u001b[22m\n\u001b[2m    - locator resolved to <button class=\"fpill\" data-it=\"retention\">Retention</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m      - element is visible, enabled and stable\u001b[22m\n\u001b[2m      - scrolling into view if needed\u001b[22m\n\u001b[2m      - done scrolling\u001b[22m\n\u001b[2m      - <button class=\"fpill on\" data-it=\"attention\">Needs attention</button> intercepts pointer events\u001b[22m\n\u001b[2m    - retrying click action\u001b[22m\n\u001b[2m ",
+   "at": "2026-11-17T04:46:09.192Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-signin-no-HQ-Admin",
+   "pass": true,
+   "msg": "sign-in page has no \"HQ Admin\"",
+   "at": "2026-11-17T05:13:26.186Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R04-signin-copy",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:26.188Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R02-two-tabs",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:26.195Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R03-hint-ba",
+   "pass": true,
+   "msg": "Business Admin account. Demo: ADM-001 (Business Admin) or ADM-101 (Admin)",
+   "at": "2026-11-17T05:13:26.335Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R03-hint-fd",
+   "pass": true,
+   "msg": "Admin account. Demo: ADM-001 (Business Admin) or ADM-101 (Admin)",
+   "at": "2026-11-17T05:13:26.349Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R03-demo-ids-in-hint",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:26.356Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R05-unknown-id",
+   "pass": true,
+   "msg": "unknown ID stays on sign-in with a message",
+   "at": "2026-11-17T05:13:26.420Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R05-bad-format",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:26.459Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R05-deactivated-account",
+   "pass": true,
+   "msg": "inactive account blocked with \"deactivated\"",
+   "at": "2026-11-17T05:13:26.500Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R05-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:26.501Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R05-flag-expired",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:26.574Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R05-flag-deactivated",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:26.655Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R05-flag-denied",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:26.726Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-no-session-expired",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/signin.html?expired",
+   "at": "2026-11-17T05:13:27.014Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R06-fd-session",
+   "pass": true,
+   "msg": "{\"id\":\"ADM-101\",\"name\":\"Daniel Ong\",\"type\":\"frontdesk\"}",
+   "at": "2026-11-17T05:13:27.385Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R07-fd-nav",
+   "pass": true,
+   "msg": "Today, Classes, Members, Payments, Registrations, Equipment, Follow-ups, Notifications",
+   "at": "2026-11-17T05:13:27.421Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R07-fd-no-group-labels",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.424Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-fd-label",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.427Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R12-fd-person",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.432Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R13-no-centre-switcher",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.437Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R10-fd-no-data-ba",
+   "pass": true,
+   "msg": "index",
+   "at": "2026-11-17T05:13:27.440Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-seed-keys",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.460Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-seed-members",
+   "pass": true,
+   "msg": "members: 25",
+   "at": "2026-11-17T05:13:27.462Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-seed-policies",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.464Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-ledger-stripe-only",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.466Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-sessions-defaults",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.467Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-guests",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.468Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R14-fd-bell",
+   "pass": true,
+   "msg": "Incomplete registrations | 4 registrations waiting to be activated | Open | Items to collect | 3 orders not handed over yet | Open | Follow-ups due | 2 students not contacted yet | Open",
+   "at": "2026-11-17T05:13:27.508Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R104-helpers",
+   "pass": true,
+   "msg": "{\"d1\":50,\"d2\":40,\"d3\":0,\"d4\":50,\"w1\":\"1st Kyu & above\",\"w2\":\"\",\"w3\":\"Ladies only\",\"s\":\"Upcoming\",\"key\":\"2026-01-05|19:00\"}",
+   "at": "2026-11-17T05:13:27.511Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R104-server-comment",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.522Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-fd-index-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.611Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R10-fd-index-no-data-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.615Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-fd-index-no-hardcoded",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.618Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-index-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.621Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-fd-sessions-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.715Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R10-fd-sessions-no-data-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.718Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-fd-sessions-no-hardcoded",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.720Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-sessions-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.723Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-fd-members-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.848Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R10-fd-members-no-data-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.853Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-fd-members-no-hardcoded",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.856Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-members-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.859Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-fd-payments-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.949Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R10-fd-payments-no-data-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.952Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-fd-payments-no-hardcoded",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.955Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-payments-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:27.958Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-fd-applications-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.069Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R10-fd-applications-no-data-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.073Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-fd-applications-no-hardcoded",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.076Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-applications-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.077Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-fd-notify-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.178Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R10-fd-notify-no-data-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.218Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-fd-notify-no-hardcoded",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.226Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-notify-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.231Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R51-fd-no-export",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:28.327Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-members-count",
+   "pass": true,
+   "msg": "21 active of 25 members · 4 guests",
+   "at": "2026-11-17T05:13:28.364Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-dashboard-counts",
+   "pass": true,
+   "msg": "incomplete registrations 4",
+   "at": "2026-11-17T05:13:30.275Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-notify-preview",
+   "pass": true,
+   "msg": "Children Juniors · 17 Nov 6 PM · 9 recipients",
+   "at": "2026-11-17T05:13:30.381Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-fd-blocked-grading",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/index.html",
+   "at": "2026-11-17T05:13:30.501Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-fd-blocked-reports",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/index.html",
+   "at": "2026-11-17T05:13:30.635Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-keys-guarded",
+   "pass": true,
+   "msg": "every BA-only key is flagged in ADMIN_PAGES (pages not built yet)",
+   "at": "2026-11-17T05:13:30.638Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-fd-menu-has-no-ba-pages",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:30.641Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-flash-param-removed",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:30.642Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R100-fd-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:30.643Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R08-fd-tabbar",
+   "pass": true,
+   "msg": "Today, Classes, Members, Payments, More",
+   "at": "2026-11-17T05:13:34.149Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-index-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:34.233Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-sessions-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:34.332Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-members-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:34.440Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-payments-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:34.522Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-applications-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:34.617Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-fd-notify-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:34.718Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R100-fd-390-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:34.719Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R06-ba-session",
+   "pass": true,
+   "msg": "{\"id\":\"ADM-001\",\"name\":\"Grace Lim\",\"type\":\"business\"}",
+   "at": "2026-11-17T05:13:38.526Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R07-ba-nav",
+   "pass": true,
+   "msg": "Overview, Classes, Members, Payments, Registrations, Equipment, Follow-ups, Notifications, Insights, Revenue, Grading, Reports, Policies, Staff, Import issues",
+   "at": "2026-11-17T05:13:38.557Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R07-ba-groups",
+   "pass": true,
+   "msg": "Front desk, Management, Control",
+   "at": "2026-11-17T05:13:38.560Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R07-groups-not-links",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.565Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-label",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.568Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R12-ba-person",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.571Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R10-ba-has-data-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.574Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R14-ba-bell",
+   "pass": true,
+   "msg": "Exceptions | 3 items sent by the front desk | Open | Payment failures | 1 failed payment | Open | Import issues | 3 rows need fixing | Open | Promotion results | 2 signed by instructors | Open",
+   "at": "2026-11-17T05:13:38.603Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-index-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.703Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-index-opens",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/index.html",
+   "at": "2026-11-17T05:13:38.706Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-index-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.710Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-sessions-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.822Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-sessions-opens",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/sessions.html",
+   "at": "2026-11-17T05:13:38.824Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-sessions-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.827Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-members-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.935Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-members-opens",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/members.html",
+   "at": "2026-11-17T05:13:38.937Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-members-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:38.940Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-payments-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.025Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-payments-opens",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/payments.html",
+   "at": "2026-11-17T05:13:39.027Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-payments-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.030Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-applications-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.126Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-applications-opens",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/applications.html",
+   "at": "2026-11-17T05:13:39.128Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-applications-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.132Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-notify-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.234Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-notify-opens",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/notify.html",
+   "at": "2026-11-17T05:13:39.236Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-notify-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.239Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-grading-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.329Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-grading-opens",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/grading.html",
+   "at": "2026-11-17T05:13:39.330Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-grading-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.333Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R01-ba-reports-no-HQ-Admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.440Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-ba-reports-opens",
+   "pass": true,
+   "msg": "http://127.0.0.1:53359/admin_portal/reports.html",
+   "at": "2026-11-17T05:13:39.441Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-reports-1280-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.443Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R51-ba-has-export",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:39.532Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-payments-outstanding",
+   "pass": true,
+   "msg": "S$96 vs 96",
+   "at": "2026-11-17T05:13:41.438Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R15-payments-rows",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:41.458Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R100-ba-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:41.459Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R08-ba-tabbar",
+   "pass": true,
+   "msg": "Overview, Insights, Classes, Members, More",
+   "at": "2026-11-17T05:13:44.982Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-index-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.076Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-sessions-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.195Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-members-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.318Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-payments-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.414Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-applications-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.518Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-notify-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.632Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-grading-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.727Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R101-ba-reports-390-no-overflow",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.855Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R100-ba-390-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:45.857Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-old-db-no-throw",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:49.664Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-old-db-members-kept-and-added",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:49.667Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-old-db-session-fields-added",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:49.669Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-old-db-new-keys-present",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:49.672Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R17-old-db-members-page",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:49.825Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R06-signout-clears",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:50.437Z"
+  },
+  {
+   "feat": "FEAT-001",
+   "id": "R09-after-signout-expired",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:50.548Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R20-header",
+   "pass": true,
+   "msg": "HQ Dojo · Tue 17 Nov 2026",
+   "at": "2026-11-17T05:13:51.975Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R20-four-buttons",
+   "pass": true,
+   "msg": "New registration | Take payment | Find student | Walk-in guest",
+   "at": "2026-11-17T05:13:51.977Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R20-new-registration-link",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:51.981Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R21-four-stat-cards",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:51.985Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R21-card-labels",
+   "pass": true,
+   "msg": "Sessions today|Attendance pending|Payments needing attention|Incomplete registrations",
+   "at": "2026-11-17T05:13:51.989Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R21-cards-open-pages",
+   "pass": true,
+   "msg": "../admin_portal/sessions.html,../admin_portal/sessions.html,../admin_portal/payments.html,../admin_portal/applications.html",
+   "at": "2026-11-17T05:13:51.992Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R21-registrations-count-from-data",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:51.997Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R22-timeline-rows",
+   "pass": true,
+   "msg": "3 classes today",
+   "at": "2026-11-17T05:13:52.001Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R22-statuses",
+   "pass": true,
+   "msg": "Upcoming,Upcoming,Upcoming",
+   "at": "2026-11-17T05:13:52.004Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R22-open-roster-buttons",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:52.007Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R22-booked-capacity",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:52.011Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R23-waiting-on-you",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:52.015Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R24-no-charts",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:52.018Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R10-fd-today-no-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:52.024Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R20-find-student",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:52.899Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R20-walk-in-button-works",
+   "pass": true,
+   "msg": "opens a class picker or says no class is left",
+   "at": "2026-11-17T05:13:53.263Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R25-heading-classes",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:56.441Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R25-fd-no-timetable-tab",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:56.445Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R25-day-strip-7",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:56.448Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R25-day-strip-changes-date",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:57.323Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R26-hq-only",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:57.327Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R25-week-view-spaces-left",
+   "pass": true,
+   "msg": "19 rows",
+   "at": "2026-11-17T05:13:57.387Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R25-closure-banner",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:57.436Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R25-closure-cancelled",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:57.444Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R34-clock-debug-comment-classes",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:57.465Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R34-clock-debug-comment-roster",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:13:57.473Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R27-header",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:00.689Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R27-strip",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:00.692Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R27-columns",
+   "pass": true,
+   "msg": "Student|Belt|Access check|How booked|Attendance|",
+   "at": "2026-11-17T05:14:00.694Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R27-access-check-text",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:00.699Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-eligible-shows-book",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:01.942Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-book-adds-one",
+   "pass": true,
+   "msg": "14 to 15",
+   "at": "2026-11-17T05:14:02.001Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-book-persisted",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:02.036Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-how-booked-desk",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:02.043Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R30-fd-refer",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:03.907Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R30-refer-needs-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:04.044Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R30-refer-creates-exception",
+   "pass": true,
+   "msg": "{\"id\":\"X-4408523\",\"kind\":\"access\",\"who\":\"Faisal Hamid\",\"text\":\"Asked to join Advanced on 19 Nov (Not eligible · 1st Kyu & above). Instructor agreed he can try it\",\"by\":\"Daniel Ong\",\"at\":\"2026-11-17T05:14:04.085Z\",\"status\":\"pending\"}",
+   "at": "2026-11-17T05:14:04.132Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R30-no-silent-booking",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:04.158Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R31-walkin-lists-valid-guests-only",
+   "pass": true,
+   "msg": "NANur AisyahFree trial · 9123 4410Add",
+   "at": "2026-11-17T05:14:05.123Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R32-repeat-trial-warning",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:05.992Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R31-walkin-added",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:06.080Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R32-trial-marked-used",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:06.083Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R32-new-guest-record",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:06.375Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R33-noshow-note",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:06.378Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-submit-attendance",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:06.449Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R29-correction-modal",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:06.481Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R29-reason-required",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:06.816Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R29-correction-saved-with-reason",
+   "pass": true,
+   "msg": "[{\"at\":\"2026-11-17T05:14:06.841Z\",\"by\":\"Daniel Ong\",\"who\":\"Hannah Teo\",\"from\":\"noshow\",\"to\":\"noshow\",\"reason\":\"Tapped the wrong button\"}]",
+   "at": "2026-11-17T05:14:06.862Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-booking-uses-lesson",
+   "pass": true,
+   "msg": "18 to 17",
+   "at": "2026-11-17T05:14:08.743Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-cancel-returns-lesson",
+   "pass": true,
+   "msg": "back to 18",
+   "at": "2026-11-17T05:14:08.992Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-waitlist-shown",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:09.103Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R28-offer-needs-space",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:09.977Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-cards",
+   "pass": true,
+   "msg": "Collected today|Outstanding|Processing",
+   "at": "2026-11-17T05:14:13.165Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-outstanding-from-ledger",
+   "pass": true,
+   "msg": "96",
+   "at": "2026-11-17T05:14:13.183Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-tabs",
+   "pass": true,
+   "msg": "Today|This month|Outstanding|Daily summary|Refunds",
+   "at": "2026-11-17T05:14:13.185Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R39-fd-no-failed-tab",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:13.189Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R39-fd-failed-rows-hidden",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:14.048Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R37-fd-no-void-in-dom",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:14.057Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R40-failed-stripe-comment",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:14.068Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R35-stripe-only",
+   "pass": true,
+   "msg": "Stripe (card at the desk)",
+   "at": "2026-11-17T05:14:14.136Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R35-no-qr-no-cash",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:14.143Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R35-price-from-policies",
+   "pass": true,
+   "msg": "S$60",
+   "at": "2026-11-17T05:14:14.509Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R35-age-discount",
+   "pass": true,
+   "msg": "NSF · 50% off total S$30",
+   "at": "2026-11-17T05:14:14.519Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R35-ledger-row-added",
+   "pass": true,
+   "msg": "{\"id\":\"L-458335\",\"no\":\"ASK-2026-3103\",\"name\":\"Ryan Chua\",\"item\":\"Registration\",\"amt\":30,\"method\":\"Stripe\",\"date\":\"2026-11-17T05:14:18.335Z\",\"st\":\"Paid\",\"by\":\"desk\",\"inv\":\"INV-2458335\",\"note\":\"NSF · 50% off\"}",
+   "at": "2026-11-17T05:14:18.481Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R35-receipt-pdf",
+   "pass": true,
+   "msg": "receipt-INV-2458335.pdf",
+   "at": "2026-11-17T05:14:18.555Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-outstanding-collect-buttons",
+   "pass": true,
+   "msg": "2",
+   "at": "2026-11-17T05:14:18.703Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-collect-fixed-amount",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:18.765Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-collect-marks-paid",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:20.466Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-summary-total",
+   "pass": true,
+   "msg": "348 from 3 rows",
+   "at": "2026-11-17T05:14:20.533Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-summary-pdf",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:20.575Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-lock-disables",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:20.632Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R36-lock-persists",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:21.646Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R38-fd-sees-refunds-without-approve",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:21.683Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R38-fd-can-request-refund",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:22.629Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R37-fd-report-mistake",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:23.100Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R41-cards",
+   "pass": true,
+   "msg": "To collect|Unpaid orders",
+   "at": "2026-11-17T05:14:26.281Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R41-no-stock-ui",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:26.284Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R41-columns",
+   "pass": true,
+   "msg": "Member|Item|Size|Payment|Status|Requested|",
+   "at": "2026-11-17T05:14:26.288Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R41-requested-to-ready",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:27.145Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R41-collector-required",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:28.065Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R41-ready-to-handed-over",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:28.142Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R41-unpaid-blocked",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:28.233Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "FD-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:31.285Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R101-no-overflow-fd-today-390",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:32.209Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R101-no-overflow-fd-sessions-390",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:35.920Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R101-no-overflow-fd-roster-390",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:39.597Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R101-no-overflow-fd-payments-390",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:43.263Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R101-no-overflow-fd-equipment-390",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:46.910Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R101-phone-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:50.019Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "BA-home-keeps-overview",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:50.602Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R84-ba-timetable-tab-present",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:50.709Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R84-ba-timetable-works",
+   "pass": true,
+   "msg": "19 sessions",
+   "at": "2026-11-17T05:14:51.566Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R84-new-session-form-still-opens",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:51.598Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R30-ba-override",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:53.438Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R30-override-needs-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:53.462Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R30-override-books-with-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:53.507Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R39-ba-failed-tab",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:53.593Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R39-ba-failed-rows",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:54.469Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R37-ba-void-adjust",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:54.525Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R37-void-needs-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:55.410Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R37-void-applied",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:55.465Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R38-ba-approve-decline",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:55.502Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "R38-ba-approve-works",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:55.542Z"
+  },
+  {
+   "feat": "FEAT-002",
+   "id": "BA-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:55.543Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-filters",
+   "pass": true,
+   "msg": "All|Active|Lapsed|Expiring soon|Outstanding balance|New (90 days or less)|Guests",
+   "at": "2026-11-17T05:14:57.153Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-columns",
+   "pass": true,
+   "msg": "Member|Belt|Centre|Package|Membership|Last seen",
+   "at": "2026-11-17T05:14:57.158Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-each-filter-changes-rows",
+   "pass": true,
+   "msg": "all 25 active 21 lapsed 4 expiring 4 outstanding 4 new 6 guests 4",
+   "at": "2026-11-17T05:14:58.246Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-filters-distinct",
+   "pass": true,
+   "msg": "4,4,4,6",
+   "at": "2026-11-17T05:14:58.406Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-pill-counts-match-rows",
+   "pass": true,
+   "msg": "25,21,4,4,4,6,4",
+   "at": "2026-11-17T05:14:58.411Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-search-name",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.470Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-search-number",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.485Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-search-phone",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.501Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-search-email",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.518Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-search-guardian",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.536Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-search-none",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.551Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-no-export-for-admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.577Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-no-quick-edit-drawer",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.582Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-row-opens-record",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.731Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-row-has-package-and-last-seen",
+   "pass": true,
+   "msg": "LWLervyn WongASK-2025-1834 4th KyuASK Headquarters Dojo 18 lessons left · to 15 Jan Active 2 days ago",
+   "at": "2026-11-17T05:14:58.908Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R50-fd-no-ba-nodes-members",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:14:58.913Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-eight-tabs",
+   "pass": true,
+   "msg": "Overview|Bookings|Attendance|Payments|Progress|Equipment|Follow-ups|Contact",
+   "at": "2026-11-17T05:15:02.124Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-header-buttons",
+   "pass": true,
+   "msg": "Book a class|Take payment|Log contact|Send message",
+   "at": "2026-11-17T05:15:02.129Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-header-chips",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:02.140Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-header-name-no-belt-centre",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:02.150Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R63-belt-note",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:02.155Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R62-fd-no-status-dojo-edit",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:02.162Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R64-fd-ns-verified-only",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:02.169Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R64-fd-sees-medical",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:02.176Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R65-two-year-and-balance",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:02.189Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R65-memberinfo-stored",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:02.241Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-tab-bookings",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.397Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-tab-attendance",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.470Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-tab-payments",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.568Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-tab-progress",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.664Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-tab-equipment",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.720Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-tab-followups",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.783Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-tab-contact",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.848Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R63-progress-belt-not-editable",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.851Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R63-progress-no-controls",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:05.907Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R62-fd-edits-contact",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:06.399Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R62-contact-validates-phone",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:06.455Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R65-payment-history-with-receipt",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:07.445Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R65-receipt-reprint-pdf",
+   "pass": true,
+   "msg": "receipt-INV-2050111.pdf",
+   "at": "2026-11-17T05:15:07.505Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R62-fd-refund-request-only",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:07.531Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R62-refund-request-saved",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:08.093Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R62-refund-shows-waiting",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:08.098Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-take-payment-opens",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:08.138Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R67-not-returning-asks-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:08.199Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R67-not-returning-needs-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:09.094Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R67-contact-saved",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:09.232Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-send-message-logged",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.176Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-child-guardian-chip",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.311Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R61-unknown-member-message",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.411Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R10-fd-member-no-ba-nodes",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.433Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-fd-two-tabs-no-exceptions",
+   "pass": true,
+   "msg": "Registrations|Extensions",
+   "at": "2026-11-17T05:15:10.579Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R55-checklist-chips",
+   "pass": true,
+   "msg": "Details completeConsent signedRegistration paidMedical declared",
+   "at": "2026-11-17T05:15:10.584Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R55-status-chip",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.589Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R55-guardian-consent-chip-for-child",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.593Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R55-needs-review-for-carry-over",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.598Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-activate-disabled-when-review-for-fd",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.604Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-activate-enabled-when-all-pass",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.609Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R55-missing-info-status",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.627Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-activate-disabled-when-rule-fails",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:10.633Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-drawer-actions",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:11.507Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-request-missing-info",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:12.815Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R58-fd-grade-disabled-confirmed-by-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:12.902Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-no-refund-wording",
+   "pass": true,
+   "msg": " Reject Sarah Lee?They get an email with the reason below. This does not change any payment.Reason (sent to the applicant)RejectBack ",
+   "at": "2026-11-17T05:15:13.306Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-flag-creates-exception",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:14.635Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R55-activate-adds-member",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:15.059Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R58-activation-creates-equipment",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:15.062Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R55-count-badge-updates",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:15.067Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-two-tickboxes-default-ticked",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:18.225Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-approve-both-extends-and-returns",
+   "pass": true,
+   "msg": "3 days, left 18->19",
+   "at": "2026-11-17T05:15:19.091Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-newExp-recorded",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:19.093Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-student-bell-package-extended",
+   "pass": true,
+   "msg": "SHINJU-KAI STUDENT Home Book a class Packages Grading Payments Profile LW Lervyn Wong 4th Kyu · HQ D",
+   "at": "2026-11-17T05:15:20.066Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-untick-extend",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:20.985Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-extend-off-leaves-expiry",
+   "pass": true,
+   "msg": "left 19->20",
+   "at": "2026-11-17T05:15:21.049Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-student-bell-lesson-returned",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:22.017Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-return-off-keeps-lessons",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:22.958Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-neither-ticked-blocked",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:24.090Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-not-approved-works",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:24.140Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R53-unlimited-note-and-disabled-ticks",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:24.247Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R53-unlimited-excused-no-changes",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:24.601Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-over-14-refer-for-fd",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:24.707Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-refer-creates-exception",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:25.609Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-referred-chip",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:25.615Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-no-mc-goes-to-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:25.730Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R54-compassion-needs-confirm",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:26.634Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R54-compassion-fd-confirms",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:26.710Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-mc-debug-panel-comment",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:26.729Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-no-reject-and-refund-anywhere",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:29.820Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-parent-highlights-registrations",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:29.994Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-dob-required",
+   "pass": true,
+   "msg": "Full name*|Gender*|Nationality*|Date of birth*|Mobile number*|Email*|Contact name*|Relationship*|Contact mobile*|Medical declaration*|Dogi size*|The student (or guardian) has read and agrees to the Terms and Conditions*|Consent to ASK using personal data under the PDPA 2012*|Signature*",
+   "at": "2026-11-17T05:15:30.858Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-signature-required",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:30.861Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-consent-required",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:30.864Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R60-age-and-discount-from-dob",
+   "pass": true,
+   "msg": "Age 17 to 25 · 50% off. Applied automatically, no proof needed.",
+   "at": "2026-11-17T05:15:31.085Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R60-no-discount-at-40",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:31.299Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R60-senior-40-percent",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:31.509Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-guardian-section-for-minor",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:31.730Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-guardian-hidden-for-adult",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:31.962Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-ns-proof-fd-no-open",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:31.974Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R60-package-added-to-fees",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:33.120Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-signature-still-required-after-fill",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:33.206Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-registered-and-activated",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:35.203Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-equipment-requests-created",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:35.204Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R60-discount-in-ledger",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:35.205Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-done-links-to-record",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:35.210Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-external-match-note",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:39.308Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-external-gains-ask-membership",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:42.218Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R59-form-has-carry-over-select",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:42.374Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R66-four-tabs",
+   "pass": true,
+   "msg": "Newcomers not returned|Declining attendance|Renewals coming up|Assigned to me",
+   "at": "2026-11-17T05:15:42.526Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R66-columns",
+   "pass": true,
+   "msg": "Student|Reason|Last seen|Phone|Attempts|Due",
+   "at": "2026-11-17T05:15:42.532Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R68-reminder-note",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:42.537Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R66-declining-uses-14-days",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:43.391Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R67-log-contact-increments-attempts",
+   "pass": true,
+   "msg": "0 -> 1",
+   "at": "2026-11-17T05:15:44.342Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R67-next-date-saved",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:44.345Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R66-assigned-to-me-shows-own",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:44.386Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R66-newcomer-rows",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:44.454Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R69-ba-controls-absent-for-fd",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:44.461Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "FD-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:47.541Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R103-no-overflow-390-members",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:48.216Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R103-no-overflow-390-member",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:51.536Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R103-no-overflow-390-applications",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:54.753Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R103-no-overflow-390-register",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:15:57.967Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R103-no-overflow-390-followups",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:01.274Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "phone-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:08.436Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R70-low-attendance-opens-followups",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:09.866Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R51-ba-export-present",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:10.027Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R51-ba-export-downloads-csv",
+   "pass": true,
+   "msg": "members-nov-2026.csv",
+   "at": "2026-11-17T05:16:10.933Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R63-ba-edit-button",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:11.083Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R64-ba-can-open-ns-papers",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:11.088Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R64-ns-modal-opens",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:11.967Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R63-belt-never-editable-for-ba",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:12.030Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R63-ba-save-needs-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:12.901Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R63-ba-changes-status-and-dojo-with-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:12.965Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R63-belt-unchanged",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:12.966Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R62-ba-refund-approve-no-request-button",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:13.927Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R62-ba-approves-refund",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:13.997Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-ba-three-tabs",
+   "pass": true,
+   "msg": "Registrations|Extensions|Exceptions",
+   "at": "2026-11-17T05:16:17.257Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-exceptions-listed",
+   "pass": true,
+   "msg": "3 pending",
+   "at": "2026-11-17T05:16:18.128Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-decision-needs-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:19.009Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-decline-with-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:19.090Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-approve-with-reason",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:19.406Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-ba-count-includes-exceptions",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:19.433Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-ba-can-approve-over-14",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:22.550Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R52-ba-approval-applied",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:23.430Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R57-linked-exception-resolved",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:23.462Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R56-ba-can-activate-review-item",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:23.514Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R58-ba-grade-select-enabled",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:23.573Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R58-ba-confirms-carried-grade",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:23.943Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R69-ba-controls-present",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:24.053Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R69-ba-creates-list",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:24.943Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R69-ba-assigns-and-reassigns",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:25.021Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R69-assigned-to-ba-shows-in-mine",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:25.064Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "R69-review-outcomes",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:25.068Z"
+  },
+  {
+   "feat": "FEAT-003",
+   "id": "BA-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:28.142Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-four-stat-cards",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:29.717Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-card-labels",
+   "pass": true,
+   "msg": "Active members|New members|90-day retention|Collected vs outstanding",
+   "at": "2026-11-17T05:16:29.722Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-active-from-data",
+   "pass": true,
+   "msg": "21",
+   "at": "2026-11-17T05:16:29.727Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-period-selector",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:29.731Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-period-changes-figures",
+   "pass": true,
+   "msg": "0",
+   "at": "2026-11-17T05:16:29.739Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-no-conversion-pct",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:29.742Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-toggle-org-first",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:29.747Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-today-switch-shows-today",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:30.627Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R80-org-switch-back",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:30.673Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R81-centres-link-insights",
+   "pass": true,
+   "msg": "insights.html?centre=hq",
+   "at": "2026-11-17T05:16:30.678Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R81-centres-show-occupancy-outstanding",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:30.685Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R82-waiting-items",
+   "pass": true,
+   "msg": "Exceptions to decide3 items sent up by the front deskReviewPayment failures1 failed payment to look atReviewImport issue",
+   "at": "2026-11-17T05:16:30.690Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R83-four-question-cards",
+   "pass": true,
+   "msg": "[{\"t\":\"Should we open another class here?\",\"href\":\"insights.html?tab=capacity\"},{\"t\":\"Why are newcomers leaving?\",\"href\":\"insights.html?tab=retention\"},{\"t\":\"Which classes need attention?\",\"href\":\"insights.html?tab=attention\"},{\"t\":\"Did an intervention work?\",\"href\":\"insights.html?tab=interventions\"}]",
+   "at": "2026-11-17T05:16:30.695Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R83-no-not-joining-card",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:30.700Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R82-low-attendance-flags-open-followups",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:37.074Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R84-timetable-columns",
+   "pass": true,
+   "msg": "Class|When|Dojo and mat|Effective|Instructor|Booked|Online booking|Code|",
+   "at": "2026-11-17T05:16:37.647Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R84-online-hq-yes-other-no",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:37.650Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R84-session-note",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:37.654Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R84-form-has-effective-and-mat",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:37.703Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R84-instructor-clash-blocked",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:38.585Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R84-mat-clash-blocked",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:38.643Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R84-valid-session-saved",
+   "pass": true,
+   "msg": "{\"type\":\"Children Beginners\",\"day\":0,\"time\":\"18:00\",\"end\":\"19:00\",\"dojo\":\"hq\",\"mat\":\"Mat B\",\"ins\":\"Philip Lee Shihan\",\"cap\":20,\"booked\":0,\"kids\":true,\"effFrom\":",
+   "at": "2026-11-17T05:16:38.719Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R84-closure-clash-blocked",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:39.034Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R85-delete-shows-affected-bookings",
+   "pass": true,
+   "msg": "10 upcoming bookings will be affected. Students are notified and each lesson is returned to their package.",
+   "at": "2026-11-17T05:16:39.090Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R85-delete-weekly-plan-wording",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:39.098Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R86-closures-tab",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:42.192Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R86-class-scope-lists-class",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:42.439Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R86-affected-students-listed",
+   "pass": true,
+   "msg": "15 students booked on 1 class. Their lessons are returned and they get a notice.Priya Lee (Adults 7 PM, 20 Nov), Wei Jie Chua (Adults 7 PM, 20 Nov), Siti Rahman (Adults 7 PM, 20 Nov), Kenji Sato (Adults 7 PM, 20 Nov), Lakshmi Pillai (Adults 7 PM, 20 Nov), Tan Siew Eng (Adults 7 PM, 20 Nov), Jamie Tan (Adults 7 PM, 20 Nov), Benjamin Ong (Adults 7 PM, 20 Nov) and 7 more",
+   "at": "2026-11-17T05:16:42.443Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R86-class-cancelled-state",
+   "pass": true,
+   "msg": "Cancelled",
+   "at": "2026-11-17T05:16:42.787Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R86-lessons-returned",
+   "pass": true,
+   "msg": "[1,1,1]",
+   "at": "2026-11-17T05:16:42.789Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R86-closure-listed",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:42.792Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R86-roster-shows-cancelled",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:43.152Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R86-hq-closure-cancels-all",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:44.220Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-six-tabs",
+   "pass": true,
+   "msg": "Centres & classes|Capacity|Needs attention|Retention|Experience & teaching|Interventions",
+   "at": "2026-11-17T05:16:47.638Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-no-newcomers-tab",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:47.640Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-filter-bar",
+   "pass": true,
+   "msg": "Period|Compare to|Centre|Class type|Time slot|Age group|Belt group",
+   "at": "2026-11-17T05:16:47.642Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-filter-changes-content",
+   "pass": true,
+   "msg": "13 rows",
+   "at": "2026-11-17T05:16:47.649Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-sample-data-labelled",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:47.654Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-pilot-slot-prefilled",
+   "pass": true,
+   "msg": "{\"type\":\"Children Juniors\",\"time\":\"18:00\",\"title\":\"New pilot slot\"}",
+   "at": "2026-11-17T05:16:50.826Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-attention-banner",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:53.961Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-retention-cohorts",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:53.992Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-experience-instructors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:54.024Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-intervention-logged",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:54.449Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-intervention-decision",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:54.494Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R87-no-cost-figures",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:54.497Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R88-total-equals-paid-ledger",
+   "pass": true,
+   "msg": "2424 vs 2424",
+   "at": "2026-11-17T05:16:54.870Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R88-failed-list",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:54.875Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R88-breakdown-by-item",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:54.879Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R88-no-reconciliation-or-cost",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:54.883Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R88-export-csv",
+   "pass": true,
+   "msg": "revenue-nov-2026.csv",
+   "at": "2026-11-17T05:16:55.156Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-six-tabs",
+   "pass": true,
+   "msg": "Packages & prices|Booking rules|Auto-activation rules|Approved payment methods|Notification templates|Follow-up triggers",
+   "at": "2026-11-17T05:16:58.545Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-impact-modal-before-save",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:16:58.931Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-saved",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:02.096Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-booking-rule-saved",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:02.371Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-activation-rule-saved",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:02.654Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-methods-stripe-only",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:02.688Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-template-added",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:04.009Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-trigger-saved",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:04.451Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R91-take-payment-uses-saved-price",
+   "pass": true,
+   "msg": "S$65",
+   "at": "2026-11-17T05:17:09.044Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-columns",
+   "pass": true,
+   "msg": "Name|ID|Role|Status|Last sign-in|",
+   "at": "2026-11-17T05:17:09.486Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-id-preview-adm1xx",
+   "pass": true,
+   "msg": "ADM-103",
+   "at": "2026-11-17T05:17:10.565Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-create-frontdesk",
+   "pass": true,
+   "msg": "ADM-103",
+   "at": "2026-11-17T05:17:10.595Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-create-instructor-id",
+   "pass": true,
+   "msg": "INS-0064",
+   "at": "2026-11-17T05:17:10.676Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-create-ba-id",
+   "pass": true,
+   "msg": "ADM-002",
+   "at": "2026-11-17T05:17:10.858Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-cannot-deactivate-self",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:10.932Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-new-account-signs-in",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:41.483Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-new-instructor-signs-in",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:41.658Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-deactivated",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:43.441Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-deactivated-cannot-sign-in",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:43.595Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-second-ba-can-be-deactivated",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:44.415Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R92-last-ba-protected",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:45.287Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R96-imports-debug-comment",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:51.790Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R93-open-count",
+   "pass": true,
+   "msg": "3",
+   "at": "2026-11-17T05:17:51.796Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R93-fix-needs-member",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:52.014Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R93-fix-reduces-open",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:52.914Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R93-dismiss-reduces-open",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:52.975Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R93-fixed-tab",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:53.009Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R93-issue-reasons",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:56.091Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R89-no-schedule-or-approve",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:56.500Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R89-read-only-statement",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:56.503Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R96-grading-debug-comment",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:56.512Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R89-apply-demo-button",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:56.740Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R89-apply-promotes",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:17:57.111Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R89-student-home-after-promotion",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:00.572Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R90-filters",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:01.470Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R90-four-exports",
+   "pass": true,
+   "msg": "attendance,progression,payments,followups",
+   "at": "2026-11-17T05:18:01.473Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R90-payments-real-records",
+   "pass": true,
+   "msg": "\"Member\",\"Member no.\",\"Item\",\"Date\",\"Amount\",\"Method\",\"Status\",\"Invoice\"",
+   "at": "2026-11-17T05:18:01.754Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R90-attendance-csv",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:01.871Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R90-progression-csv",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:01.979Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R90-followups-csv",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:02.086Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R90-date-range-filters",
+   "pass": true,
+   "msg": "2 < 19",
+   "at": "2026-11-17T05:18:02.216Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R90-centre-filter",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:02.360Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-ba-audiences",
+   "pass": true,
+   "msg": "HQ class,One student,All members,One dojo,By grade",
+   "at": "2026-11-17T05:18:05.832Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-ba-preview-count-from-members",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:05.836Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-all-members-count",
+   "pass": true,
+   "msg": "All members · 25 recipients",
+   "at": "2026-11-17T05:18:06.095Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-template-fills",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:06.137Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-ba-sent-history-row",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:06.513Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-ba-own-message-unlocked",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:06.520Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "BA-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:09.585Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R95-fd-blocked-insights",
+   "pass": true,
+   "msg": "http://127.0.0.1:53787/admin_portal/index.html",
+   "at": "2026-11-17T05:18:10.157Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R95-fd-blocked-revenue",
+   "pass": true,
+   "msg": "http://127.0.0.1:53787/admin_portal/index.html",
+   "at": "2026-11-17T05:18:10.305Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R95-fd-blocked-grading",
+   "pass": true,
+   "msg": "http://127.0.0.1:53787/admin_portal/index.html",
+   "at": "2026-11-17T05:18:10.444Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R95-fd-blocked-reports",
+   "pass": true,
+   "msg": "http://127.0.0.1:53787/admin_portal/index.html",
+   "at": "2026-11-17T05:18:10.576Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R95-fd-blocked-policies",
+   "pass": true,
+   "msg": "http://127.0.0.1:53787/admin_portal/index.html",
+   "at": "2026-11-17T05:18:10.710Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R95-fd-blocked-staff",
+   "pass": true,
+   "msg": "http://127.0.0.1:53787/admin_portal/index.html",
+   "at": "2026-11-17T05:18:10.865Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R95-fd-blocked-imports",
+   "pass": true,
+   "msg": "http://127.0.0.1:53787/admin_portal/index.html",
+   "at": "2026-11-17T05:18:10.998Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-fd-audiences",
+   "pass": true,
+   "msg": "HQ class,One student",
+   "at": "2026-11-17T05:18:11.334Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-fd-no-all-members-or-grade",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:11.366Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-fd-no-own-message-option",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:11.370Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-fd-template-required",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:11.603Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-fd-fields-locked",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:11.627Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-fd-class-recipient-count",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:11.632Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-fd-sent-history",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:15.055Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R94-fd-one-student-sent",
+   "pass": true,
+   "msg": "3",
+   "at": "2026-11-17T05:18:15.681Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R95-fd-no-ba-nav",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:15.689Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "FD-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:15.692Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R96-five-debug-panel-kinds",
+   "pass": true,
+   "msg": "grading,mc,stripe,clock,csv (6 comments)",
+   "at": "2026-11-17T05:18:15.741Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-index",
+   "pass": true,
+   "msg": "index",
+   "at": "2026-11-17T05:18:16.673Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-sessions",
+   "pass": true,
+   "msg": "sessions",
+   "at": "2026-11-17T05:18:20.469Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-insights",
+   "pass": true,
+   "msg": "insights",
+   "at": "2026-11-17T05:18:24.252Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-revenue",
+   "pass": true,
+   "msg": "revenue",
+   "at": "2026-11-17T05:18:27.953Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-policies",
+   "pass": true,
+   "msg": "policies",
+   "at": "2026-11-17T05:18:31.613Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-staff",
+   "pass": true,
+   "msg": "staff",
+   "at": "2026-11-17T05:18:35.319Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-imports",
+   "pass": true,
+   "msg": "imports",
+   "at": "2026-11-17T05:18:39.082Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-reports",
+   "pass": true,
+   "msg": "reports",
+   "at": "2026-11-17T05:18:42.782Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-grading",
+   "pass": true,
+   "msg": "grading",
+   "at": "2026-11-17T05:18:46.510Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-notify",
+   "pass": true,
+   "msg": "notify",
+   "at": "2026-11-17T05:18:50.209Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-closures",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:18:54.579Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-insights-capacity",
+   "pass": true,
+   "msg": "capacity",
+   "at": "2026-11-17T05:18:57.913Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-insights-attention",
+   "pass": true,
+   "msg": "attention",
+   "at": "2026-11-17T05:18:58.081Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-insights-retention",
+   "pass": true,
+   "msg": "retention",
+   "at": "2026-11-17T05:18:58.241Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-insights-experience",
+   "pass": true,
+   "msg": "experience",
+   "at": "2026-11-17T05:18:58.407Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-insights-interventions",
+   "pass": true,
+   "msg": "interventions",
+   "at": "2026-11-17T05:18:58.578Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-390-staff-drawer",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:00.511Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "BA-390-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:03.598Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-index",
+   "pass": true,
+   "msg": "index",
+   "at": "2026-11-17T05:19:04.545Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-sessions",
+   "pass": true,
+   "msg": "sessions",
+   "at": "2026-11-17T05:19:04.990Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-insights",
+   "pass": true,
+   "msg": "insights",
+   "at": "2026-11-17T05:19:05.358Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-revenue",
+   "pass": true,
+   "msg": "revenue",
+   "at": "2026-11-17T05:19:05.726Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-policies",
+   "pass": true,
+   "msg": "policies",
+   "at": "2026-11-17T05:19:06.124Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-staff",
+   "pass": true,
+   "msg": "staff",
+   "at": "2026-11-17T05:19:06.522Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-imports",
+   "pass": true,
+   "msg": "imports",
+   "at": "2026-11-17T05:19:06.910Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-reports",
+   "pass": true,
+   "msg": "reports",
+   "at": "2026-11-17T05:19:07.325Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-grading",
+   "pass": true,
+   "msg": "grading",
+   "at": "2026-11-17T05:19:07.716Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "R100-no-overflow-1280-notify",
+   "pass": true,
+   "msg": "notify",
+   "at": "2026-11-17T05:19:08.103Z"
+  },
+  {
+   "feat": "FEAT-004",
+   "id": "BA-1280-pages-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:08.107Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "instructor-index-loads",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:13.749Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "instructor-profile-loads",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:13.951Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "instructor-no-admin-session",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:13.969Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "instructor-grading-still-gated",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:14.083Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "instructor-cannot-open-admin",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:14.209Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "instructor-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:14.211Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-index-loads",
+   "pass": true,
+   "msg": "http://127.0.0.1:50735/student_portal/index.html",
+   "at": "2026-11-17T05:19:14.835Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-book-loads",
+   "pass": true,
+   "msg": "http://127.0.0.1:50735/student_portal/book.html",
+   "at": "2026-11-17T05:19:14.923Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-packages-loads",
+   "pass": true,
+   "msg": "http://127.0.0.1:50735/student_portal/packages.html",
+   "at": "2026-11-17T05:19:15.042Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-grading-loads",
+   "pass": true,
+   "msg": "http://127.0.0.1:50735/student_portal/grading.html",
+   "at": "2026-11-17T05:19:15.150Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-payments-loads",
+   "pass": true,
+   "msg": "http://127.0.0.1:50735/student_portal/payments.html",
+   "at": "2026-11-17T05:19:15.244Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-profile-loads",
+   "pass": true,
+   "msg": "http://127.0.0.1:50735/student_portal/profile.html",
+   "at": "2026-11-17T05:19:15.340Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-bell-opens",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:15.384Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:15.386Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-bell-lesson-returned",
+   "pass": true,
+   "msg": "Rate your Intermediate class | Mon 16 Nov · 8 PM · Bob Tan Sensei | Rate | Lesson returned | 25-lesson pack · one lesson added back | Session counted · +1 | Adults · Sat 14 Nov · 29 of 36 sessions toward 3rd Kyu | Note from Bob Tan Sensei | Adults · Sat 14 Nov · We drilled ikkyo omote and ura. At home, practise stepping off the lin… | Read | Booking confirmed | Adults · Thu 19 Nov · 7 PM · HQ Dojo | Grading applications close 29 Nov | Adult grading on 13 Dec at HQ Dojo",
+   "at": "2026-11-17T05:19:15.849Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-bell-package-extended-default",
+   "pass": true,
+   "msg": "Rate your Intermediate class | Mon 16 Nov · 8 PM · Bob Tan Sensei | Rate | Package extended | 25-lesson pack +5 days · now expires 17 Nov 2026 | Session counted · +1 | Adults · Sat 14 Nov · 29 of 36 sessions toward 3rd Kyu | Note from Bob Tan Sensei | Adults · Sat 14 Nov · We drilled ikkyo omote and ura. At home, practise stepping off the lin… | Read | Booking confirmed | Adults · Thu 19 Nov · 7 PM · HQ Dojo | Grading applications close 29 Nov | Adult grading on 13 Dec at HQ Dojo",
+   "at": "2026-11-17T05:19:15.916Z"
+  },
+  {
+   "feat": "REGRESS",
+   "id": "student-bell-no-console-errors",
+   "pass": true,
+   "msg": "",
+   "at": "2026-11-17T05:19:15.918Z"
+  }
+ ]
+}

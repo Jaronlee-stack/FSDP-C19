@@ -1,0 +1,7 @@
+{
+  "task_id": "task-admin-portal",
+  "task_description": "Fix and extend the ADMIN portal (src/public/admin_portal) of the static HTML/CSS/vanilla-JS project to match prompts/Admin Roles Prompt.docx and prompts/Admin Web Page Structure Planning.json: two roles (Admin = front desk, Business Admin), role-based menus/guards, new pages (roster, member, register, equipment, followups, insights, revenue, policies, staff, imports), fixed existing pages, mock data via store.js/data.js. Full requirement list with IDs R01-R104 is in c:/Users/CedrikHwang/FSDP-C19/.admin-fix-tmp/plan.md. No git add/commit/push; leave changes uncommitted.",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
+  "blocked_reason": null
+}

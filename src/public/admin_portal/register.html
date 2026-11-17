@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>New registration · Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="register" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="register">
+        <div class="page-h"><div><h1>New registration</h1><p>Register a student at the desk. Date of birth, consent and a signature are required.</p></div><div class="acts"><a class="sbtn" href="applications.html">Back to Registrations</a></div></div>
+        <div id="regDone" class="card white" hidden></div>
+        <form id="regForm" novalidate style="display:grid;gap:14px">
+          <div class="card white">
+            <div class="card-h"><div><h3>Existing member</h3><span class="sub">Search first. A member from another school keeps their record and gains ASK membership.</span></div></div>
+            <div class="fld"><label for="rg-find">Name, member no. or mobile</label><input id="rg-find" type="search" autocomplete="off" placeholder="Search before creating a new record"></div>
+            <div class="rows" id="rgFound"></div>
+            <div id="rgExisting"></div>
+          </div>
+
+          <div class="card white">
+            <div class="card-h"><h3>Personal details</h3></div>
+            <div class="grid2">
+              <div class="fld full"><label for="rg-name">Full name<span class="req">*</span></label><input id="rg-name" autocomplete="off" placeholder="As shown on NRIC or passport"><span class="err">Enter the student's name.</span></div>
+              <div class="fld"><span class="lbl">Gender<span class="req">*</span></span><div class="seg"><input type="radio" name="rg-gender" id="rg-g1" value="Male"><label for="rg-g1">Male</label><input type="radio" name="rg-gender" id="rg-g2" value="Female"><label for="rg-g2">Female</label></div><span class="err">Choose one.</span></div>
+              <div class="fld"><label for="rg-nat">Nationality<span class="req">*</span></label><select id="rg-nat"><option value="">Select</option><option>Singaporean</option><option>Singapore PR</option><option>Malaysian</option><option>Chinese</option><option>Indian</option><option>Filipino</option><option>Indonesian</option><option>Other</option></select><span class="err">Select a nationality.</span></div>
+              <div class="fld"><label for="rg-dob">Date of birth<span class="req">*</span></label><input id="rg-dob" type="text" data-dp="dob" placeholder="DD / MM / YYYY" inputmode="numeric" autocomplete="off"><span class="err" id="rgDobErr">Enter a real date. Students must be at least 4 years old.</span></div>
+              <div class="fld"><label for="rg-age">Age</label><input id="rg-age" readonly placeholder="Worked out from date of birth"><span class="hint" id="rgDisc"></span></div>
+              <div class="fld"><label for="rg-phone">Mobile number<span class="req">*</span></label><input id="rg-phone" type="tel" inputmode="tel" autocomplete="off" placeholder="9123 4567"><span class="err">Enter an 8-digit number.</span></div>
+              <div class="fld"><label for="rg-email">Email<span class="req">*</span></label><input id="rg-email" type="email" autocomplete="off" placeholder="name@email.com"><span class="err">Enter a valid email.</span></div>
+            </div>
+          </div>
+
+          <div class="card white" id="rgGuardian" hidden>
+            <div class="card-h"><div><h3>Parent or guardian</h3><span class="sub">Needed for students under 18. They sign for the student.</span></div></div>
+            <div class="grid2">
+              <div class="fld"><label for="rg-gname">Guardian name<span class="req">*</span></label><input id="rg-gname" autocomplete="off"><span class="err">Enter the guardian's name.</span></div>
+              <div class="fld"><label for="rg-gphone">Guardian mobile<span class="req">*</span></label><input id="rg-gphone" type="tel" inputmode="tel" autocomplete="off"><span class="err">Enter an 8-digit number.</span></div>
+            </div>
+          </div>
+
+          <div class="card white">
+            <div class="card-h"><h3>Emergency contact and health</h3></div>
+            <div class="grid2">
+              <div class="fld"><label for="rg-ecname">Contact name<span class="req">*</span></label><input id="rg-ecname" autocomplete="off"><span class="err">Required.</span></div>
+              <div class="fld"><label for="rg-ecrel">Relationship<span class="req">*</span></label><select id="rg-ecrel"><option value="">Select</option><option>Parent</option><option>Spouse</option><option>Sibling</option><option>Friend</option><option>Other</option></select><span class="err">Required.</span></div>
+              <div class="fld"><label for="rg-ecphone">Contact mobile<span class="req">*</span></label><input id="rg-ecphone" type="tel" inputmode="tel" autocomplete="off"><span class="err">Enter an 8-digit number.</span></div>
+              <div class="fld"><span class="lbl">Medical declaration<span class="req">*</span></span><div class="seg" id="rgMedSeg"><input type="radio" name="rg-med" id="rg-m1" value="No"><label for="rg-m1">Nothing to declare</label><input type="radio" name="rg-med" id="rg-m2" value="Yes"><label for="rg-m2">Has a condition</label></div><span class="err">Choose one.</span></div>
+              <div class="fld full" id="rgMedBox" hidden><label for="rg-meddetail">Condition and what the instructor should know<span class="req">*</span></label><textarea id="rg-meddetail"></textarea><span class="err">Describe the condition.</span></div>
+              <div class="fld full"><label for="rg-carry">Grade carried over from another Aikido school<span class="opt">Optional</span></label><select id="rg-carry"><option value="">None, start at 6th Kyu</option></select><span class="hint">A Business Admin confirms a carried-over grade before the student is activated.</span></div>
+            </div>
+          </div>
+
+          <div class="card white">
+            <div class="card-h"><h3>Dogi, package and proof</h3></div>
+            <div class="grid2">
+              <div class="fld"><label for="rg-dogi">Dogi size<span class="req">*</span></label><select id="rg-dogi"><option value="">Select</option></select><span class="err">Choose a dogi size.</span></div>
+              <div class="fld"><label for="rg-pkg">Lesson package<span class="opt">Optional</span></label><select id="rg-pkg"><option value="">No package yet</option></select></div>
+              <div class="fld full"><label for="rg-ns">NS proof<span class="opt">Optional</span></label><input id="rg-ns" type="file" accept="image/*,application/pdf"><span class="hint" id="rgNsState">For National Servicemen. Only a Business Admin can open the papers.</span></div>
+            </div>
+          </div>
+
+          <div class="card white">
+            <div class="card-h"><div><h3>Fees</h3><span class="sub">Prices come from Policies. Stripe is the only way to pay.</span></div></div>
+            <div class="kv" id="rgFees" style="margin:0"></div>
+          </div>
+
+          <div class="card white">
+            <div class="card-h"><h3>Consent</h3></div>
+            <div style="display:grid;gap:12px">
+              <div class="fld" id="f-terms"><label class="check"><input type="checkbox" id="rg-terms"><span>The student (or guardian) has read and agrees to the Terms and Conditions<span class="req">*</span></span></label><span class="err">Tick to confirm.</span></div>
+              <div class="fld" id="f-pdpa"><label class="check"><input type="checkbox" id="rg-pdpa"><span>Consent to ASK using personal data under the PDPA 2012<span class="req">*</span></span></label><span class="err">Tick to confirm.</span></div>
+              <div class="fld" id="f-sig"><span class="lbl" id="rgSigLbl">Signature<span class="req">*</span></span><div id="rgSig"></div><span class="err">A signature is required.</span></div>
+            </div>
+          </div>
+
+          <div class="acts"><button class="sbtn dark" id="rgPay" type="submit">Charge with Stripe and register</button><a class="sbtn" href="applications.html">Cancel</a></div>
+        </form>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/portal.js"></script>
+<script src="admin-shell.js"></script>
+<script src="admin-desk.js"></script>
+<script src="admin-members.js"></script>
+</body>
+</html>

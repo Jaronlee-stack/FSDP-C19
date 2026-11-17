@@ -282,6 +282,117 @@ function SEED() {
     /* package extension requests (MC / compassion). status: 'pending' | 'approved' | 'rejected' */
     mcRequests: [],
     bookings: [], rateQueue: [], rated: [], prompted: [], seeded: false,
-    checkIns: []   // student check-ins (mock location-QR scans): { dojo, at, key, type, time, ins, date }
+    checkIns: [],   // student check-ins (mock location-QR scans): { dojo, at, key, type, time, ins, date }
+
+    /* ---------- admin portal (office staff) sample data. Prototype only: the real system reads this from the server. ---------- */
+    /* staff accounts. type: 'business' (Business Admin) | 'frontdesk' (Admin) | 'instructor'. Sign-in and the Staff page read this one list. */
+    staff: [
+  { id: 'ADM-001', name: 'Grace Lim', type: 'business', status: 'active', last: daysAgo(0) },
+  { id: 'ADM-101', name: 'Daniel Ong', type: 'frontdesk', status: 'active', last: daysAgo(0) },
+  { id: 'ADM-102', name: 'Farah Yusof', type: 'frontdesk', status: 'inactive', last: daysAgo(48) },
+  { id: 'INS-0042', name: 'Bob Tan Sensei', type: 'instructor', status: 'active', last: daysAgo(1) },
+  { id: 'INS-0031', name: 'Steven Goh Sensei', type: 'instructor', status: 'active', last: daysAgo(3) },
+  { id: 'INS-0057', name: 'Robin Tan Sensei', type: 'instructor', status: 'active', last: daysAgo(5) },
+  { id: 'INS-0063', name: 'Annie Goh Sensei', type: 'instructor', status: 'active', last: daysAgo(2) }
+],
+    /* money in. method is always Stripe. st: 'Paid' | 'Processing' | 'Failed' | 'Outstanding'. by: 'desk' | 'online' | 'auto'. */
+    ledger: (() => {
+      const y = TODAY.getFullYear(), mo = TODAY.getMonth(), day = TODAY.getDate();
+      const tm = d => new Date(y, mo, Math.max(1, Math.min(d, day))), ear = (m, d) => new Date(y, mo - m, d);
+      const L = (n, no, name, item, amt, date, st, by) => ({ id: 'L-' + (1000 + n), no, name, item, amt, method: 'Stripe', date, st, by, inv: 'INV-' + (2050000 + n * 37) });
+      return [
+        L(1, 'ASK-2025-1834', 'Lervyn Wong', '25-lesson pack', 600, tm(1), 'Paid', 'online'),
+        L(2, 'ASK-2024-0921', 'Jamie Tan', 'Unlimited · 2 weeks', 96, tm(2), 'Paid', 'auto'),
+        L(3, 'ASK-2022-0090', 'Wei Jie Chua', '50-lesson pack', 980, tm(3), 'Paid', 'desk'),
+        L(4, 'ASK-2023-0456', 'Kenji Sato', '10-lesson pack', 270, tm(4), 'Paid', 'online'),
+        L(5, 'ASK-2022-0788', 'Siti Rahman', 'Annual dues', 48, tm(5), 'Paid', 'desk'),
+        L(6, 'ASK-2025-0612', 'Hannah Teo', 'Grading fee', 40, tm(7), 'Paid', 'desk'),
+        L(7, 'ASK-2024-0921', 'Jamie Tan', 'Unlimited · 2 weeks', 96, tm(15), 'Processing', 'auto'),
+        L(8, 'ASK-2024-1440', 'David Koh', 'Annual dues', 48, tm(9), 'Outstanding', 'desk'),
+        L(9, 'ASK-2023-1203', 'Grace Yeo', 'Annual dues', 48, tm(9), 'Outstanding', 'desk'),
+        L(10, 'ASK-2026-0102', 'Marcus Lim', '10-lesson pack', 270, tm(11), 'Failed', 'auto'),
+        L(11, 'ASK-2021-0310', 'Priya Lee', 'Grading fee', 120, tm(12), 'Paid', 'desk'),
+        L(12, 'ASK-2025-1834', 'Lervyn Wong', 'Dogi', 85, ear(1, 20), 'Paid', 'desk'),
+        L(13, 'ASK-2024-0921', 'Jamie Tan', 'Unlimited · 2 weeks', 96, ear(1, 12), 'Paid', 'auto'),
+        L(14, 'ASK-2022-0090', 'Wei Jie Chua', 'Annual dues', 48, ear(1, 6), 'Paid', 'desk'),
+        L(15, 'ASK-2026-0102', 'Marcus Lim', 'Registration', 60, ear(2, 14), 'Paid', 'desk'),
+        L(16, 'ASK-2023-0456', 'Kenji Sato', '25-lesson pack', 600, ear(2, 3), 'Paid', 'online'),
+        L(17, 'ASK-2021-0310', 'Priya Lee', 'Annual dues', 48, ear(3, 8), 'Paid', 'desk'),
+        L(18, 'ASK-2022-0788', 'Siti Rahman', '10-lesson pack', 270, new Date(TODAY), 'Paid', 'desk')
+      ];
+    })(),
+    /* money back. st: 'pending' | 'approved' | 'declined'. Policy is no refunds; a Business Admin can approve an exception. */
+    refunds: [
+  { id: 'R-01', no: 'ASK-2023-0456', name: 'Kenji Sato', item: '10-lesson pack', amt: 270, reason: 'Charged twice by Stripe', by: 'Daniel Ong', at: daysAgo(1), status: 'pending' },
+  { id: 'R-02', no: 'ASK-2026-0102', name: 'Marcus Lim', item: 'Registration', amt: 60, reason: 'Moving overseas before the first class', by: 'Daniel Ong', at: daysAgo(6), status: 'declined' }
+],
+    /* items the front desk cannot decide. kind: 'registration' | 'extension' | 'access' | 'mistake' | 'refund'. status: 'pending' | 'approved' | 'declined' */
+    exceptions: [
+  { id: 'X-01', kind: 'registration', who: 'Liu Wei', text: 'Wants to carry over 1st Kyu from Aikikai Beijing. Needs record check.', by: 'Daniel Ong', at: daysAgo(1), status: 'pending' },
+  { id: 'X-02', kind: 'extension', who: 'Ahmad Karim', text: 'MC covers 21 days, over the 14 day limit.', by: 'Daniel Ong', at: daysAgo(2), status: 'pending' },
+  { id: 'X-03', kind: 'mistake', who: 'Jamie Tan', text: 'Payment taken twice at the desk on the same day.', by: 'Daniel Ong', at: daysAgo(3), status: 'pending' },
+  { id: 'X-04', kind: 'access', who: 'Rachel Ong', text: 'Asked to join Advanced class at 2nd Kyu.', by: 'Daniel Ong', at: daysAgo(8), status: 'declined' }
+],
+    /* guests hold a trial, day or week pass. Only guests can walk in. */
+    guests: [
+  { id: 'G-01', name: 'Nur Aisyah', mobile: '9123 4410', email: 'aisyah@email.com', pass: 'trial', used: false, until: null },
+  { id: 'G-02', name: 'Tom Becker', mobile: '8123 7782', email: 'tom.becker@email.com', pass: 'day', used: false, until: daysAgo(-0) },
+  { id: 'G-03', name: 'Chen Hui', mobile: '9011 5530', email: 'chen.hui@email.com', pass: 'week', used: false, until: daysAgo(-5) },
+  { id: 'G-04', name: 'Ravi Menon', mobile: '9876 2201', email: 'ravi.menon@email.com', pass: 'trial', used: true, until: null }
+],
+    /* dogi, handbook and belt requests. status: 'Requested' | 'Ready at HQ' | 'Handed over' */
+    equipment: [
+  { id: 'E-01', no: 'ASK-2026-0102', name: 'Marcus Lim', item: 'Dogi, handbook, belt', size: '3', paid: true, status: 'Ready at HQ', at: daysAgo(4), by: '' },
+  { id: 'E-02', no: 'ASK-2025-0612', name: 'Hannah Teo', item: 'Dogi', size: '1', paid: true, status: 'Requested', at: daysAgo(2), by: '' },
+  { id: 'E-03', no: 'ASK-2024-1440', name: 'David Koh', item: 'Belt', size: '', paid: false, status: 'Requested', at: daysAgo(1), by: '' },
+  { id: 'E-04', no: 'ASK-2025-1834', name: 'Lervyn Wong', item: 'Dogi', size: '4', paid: true, status: 'Handed over', at: daysAgo(30), by: 'Lervyn Wong' }
+],
+    /* contact list for the office. attempts: [{ at, method, outcome, note }] */
+    followups: [
+  { id: 'F-01', no: 'ASK-2026-0102', name: 'Marcus Lim', kind: 'declining', owner: 'ADM-101', due: daysAgo(-1), attempts: [] },
+  { id: 'F-02', no: 'ASK-2023-1203', name: 'Grace Yeo', kind: 'declining', owner: 'ADM-101', due: daysAgo(0), attempts: [{ at: daysAgo(9), method: 'WhatsApp', outcome: 'No answer', note: '' }] },
+  { id: 'F-03', no: 'ASK-2024-1440', name: 'David Koh', kind: 'renewal', owner: 'ADM-102', due: daysAgo(-3), attempts: [] }
+],
+    closures: [
+  { id: 'C-01', scope: 'HQ', from: addDays(TODAY, 20), to: addDays(TODAY, 20), note: 'Public holiday' }
+],
+    rosters: {},        // per class and date: { 'YYYY-MM-DD|HH:MM': { rows, submitted, ... } }
+    memberInfo: {},     // per member no.: contact, medical, documents, notes
+    /* spreadsheet imports that did not load cleanly. status: 'open' | 'fixed' | 'dismissed' */
+    imports: [
+  { id: 'I-01', file: 'tampines-roll-sep.csv', row: 14, issue: 'Missing information', name: 'Wong S. L.', detail: 'No date of birth or phone number', status: 'open' },
+  { id: 'I-02', file: 'tampines-roll-sep.csv', row: 31, issue: 'Unmatched name', name: 'Kenji S.', detail: 'Could be Kenji Sato (ASK-2023-0456)', status: 'open' },
+  { id: 'I-03', file: 'bedok-roll-oct.csv', row: 6, issue: 'Pipeline error', name: '', detail: 'Row could not be read: unexpected date format', status: 'open' }
+],
+    /* office rules. Prices come from here, not from the code that takes payment. */
+    policies: {
+      registration: 60, annualDues: 48,
+      packages: [...PKG.adult, ...PKG.kids].map(p => ({ id: p.id, name: p.name, amt: p.amt })),
+      discounts: { senior: { age: 65, pct: 40 }, student: { from: 17, to: 25, pct: 50 } },
+      booking: { aheadMonths: 1, minDays: 1, cancelHours: 4, maxPackages: 2 },
+      autoActivation: [
+        { id: 'details', text: 'Personal details complete', on: true }, { id: 'consent', text: 'Consent signed', on: true },
+        { id: 'paid', text: 'Registration paid', on: true }, { id: 'medical', text: 'Medical declaration answered', on: true },
+        { id: 'guardian', text: 'Guardian consent for children', on: true }
+      ],
+      methods: ['Stripe'],
+      templates: [
+        { id: 'T-1', name: 'Class cancelled', text: 'Today\'s class is cancelled. Your lesson has been returned.' },
+        { id: 'T-2', name: 'Payment reminder', text: 'Your annual dues are unpaid. Please pay at the HQ desk or online.' },
+        { id: 'T-3', name: 'Dojo closed', text: 'The dojo is closed on the date shown. Classes resume the next day.' }
+      ],
+      followTriggers: { declineDays: 14, renewalDays: 30 }
+    },
+    sentLog: [
+  { at: daysAgo(2), by: 'Daniel Ong', aud: 'Adults · Tue 7 PM', title: 'Class cancelled' }
+],
+    interventions: [
+  { id: 'N-01', name: 'Extra beginner slot on Saturday', slot: 'Sat 10 AM', start: daysAgo(40), before: 6, after: 11, decision: 'continue' }
+],
+    /* monthly joiners and how many were still training 90 days later (sample figures) */
+    cohorts: [
+  { label: 'Apr', joined: 18, kept: 12 }, { label: 'May', joined: 22, kept: 15 }, { label: 'Jun', joined: 16, kept: 11 },
+  { label: 'Jul', joined: 20, kept: 13 }, { label: 'Aug', joined: 25, kept: 0 }, { label: 'Sep', joined: 19, kept: 0 }
+]
   };
 }

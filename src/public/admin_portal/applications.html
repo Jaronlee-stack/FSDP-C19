@@ -16,14 +16,25 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="applications">
-        <div class="page-h"><div><h1>Requests</h1><p>Paid membership applications and package extension requests waiting for HQ.</p></div></div>
-        <div class="card white">
-          <div class="card-h"><div><h3>Membership applications</h3><span class="sub">Approve to activate the student account and print the student card.</span></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="appSearch" type="search" placeholder="Search applicants" aria-label="Search membership applications" autocomplete="off"></label></div>
+        <div class="page-h"><div><h1>Registrations</h1><p>New registrations, package extension requests and items the front desk sent up for a decision.</p></div><div class="acts"><a class="sbtn dark" href="register.html">New registration</a></div></div>
+        <div class="list-bar"><div class="filters" id="regTabs">
+          <button class="fpill on" data-tab="reg">Registrations<span class="n" id="nReg">0</span></button>
+          <button class="fpill" data-tab="ext">Extensions<span class="n" id="nExt">0</span></button>
+          <button class="fpill" data-tab="exc" data-ba>Exceptions<span class="n" id="nExc">0</span></button>
+        </div></div>
+
+        <!-- DEBUG PANEL (placeholder): a control to pick the outcome of a medical certificate (valid, wrong dates, over 14 days) so every Extensions branch can be shown in a demo. Not built yet. -->
+        <div id="tabReg" class="card white">
+          <div class="card-h"><div><h3>Registrations</h3><span class="sub">Activate when every check passes. Anything else is sent back for information or up to a Business Admin.</span></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="appSearch" type="search" placeholder="Search registrations" aria-label="Search registrations" autocomplete="off"></label></div>
           <div class="rows" id="appRows"></div>
         </div>
-        <div class="card white">
-          <div class="card-h"><div><h3>Package extensions</h3><span class="sub">Members who sent an MC, or used Compassion Guaranteed on a children's 1-month pass. Approving moves the package's expiry date.</span></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="mcSearch" type="search" placeholder="Search requests" aria-label="Search package extension requests" autocomplete="off"></label></div>
+        <div id="tabExt" class="card white" hidden>
+          <div class="card-h"><div><h3>Package extensions</h3><span class="sub">Members who sent a medical certificate (MC), or used Compassion Guaranteed on a children's 1-month pass.</span></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="mcSearch" type="search" placeholder="Search requests" aria-label="Search package extension requests" autocomplete="off"></label></div>
           <div class="rows" id="mcRows"></div>
+        </div>
+        <div id="tabExc" class="card white" data-ba hidden>
+          <div class="card-h"><div><h3>Exceptions</h3><span class="sub">Flagged registrations, extensions beyond the rule, access requests and payment mistakes sent by the front desk.</span></div><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="excSearch" type="search" placeholder="Search exceptions" aria-label="Search exceptions" autocomplete="off"></label></div>
+          <div class="rows" id="excRows"></div>
         </div>
       </section>
     </main>
@@ -33,6 +44,8 @@
 <script src="../js/data.js"></script>
 <script src="../js/store.js"></script>
 <script src="../js/portal.js"></script>
-<script src="admin.js"></script>
+<script src="admin-shell.js"></script>
+<script src="admin-desk.js"></script>
+<script src="admin-members.js"></script>
 </body>
 </html>

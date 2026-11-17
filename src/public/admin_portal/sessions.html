@@ -16,8 +16,49 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="sessions">
-        <div class="page-h"><div><h1>Sessions</h1><p>Recurring classes. Each session gets a code written to its dojo's NFC tag. Only HQ sessions are bookable online.</p></div><div class="acts"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="sesSearch" type="search" placeholder="Class or instructor" aria-label="Search by class or instructor" autocomplete="off"></label><button class="sbtn dark" id="newSession"><svg class="ic"><use href="#i-plus"/></svg>New session</button></div></div>
-        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Class</th><th>When</th><th>Dojo</th><th>Instructor</th><th>Booked</th><th>Code</th><th></th></tr></thead><tbody id="sesRows"></tbody></table></div>
+        <div class="page-h"><div><h1>Classes</h1><p>HQ Dojo classes by day. Open a roster to book students, add walk-in guests and take attendance.</p></div></div>
+        <div class="list-bar" id="clsTabBar"><div class="filters" id="clsTabs"><button class="fpill on" data-tab="rosters">Rosters</button><button class="fpill" data-tab="timetable" data-ba>Timetable</button><button class="fpill" data-tab="closures" data-ba>Closures</button></div></div>
+
+        <!-- DEBUG PANEL (placeholder): a control to move the clock forward (Upcoming, Check-in open, Attendance pending, Done) so every class status can be shown in a demo. Not built yet. -->
+        <div id="tabRosters" style="display:grid;gap:14px">
+          <div class="desk-bar">
+            <button class="icon-btn" id="wkPrev" aria-label="Previous week"><svg class="ic"><use href="#i-left"/></svg></button>
+            <button class="icon-btn" id="wkNext" aria-label="Next week"><svg class="ic"><use href="#i-right"/></svg></button>
+            <input class="input" type="date" id="dayPick" aria-label="Pick a date">
+            <button class="sbtn" id="dayToday">Today</button>
+            <div class="view-toggle" id="viewToggle" style="margin-left:auto"><button class="on" data-view="day">Day</button><button data-view="week">Week</button></div>
+          </div>
+          <div class="ag-days" id="dayStrip"></div>
+          <div id="dayBody">
+            <div class="ag-head" id="dayHead"></div>
+            <div id="dayNote"></div>
+            <div class="ag-list" id="dayList"></div>
+          </div>
+          <div id="weekBody" hidden>
+            <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Day</th><th>Time</th><th>Class</th><th>Instructor</th><th>Booked</th><th>Spaces left</th><th>Status</th><th></th></tr></thead><tbody id="wkRows"></tbody></table></div>
+          </div>
+        </div>
+
+        <div id="tabTimetable" data-ba hidden style="display:none;gap:14px">
+          <div class="list-bar"><p class="sub-note" style="max-width:560px">A Session is the weekly plan. A Class is one dated occurrence of it. Each session has a mat, an effective date range and a code written to its dojo's NFC tag. Only HQ classes can be booked online. Saving is blocked when the same instructor or the same mat is used at the same time, or when HQ is closed on the first day.</p><div class="acts-inline"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="sesSearch" type="search" placeholder="Class or instructor" aria-label="Search by class or instructor" autocomplete="off"></label><button class="sbtn dark" id="newSession"><svg class="ic"><use href="#i-plus"/></svg>New session</button></div></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Class</th><th>When</th><th>Dojo and mat</th><th>Effective</th><th>Instructor</th><th>Booked</th><th>Online booking</th><th>Code</th><th></th></tr></thead><tbody id="sesRows"></tbody></table></div>
+        </div>
+
+        <div id="tabClosures" data-ba hidden style="display:none;gap:14px">
+          <div class="card white">
+            <div class="card-h"><div><h3>Close HQ or cancel one class</h3><span class="sub">Booked students are listed first. Saving cancels the classes, returns every lesson and sends a notice.</span></div></div>
+            <form id="clForm" class="grid2" novalidate>
+              <div class="fld full"><span class="lbl">What to cancel</span><div class="seg" id="clScope"><input type="radio" name="clscope" id="cs1" value="HQ" checked><label for="cs1">Close HQ for dates</label><input type="radio" name="clscope" id="cs2" value="class"><label for="cs2">Cancel one class</label></div></div>
+              <div class="fld"><label for="cl-from" id="clFromL">From</label><input id="cl-from" type="date"></div>
+              <div class="fld" id="clToBox"><label for="cl-to">To</label><input id="cl-to" type="date"></div>
+              <div class="fld" id="clClsBox" hidden><label for="cl-cls">Class</label><select id="cl-cls"></select></div>
+              <div class="fld full"><label for="cl-note">Reason shown to students</label><input id="cl-note" maxlength="80" placeholder="e.g. Public holiday"></div>
+              <div class="fld full"><div id="clAffected" class="note"></div></div>
+              <div class="fld full"><button class="sbtn dark" type="submit" style="justify-self:start" id="clSave">Close and return lessons</button></div>
+            </form>
+          </div>
+          <div class="card white"><div class="card-h"><div><h3>Closures and cancellations</h3><span class="sub">Rosters show these classes as Cancelled.</span></div></div><div class="rows" id="clList"></div></div>
+        </div>
       </section>
     </main>
 </div>
@@ -26,6 +67,9 @@
 <script src="../js/data.js"></script>
 <script src="../js/store.js"></script>
 <script src="../js/portal.js"></script>
+<script src="admin-shell.js"></script>
 <script src="admin.js"></script>
+<script src="admin-desk.js"></script>
+<script src="admin-business.js"></script>
 </body>
 </html>
