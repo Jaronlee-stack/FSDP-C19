@@ -10,9 +10,9 @@
    One table feeds the sidebar, phone tab bar, page guard and parent highlight, so they cannot drift apart.
    Prototype only: the real system must also check the role on the server. */
 const ADMIN_PAGES = [
-  ['dashboard', 'home', 'Today', 'Front desk', false], ['sessions', 'cal', 'Classes', 'Front desk', false], ['members', 'users', 'Members', 'Front desk', false],
-  ['payments', 'card', 'Payments', 'Front desk', false], ['applications', 'inbox', 'Registrations', 'Front desk', false], ['equipment', 'box', 'Equipment', 'Front desk', false],
-  ['followups', 'flag', 'Follow-ups', 'Front desk', false], ['notify', 'mega', 'Notifications', 'Front desk', false],
+  ['dashboard', 'home', 'Today', 'Operations', false], ['sessions', 'cal', 'Classes', 'Operations', false], ['members', 'users', 'Members', 'Operations', false],
+  ['payments', 'card', 'Payments', 'Operations', false], ['applications', 'inbox', 'Registrations', 'Operations', false], ['equipment', 'box', 'Equipment', 'Operations', false],
+  ['followups', 'flag', 'Follow-ups', 'Operations', false], ['notify', 'mega', 'Notifications', 'Operations', false],
   ['insights', 'chart', 'Insights', 'Management', true], ['revenue', 'receipt', 'Revenue', 'Management', true], ['grading', 'award', 'Grading', 'Management', true], ['reports', 'doc', 'Reports', 'Management', true],
   ['policies', 'shield', 'Policies', 'Control', true], ['staff', 'id', 'Staff', 'Control', true], ['imports', 'upload', 'Import issues', 'Control', true]
 ];
@@ -22,8 +22,8 @@ function adminPortal() {
   const ba = isBA(), who = ADMIN ? ADMIN.name : 'Admin';
   const cnt = { applications: () => APPS.length + MC_REQS.filter(r => r.status === 'pending').length + (ba ? (DB.exceptions || []).filter(x => x.status === 'pending').length : 0), imports: () => (DB.imports || []).filter(i => i.status === 'open').length };
   return {
-    label: ba ? 'Business Admin' : 'Admin', dir: 'admin_portal/', login: 'admin_portal/signin.html?expired', parent: ADMIN_PARENT,
-    me: [initials(who), who, ba ? 'Business Admin · HQ Dojo' : 'Admin · HQ Dojo'],
+    label: ba ? 'Business Admin' : 'Front desk', dir: 'admin_portal/', login: 'admin_portal/signin.html?expired', parent: ADMIN_PARENT,
+    me: [initials(who), who, ba ? 'Business Admin · HQ Dojo' : 'Front desk · HQ Dojo'],
     tabs: ba ? ['dashboard', 'insights', 'sessions', 'members'] : ['dashboard', 'sessions', 'members', 'payments'],
     pages: ADMIN_PAGES.filter(p => ba || !p[4]).map(p => [p[0], p[1], ba && p[0] === 'dashboard' ? 'Overview' : p[2], cnt[p[0]], ba ? p[3] : null])
   };

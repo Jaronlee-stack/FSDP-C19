@@ -378,7 +378,7 @@ function polSave() {
 }
 
 /* ---------- Staff ---------- */
-const STAFF_ROLE = { business: 'Business Admin', frontdesk: 'Admin', instructor: 'Instructor' };
+const STAFF_ROLE = { business: 'Business Admin', frontdesk: 'Front desk', instructor: 'Instructor' };
 const stfBAcount = () => DB.staff.filter(s => s.type === 'business' && s.status === 'active').length;
 const stfSelf = s => !!ADMIN && ADMIN.id === s.id;
 const stfLastBA = s => s.type === 'business' && s.status === 'active' && stfBAcount() <= 1;
@@ -395,7 +395,7 @@ function stfDrawer(id) {
   const s = DB.staff.find(x => x.id === id); if (!s) return;
   const adm = s.type !== 'instructor', lock = stfSelf(s) || stfLastBA(s);
   const body = `<div class="kv" style="margin:0;border-top:1px solid var(--line)"><div><span>ID</span><span>${esc(s.id)}</span></div><div><span>Role</span><span>${STAFF_ROLE[s.type]}</span></div><div><span>Status</span><span>${s.status === 'active' ? 'Active' : 'Deactivated'}</span></div><div><span>Last sign-in</span><span>${s.last ? fmtDate(new Date(s.last)) : 'Never'}</span></div></div>
-    ${adm ? `<div class="fld" style="margin-top:16px"><span class="lbl">Role</span><div class="seg" id="stf-role"><input type="radio" name="stfr" id="sr1" value="frontdesk"${s.type === 'frontdesk' ? ' checked' : ''}${lock ? ' disabled' : ''}><label for="sr1">Admin</label><input type="radio" name="stfr" id="sr2" value="business"${s.type === 'business' ? ' checked' : ''}${lock ? ' disabled' : ''}><label for="sr2">Business Admin</label></div>${lock ? `<span class="hint">${stfSelf(s) ? 'You cannot change your own role.' : 'The last Business Admin keeps this role.'}</span>` : ''}</div>` : '<p class="sub" style="margin-top:16px">Instructor accounts keep their role. Create a new account to give someone a different one.</p>'}
+    ${adm ? `<div class="fld" style="margin-top:16px"><span class="lbl">Role</span><div class="seg" id="stf-role"><input type="radio" name="stfr" id="sr1" value="frontdesk"${s.type === 'frontdesk' ? ' checked' : ''}${lock ? ' disabled' : ''}><label for="sr1">Front desk</label><input type="radio" name="stfr" id="sr2" value="business"${s.type === 'business' ? ' checked' : ''}${lock ? ' disabled' : ''}><label for="sr2">Business Admin</label></div>${lock ? `<span class="hint">${stfSelf(s) ? 'You cannot change your own role.' : 'The last Business Admin keeps this role.'}</span>` : ''}</div>` : '<p class="sub" style="margin-top:16px">Instructor accounts keep their role. Create a new account to give someone a different one.</p>'}
     <div class="acts" style="margin-top:16px;flex-wrap:wrap"><button class="sbtn" id="stf-reset">${icon('lock')}Reset password</button>${adm && !lock ? '<button class="sbtn" id="stf-saverole">Save role</button>' : ''}</div>
     ${s.status === 'active' ? `<div class="acts" style="margin-top:8px"><button class="sbtn red" id="stf-off"${stfSelf(s) || stfLastBA(s) ? ' disabled' : ''}>Deactivate account</button></div>${stfSelf(s) ? '<span class="hint">You cannot deactivate your own account.</span>' : stfLastBA(s) ? '<span class="hint">This is the last active Business Admin, so it cannot be deactivated.</span>' : ''}` : '<div class="acts" style="margin-top:8px"><button class="sbtn dark" id="stf-on">Reactivate account</button></div>'}`;
   openDrawer(s.name, body, '<button class="sbtn" data-drawer-close>Close</button>');
@@ -413,7 +413,7 @@ function stfCreate() {
   openModal(`<h3 id="modalTitle">Create account</h3><p class="sub">The ID is made for you. The person signs in with it on the staff sign-in page.</p>
     <form id="stfForm" style="margin-top:16px" novalidate>
       <div class="fld"><label for="sc-name">Full name</label><input id="sc-name" maxlength="60" autocomplete="off" autofocus></div>
-      <div class="fld" style="margin-top:12px"><span class="lbl">Role</span><div class="seg" id="sc-role"><input type="radio" name="scr" id="sc1" value="instructor" checked><label for="sc1">Instructor</label><input type="radio" name="scr" id="sc2" value="frontdesk"><label for="sc2">Admin</label><input type="radio" name="scr" id="sc3" value="business"><label for="sc3">Business Admin</label></div></div>
+      <div class="fld" style="margin-top:12px"><span class="lbl">Role</span><div class="seg" id="sc-role"><input type="radio" name="scr" id="sc1" value="instructor" checked><label for="sc1">Instructor</label><input type="radio" name="scr" id="sc2" value="frontdesk"><label for="sc2">Front desk</label><input type="radio" name="scr" id="sc3" value="business"><label for="sc3">Business Admin</label></div></div>
       <p class="sub" style="margin-top:12px">ID: <b id="sc-id"></b></p>
       <div class="acts"><button class="sbtn dark" type="submit">${icon('check')}Create account</button><button class="sbtn" type="button" data-close>Cancel</button></div></form>`);
   const idv = () => { $('#sc-id').textContent = stfNextId(radio('scr')); };
