@@ -503,13 +503,8 @@ function openTechnique(path) {
     ${vid ? '' : `<div class="acts"><a class="sbtn" href="https://www.youtube.com/results?search_query=${encodeURIComponent('aikido ' + title)}" target="_blank" rel="noopener">${icon('ur')}Find demonstrations</a></div>`}`, true);
 }
 
-function openCheckIn() {
-  openModal(`<h3 id="modalTitle">Check in</h3><p class="sub">Tap your phone on the NFC tag at the dojo door, or show this code to your instructor.</p>
-    <div style="display:grid;place-items:center;margin:22px 0">${qrSVG()}</div>
-    <div class="kv"><div><span>Member</span><span>${ME.name}</span></div><div><span>Member no.</span><span class="num">${ME.no}</span></div></div>
-    <div class="acts"><button class="sbtn dark" id="ciGo">${icon('nfc')}Complete check-in</button></div>`);
-  $('#ciGo').addEventListener('click', () => { location.href = url('student_portal/checkin.html'); });
-}
+/* check in = open the camera and scan the QR code the instructor is showing */
+const openScanner = () => { location.href = url('student_portal/scan.html'); };
 
 /* =====================================================================
    HOME — one number per idea, plus the gamified path
@@ -528,9 +523,9 @@ function memberCardHTML(id = 'memberCard') {
     <div class="pcard-mid"><span class="pcard-av">${initials(ME.name)}</span><div><div class="pcard-name">${esc(ME.name)}</div><div class="pcard-rank" style="--belt:${beltOf(ME.grade)}"><i></i>${esc(ME.grade)}</div></div></div>
     <div class="pcard-bot"><span>MEMBER NO.<b>${esc(ME.no)}</b></span><span style="text-align:right">PRINCIPAL DOJO<b>${esc(DOJOS.find(d => d.id === ME.dojo).short)}</b></span></div>
     <span class="pcard-glare"></span></div>
-    <div class="pcard-foot"><span class="st">Active · Expires Jan 2027</span><button type="button" data-qr>${icon('nfc')}Check in</button></div></div></div>`;
+    <div class="pcard-foot"><span class="st">Active · Expires Jan 2027</span><button type="button" data-scan>${icon('scan')}Scan QR to check in</button></div></div></div>`;
 }
-document.addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
+document.addEventListener('click', e => { if (e.target.closest('[data-scan]')) openScanner(); });
 
 /* weeks in a row (this week or last, backwards) with at least one class attended */
 function streakWeeks() {
@@ -856,6 +851,17 @@ function renderAttendance() {
   }).join('') : `<div class="empty-mini">${icon('clock')}<p><b>No classes yet</b><span>Classes you attend show here, each with +1 toward your next grade.</span></p></div>`;
 }
 
+/* on phones/tablets the three stats sit inside the "Your path" card (gamified view);
+   on desktop, or in Standard view, they go back to the side column under the card */
+const narrowMQ = window.matchMedia('(max-width: 1100px)');
+function placeStats() {
+  const st = $('#hStats'), path = $('#pathCard'), hc = $('#homeCard');
+  if (!st || !path || !hc) return;
+  if (narrowMQ.matches && gameView()) { const h = path.querySelector('.card-h'); if (h.nextElementSibling !== st) h.after(st); }
+  else if (hc.nextElementSibling !== st) hc.after(st);
+}
+if (narrowMQ.addEventListener) narrowMQ.addEventListener('change', placeStats); else narrowMQ.addListener(placeStats);
+
 function renderHome(anim) {
   const game = gameView();
   const hc = $('#homeCard');
@@ -868,6 +874,7 @@ function renderHome(anim) {
   renderNextBelt(home.shown);
   if (game) { renderLevelCards(); renderPath(home.shown, anim); } else { const promo = DB.levelUps.find(l => l.kind === 'promotion'); $('#levelCards').hidden = !promo; $('#levelCards').innerHTML = promo ? `<div class="note"><svg class="ic"><use href="#i-award"/></svg><span><b>Promoted to ${esc(promo.to)}.</b> Congratulations.</span><button class="sbtn ghost" data-claim="promotion">Dismiss</button></div>` : ''; }
   renderNextClass(); renderAttendance();
+  placeStats();
   save();
 }
 
@@ -989,56 +996,172 @@ runPage({
       closeModal(); toast('Password updated');
     });
   },
-  checkin() { renderCheckIn(); }
+  checkin() { renderCheckIn(); },
+  scan() { startScanner(); }
 });
 
-/* which class the member just checked in to:
-   a booked class on the mat right now (or next up today), else the next eligible
-   HQ class today — so the confirmation always names a real session. */
-function checkInClass() {
-  const now = new Date();
-  const windowOpen = (date, c) => classStart(date, c).getTime() - 30 * 60000; // doors 30 min before
-  // 1) a booked class happening today, closest to now
-  const bookedToday = BOOKINGS
-    .filter(u => daysBetween(TODAY, u.date) === 0 && classEnd(u.date, u.c) >= now)
-    .sort((a, b) => classStart(a.date, a.c) - classStart(b.date, b.c))[0];
-  if (bookedToday) return { c: bookedToday.c, date: bookedToday.date, booked: true };
-  // 2) next eligible HQ class on the mat now or later today
-  const day = (TODAY.getDay() + 6) % 7;
-  const next = CLASSES
-    .filter(c => c.day === day && !whyNot(c) && classEnd(TODAY, c) >= now)
-    .sort((a, b) => a.time.localeCompare(b.time))
-    .find(c => now >= windowOpen(TODAY, c)) || CLASSES.filter(c => c.day === day && !whyNot(c)).sort((a, b) => a.time.localeCompare(b.time))[0];
-  return next ? { c: next, date: TODAY, booked: false } : null;
+/* =====================================================================
+   SCAN TO CHECK IN — the camera opens straight away and looks for the
+   class QR code. Uses the browser's built-in QR reader where there is one
+   (Chrome on Android), otherwise jsQR (iPhone Safari, Firefox, desktop).
+   The camera needs HTTPS, or localhost while developing.
+   ===================================================================== */
+function goCheckIn(code) { location.href = url('student_portal/checkin.html') + '?s=' + encodeURIComponent(code); }
+
+function startScanner() {
+  const video = $('#scanVideo'), hint = $('#scanHint'), frame = $('#scanFrame'), torchBtn = $('#scanTorch');
+  const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d', { willReadFrequently: true });
+  let stream = null, detector = null, raf = 0, last = 0, busy = false, done = false, lastBad = 0, torch = false;
+
+  if (new URLSearchParams(location.search).has('bad')) toast("That code isn't a Shinju-Kai class. Try scanning again.", 'bad');
+
+  const stop = () => { cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; video.srcObject = null; };
+  const showMsg = (t, p, retry) => {
+    stop();
+    $('#scanMid').hidden = true; $('#scanMsg').hidden = false;
+    $('#scanMsgT').textContent = t; $('#scanMsgP').textContent = p; $('#scanRetry').hidden = !retry;
+    torchBtn.hidden = true;
+  };
+  const hideMsg = () => { $('#scanMid').hidden = false; $('#scanMsg').hidden = true; };
+
+  // something was read: is it one of our session codes?
+  const found = text => {
+    if (done) return;
+    const code = codeFromScan(text);
+    if (!findSession(code)) {
+      if (Date.now() - lastBad > 2500) { lastBad = Date.now(); toast("That QR code isn't a Shinju-Kai class. Scan the one your instructor is showing.", 'bad'); }
+      return;
+    }
+    done = true;
+    frame.classList.add('ok'); hint.textContent = 'Got it. Checking you in…';
+    if (navigator.vibrate) navigator.vibrate(60);
+    setTimeout(() => { stop(); goCheckIn(code); }, reduce ? 150 : 550);
+  };
+
+  const tick = async t => {
+    raf = requestAnimationFrame(tick);
+    if (busy || done || t - last < 140 || video.readyState < 2 || !video.videoWidth) return;
+    last = t; busy = true;
+    try {
+      if (detector) {
+        const r = await detector.detect(video);
+        if (r.length) found(r[0].rawValue);
+      } else if (window.jsQR) {
+        const w = video.videoWidth, h = video.videoHeight, sc = Math.min(1, 720 / Math.max(w, h));
+        canvas.width = Math.round(w * sc); canvas.height = Math.round(h * sc);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const r = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+        if (r && r.data) found(r.data);
+      }
+    } catch (_) { /* a frame that couldn't be read; try the next one */ }
+    busy = false;
+  };
+
+  async function start() {
+    hideMsg(); done = false; frame.classList.remove('ok');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showMsg('Camera not available', window.isSecureContext
+        ? "This browser can't open the camera. Enter the session code shown under the QR instead."
+        : 'The camera only works on a secure (https://) link. Open the portal over https, or enter the session code shown under the QR instead.', false);
+      return;
+    }
+    hint.textContent = 'Starting camera…';
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } });
+    } catch (e) {
+      const denied = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
+      showMsg(denied ? 'Allow camera access' : 'No camera found', denied
+        ? 'Camera access was blocked. Allow the camera for this site in your browser settings, then tap Try again.'
+        : "We couldn't open a camera on this device. Enter the session code shown under the QR instead.", true);
+      return;
+    }
+    video.srcObject = stream;
+    try { await video.play(); } catch (_) {}
+    hint.textContent = 'Point your camera at the QR code your instructor is showing';
+    const track = stream.getVideoTracks()[0], caps = track && track.getCapabilities ? track.getCapabilities() : {};
+    torchBtn.hidden = !caps.torch; torch = false; torchBtn.setAttribute('aria-pressed', 'false');
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
+  }
+
+  torchBtn.addEventListener('click', async () => {
+    const track = stream && stream.getVideoTracks()[0]; if (!track) return;
+    try { torch = !torch; await track.applyConstraints({ advanced: [{ torch }] }); } catch (_) { torch = false; }
+    torchBtn.setAttribute('aria-pressed', String(torch)); torchBtn.setAttribute('aria-label', torch ? 'Turn off flashlight' : 'Turn on flashlight');
+  });
+  $('#scanRetry').addEventListener('click', start);
+  $('#scanClose').addEventListener('click', e => {
+    stop();
+    if (document.referrer && new URL(document.referrer).origin === location.origin && history.length > 1) { e.preventDefault(); history.back(); }
+  });
+
+  // no camera to hand: type the code printed under the QR
+  $('#scanManual').addEventListener('click', () => {
+    openModal(`<h3 id="modalTitle">Enter session code</h3><p class="sub">It's printed under the QR code your instructor is showing.</p>
+      <form id="codeForm" style="display:grid;gap:14px;margin-top:18px" novalidate>
+        <div class="fld"><label for="sessCode">Session code</label><input id="sessCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. HQ-MON7-5958" autofocus><span class="err">We couldn't find that code. Check it with your instructor.</span></div>
+        <button class="sbtn dark" type="submit" style="justify-self:start">${icon('check')}Check in</button>
+      </form>`);
+    $('#sessCode').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); fldOf(e.target).classList.remove('invalid'); });
+    $('#codeForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const code = codeFromScan($('#sessCode').value);
+      if (!findSession(code)) { fldOf($('#sessCode')).classList.add('invalid'); return; }
+      done = true; closeModal(); stop(); goCheckIn(code);
+    });
+  });
+
+  // let the camera go when the page is hidden; start again when it's back
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (!done && !stream && $('#scanMsg').hidden) start(); });
+  window.addEventListener('pagehide', stop);
+  window.addEventListener('pageshow', e => { if (e.persisted && !stream) { done = false; start(); } });   // came back with the Back button
+
+  const go = () => start();
+  if ('BarcodeDetector' in window && BarcodeDetector.getSupportedFormats) {
+    BarcodeDetector.getSupportedFormats()
+      .then(f => { if (f.includes('qr_code')) detector = new BarcodeDetector({ formats: ['qr_code'] }); })
+      .catch(() => {}).finally(go);
+  } else go();
 }
 
+/* the confirmation page, opened by a scan (?s=<session code>).
+   Without a valid code there's nothing to confirm, so it goes back to the scanner. */
 function renderCheckIn() {
-  const now = new Date();
+  const code = (new URLSearchParams(location.search).get('s') || '').trim().toUpperCase();
+  const s = findSession(code);
+  if (!s) { location.replace(url('student_portal/scan.html') + (code ? '?bad=1' : '')); return; }
+
+  const now = new Date(), today = isoDate(TODAY);
   const fmtTime = d => { let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'), ap = h < 12 ? 'AM' : 'PM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; };
+
+  // one check-in per session per day. Saved so the instructor's roster can pick it up.
+  DB.checkins = DB.checkins || [];
+  let rec = DB.checkins.find(c => c.code === s.code && c.date === today && c.name === ME.name);
+  const again = !!rec;
+  if (!rec) { rec = { code: s.code, date: today, name: ME.name, no: ME.no, at: now.toISOString() }; DB.checkins.push(rec); save(); }
+  const at = new Date(rec.at);
+
+  const booked = BOOKINGS.some(u => daysBetween(TODAY, u.date) === 0 && u.c.time === s.time);
+  const dojo = DOJOS.find(d => d.id === s.dojo) || {};
   $('#ciMember').textContent = ME.name;
   $('#ciNo').textContent = ME.no;
-  $('#ciTime').textContent = `${fmtTime(now)} · ${fmtDate(now)}`;
-
-  const info = checkInClass();
-  if (info) {
-    const { c, date, booked } = info;
-    $('#ciSub').textContent = booked
-      ? 'Your booked class is confirmed. Attendance recorded — enjoy the mat.'
-      : 'Attendance recorded. Enjoy your class on the mat.';
-    $('#ciDetail').innerHTML = `
-      <div class="ci-class">
-        <span class="ci-date"><span>${DAY[date.getDay()]}</span><b>${date.getDate()}</b></span>
-        <div class="ci-class-body">
-          <div class="ci-class-name">${esc(c.type)}${booked ? '' : ' <span class="ci-tag">Drop-in</span>'}</div>
-          <div class="ci-class-row">${icon('clock')}<span>${timeLabel(c.time)} – ${timeLabel(String(+c.time.slice(0, 2) + 1).padStart(2, '0') + ':00')}</span></div>
-          <div class="ci-class-row">${icon('user')}<span>${esc(c.ins)}</span></div>
-          <div class="ci-class-row">${icon('pin')}<span>HQ Dojo · Thomson V One</span></div>
-        </div>
-        <span class="ci-ok" aria-label="Checked in">${icon('check')}</span>
-      </div>`;
-  } else {
-    $('#ciDetail').innerHTML = `<div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Attendance recorded at HQ Dojo. No class is scheduled right now — show this to your instructor if asked.</span></div>`;
-  }
+  $('#ciTime').textContent = `${fmtTime(at)} · ${fmtDate(at)}`;
+  if (again) { $('.ci-title').textContent = "You're already checked in"; $('.ci-eyebrow').textContent = 'Already recorded'; }
+  $('#ciSub').textContent = again
+    ? 'You checked in to this class earlier. No need to scan again.'
+    : booked ? 'Your booked class is confirmed. Attendance recorded. Enjoy the mat.' : 'Attendance recorded. Enjoy your class on the mat.';
+  $('#ciDetail').innerHTML = `
+    <div class="ci-class">
+      <span class="ci-date"><span>${DAY[TODAY.getDay()]}</span><b>${TODAY.getDate()}</b></span>
+      <div class="ci-class-body">
+        <div class="ci-class-name">${esc(s.type)}${booked ? '' : ' <span class="ci-tag">Drop-in</span>'}</div>
+        <div class="ci-class-row">${icon('clock')}<span>${timeLabel(s.time)} – ${timeLabel(String(+s.time.slice(0, 2) + 1).padStart(2, '0') + ':00')}</span></div>
+        <div class="ci-class-row">${icon('user')}<span>${esc(s.ins)}</span></div>
+        <div class="ci-class-row">${icon('pin')}<span>${esc(dojo.name || 'HQ Dojo')}</span></div>
+        <div class="ci-class-row">${icon('qr')}<span class="num">${esc(s.code)}</span></div>
+      </div>
+      <span class="ci-ok" aria-label="Checked in">${icon('check')}</span>
+    </div>`;
 }
 
 /* on every student page: seed, refresh lesson widgets, and ask about any class that just ended */
@@ -1046,6 +1169,8 @@ if (ALLOWED) {
   seedBookings();
   queueRating(lastEndedClass());
   renderPassViews();
-  setTimeout(promptRating, 1200);
-  setInterval(promptRating, 60000);
+  if (PAGE !== 'scan') {          // never pop the rating sheet over the camera
+    setTimeout(promptRating, 1200);
+    setInterval(promptRating, 60000);
+  }
 }

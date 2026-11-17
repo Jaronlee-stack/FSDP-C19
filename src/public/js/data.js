@@ -90,7 +90,7 @@ const beltOf = g => (BELTS.find(b => b.g === g) || { c: '#ccc' }).c;
 /* lower number = higher rank. Dan grades are 0 or below. */
 const kyuOf = g => { const k = /^(\d+)\w* Kyu/.exec(g); if (k) return +k[1]; const d = /^(\d+)\w* Dan/.exec(g); return d ? 1 - +d[1] : 99; };
 
-const ME = { name: 'Lervyn Wong', no: 'ASK-2025-1834', grade: '4th Kyu', dojo: 'hq', gender: 'Male', age: 20, group: 'adult' };
+const ME = { name: 'Lervyn Ang', no: 'ASK-2025-1834', grade: '4th Kyu', dojo: 'hq', gender: 'Male', age: 20, group: 'adult' };
 
 /* who may book which class (SSP-04) */
 const CLASS_RULES = { Intermediate: { maxKyu: 4, why: '4th Kyu & above' }, Advanced: { maxKyu: 1, why: '1st Kyu & above' } };
@@ -160,7 +160,7 @@ function SEED() {
   { n: 'Ming Ng', g: '4th Kyu', s: 22, need: 36, seen: 4, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Priya Lee', g: '1st Kyu', s: 62, need: 60, seen: 3, st: 'Qualified', dojo: 'hq', age: 'Adult' },
   { n: 'David Koh', g: '5th Kyu', s: 14, need: 30, seen: 18, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
-  { n: 'Lervyn Wong', g: '4th Kyu', s: 29, need: 36, seen: 2, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Lervyn Ang', g: '4th Kyu', s: 29, need: 36, seen: 2, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Siti Rahman', g: '2nd Kyu', s: 44, need: 48, seen: 5, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Marcus Lim', g: '6th Kyu', s: 9, need: 24, seen: 21, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Hannah Teo', g: '5th Kyu', s: 31, need: 30, seen: 2, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
@@ -177,7 +177,7 @@ function SEED() {
   { n: 'Emma Koh', dojo: 'bishan', date: '29 Oct 2026', paid: 240, group: 'Child', age: 9, gender: 'Female', nat: 'Singaporean', phone: '9345 6789', email: 'koh.family@email.com', ec: 'Jason Koh (Parent) · 9345 6789', exp: '—', prev: 'No', med: 'Yes · Peanut allergy', dogi: 'Cotton (Standard), size 0', pkg: '1-month pass', signer: 'Jason Koh (parent/guardian)' }
 ],
     members: [
-  { n: 'Lervyn Wong', no: 'ASK-2025-1834', g: '4th Kyu', dojo: 'hq', hrs: 61, st: 'Active', joined: 'Jun 2025' },
+  { n: 'Lervyn Ang', no: 'ASK-2025-1834', g: '4th Kyu', dojo: 'hq', hrs: 61, st: 'Active', joined: 'Jun 2025' },
   { n: 'Jamie Tan', no: 'ASK-2024-0921', g: '3rd Kyu', dojo: 'hq', hrs: 112, st: 'Active', joined: 'Mar 2024' },
   { n: 'David Koh', no: 'ASK-2024-1440', g: '5th Kyu', dojo: 'hq', hrs: 28, st: 'Lapsed', joined: 'Aug 2024' },
   { n: 'Priya Lee', no: 'ASK-2021-0310', g: '1st Kyu', dojo: 'hq', hrs: 284, st: 'Active', joined: 'Jan 2021' },

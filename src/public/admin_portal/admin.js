@@ -110,14 +110,14 @@ function openMember(i, after) {
 }
 
 function renderSessions() {
-  $('#sesRows').innerHTML = SESSIONS.map((s, i) => `<tr><td><b>${s.type}</b></td><td>Every ${DSHORT[s.day].charAt(0) + DSHORT[s.day].slice(1).toLowerCase()} · ${timeLabel(s.time)}</td><td>${dojoName(s.dojo)}${s.dojo === HQ ? '' : ' <span class="pill plain" style="height:20px;font-size:11px">Not bookable</span>'}</td><td>${s.ins}</td><td class="num">${s.booked}/${s.cap}</td><td><span class="pill navy plain num">${icon('nfc', 'ic')} ${s.code}</span></td><td><div class="acts" style="display:flex;gap:6px"><button class="sbtn ghost" data-edit="${i}" aria-label="Edit">${icon('edit')}</button><button class="sbtn ghost" data-del="${i}" aria-label="Delete">${icon('trash')}</button></div></td></tr>`).join('');
+  $('#sesRows').innerHTML = SESSIONS.map((s, i) => `<tr><td><b>${s.type}</b></td><td>Every ${DSHORT[s.day].charAt(0) + DSHORT[s.day].slice(1).toLowerCase()} · ${timeLabel(s.time)}</td><td>${dojoName(s.dojo)}${s.dojo === HQ ? '' : ' <span class="pill plain" style="height:20px;font-size:11px">Not bookable</span>'}</td><td>${s.ins}</td><td class="num">${s.booked}/${s.cap}</td><td><button type="button" class="pill navy plain num qr-pill" data-qr="${i}" title="Show check-in QR" aria-label="Show check-in QR for ${esc(s.code)}">${icon('qr', 'ic')} ${s.code}</button></td><td><div class="acts" style="display:flex;gap:6px"><button class="sbtn ghost" data-edit="${i}" aria-label="Edit">${icon('edit')}</button><button class="sbtn ghost" data-del="${i}" aria-label="Delete">${icon('trash')}</button></div></td></tr>`).join('');
 }
 
 function openSessionForm(i) {
   const s = i !== undefined ? SESSIONS[i] : { type: 'Adults', day: 0, time: '19:00', dojo: 'hq', ins: 'Bob Tan Sensei', cap: 20 };
   const types = ['Adults', 'Children Beginners', 'Children Juniors', 'Mixed', 'Weapons', 'Intermediate', 'Advanced', 'Ladies', 'SG50'];
   const D = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  openModal(`<h3 id="modalTitle">${i !== undefined ? 'Edit session' : 'New session'}</h3><p class="sub">Repeats every week. A check-in code is generated for the dojo's NFC tag. Only HQ sessions appear in online booking.</p>
+  openModal(`<h3 id="modalTitle">${i !== undefined ? 'Edit session' : 'New session'}</h3><p class="sub">Repeats every week. A check-in code and QR are generated for the session; the instructor shows the QR in class. Only HQ sessions appear in online booking.</p>
     <form id="sesForm" class="grid2" style="margin-top:18px" novalidate>
       <div class="fld full"><label for="s-type">Class type</label><select id="s-type">${types.map(t => `<option${t === s.type ? ' selected' : ''}>${t}</option>`).join('')}</select></div>
       <div class="fld"><label for="s-day">Day</label><select id="s-day">${D.map((d, k) => `<option value="${k}"${k === s.day ? ' selected' : ''}>${d}</option>`).join('')}</select></div>
@@ -203,6 +203,7 @@ runPage({
   renderSessions();
   $('#newSession').addEventListener('click', () => openSessionForm());
   $('#sesRows').addEventListener('click', e => {
+    const qr = e.target.closest('[data-qr]'); if (qr) { showSessionQR(SESSIONS[+qr.dataset.qr]); return; }
     const ed = e.target.closest('[data-edit]'); if (ed) openSessionForm(+ed.dataset.edit);
     const del = e.target.closest('[data-del]');
     if (del) {

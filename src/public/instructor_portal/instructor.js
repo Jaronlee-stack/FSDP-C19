@@ -128,12 +128,21 @@ runPage({
     const LIVE = { time: '19:00', type: 'Adults' }, key = `${isoDate(TODAY)}|${LIVE.time}`;
     const roster = STUDENTS.slice(0, 14);
     const ended = () => DB.classEnded[key];
+    // this class's session record (its code is what the QR holds)
+    const wd = (TODAY.getDay() + 6) % 7, mineAt = t => s => s.ins === MY_INS && s.time === t;
+    const LIVE_S = SESSIONS.find(s => mineAt(LIVE.time)(s) && s.day === wd) || SESSIONS.find(mineAt(LIVE.time)) || SESSIONS[0];
+    const sessAt = t => SESSIONS.find(s => s.day === LIVE_S.day && s.time === t);
+    $('#liveCode').textContent = LIVE_S.code;
+    $('#liveQR').innerHTML = sessionQR(LIVE_S.code, 160);
 
     const drawDay = () => $('#dayList').innerHTML = [
       ['6:00 PM', 'Children Beginners', 'HQ Dojo · 10 students', 'Finished', ''],
       ['7:00 PM', 'Adults', `HQ Dojo · ${roster.length} students`, ended() ? 'Finished' : 'Active', ended() ? '' : 'bad'],
       ['8:00 PM', 'Intermediate', 'HQ Dojo · 11 students', 'Upcoming', 'navy']
-    ].map(r => `<div class="row"><span class="av time${r[3] === 'Active' ? ' navy' : ''}">${r[0].replace(' ', '<br>')}</span><div class="grow"><div class="t">${r[1]}</div><div class="d">${r[2]}</div></div><span class="pill ${r[4]}">${r[3]}</span></div>`).join('');
+    ].map(r => {
+      const t = String((+r[0].split(':')[0] % 12) + 12).padStart(2, '0') + ':00', s = r[3] !== 'Finished' && sessAt(t);
+      return `<div class="row"><span class="av time${r[3] === 'Active' ? ' navy' : ''}">${r[0].replace(' ', '<br>')}</span><div class="grow"><div class="t">${r[1]}</div><div class="d">${r[2]}</div></div><div class="acts" style="display:flex;gap:6px;align-items:center">${s ? `<button class="sbtn ghost" data-showqr="${s.code}" aria-label="Show check-in QR for ${r[1]}" title="Show check-in QR">${icon('qr')}</button>` : ''}<span class="pill ${r[4]}">${r[3]}</span></div></div>`;
+    }).join('');
 
     const drawRoster = () => {
       const e = ended();
@@ -155,11 +164,12 @@ runPage({
       if (e) $('#rosterLocked').innerHTML = `${icon('lock')}Locked · ended ${timeLabelExact(new Date(e.at))}`;
       $('#rosterSub').textContent = e
         ? `${e.present.length} present (+1 session each) · ${e.noshow.length} no-show (lesson used, not counted)`
-        : 'Tap to mark present. Students tapping the NFC tag are marked automatically.';
+        : 'Tap to mark present. Students who check in on their phone are marked automatically.';
       const lc = $('.live-card');
       lc.classList.toggle('ended', !!e);
       $('.live-card .tag').textContent = e ? 'Class ended' : 'Active now';
-      $('#liveOpen').textContent = e ? 'View attendance' : 'Open roster';
+      $('#liveQR').disabled = !!e;
+      $('#liveHint').textContent = e ? 'Class ended. Check-in is closed.' : 'Tap the QR to show it full screen. Students scan it from the Scan tab to check in.';
       $$('#roster [data-mark]').forEach(b => { const on = inst.present.has(+b.dataset.mark); b.classList.toggle('on', on); b.setAttribute('aria-pressed', on); });
     };
 
@@ -194,8 +204,26 @@ runPage({
       });
     });
 
-    if (!ended()) [0, 2, 5, 9].forEach((i, k) => setTimeout(() => { if (!ended()) { inst.present.add(i); sync(); } }, 1200 + k * 900)); // simulated NFC taps
-    $('#liveOpen').addEventListener('click', () => $('#roster').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }));
+    if (!ended()) [0, 2, 5, 9].filter(i => roster[i].n !== ME.name).forEach((i, k) => setTimeout(() => { if (!ended()) { inst.present.add(i); sync(); } }, 1200 + k * 900)); // simulated check-ins for the other students (the demo student checks in for real by scanning)
+
+    /* tap the QR → full screen, to flash at the class */
+    $('#liveQR').addEventListener('click', () => showSessionQR(LIVE_S));
+    $('#dayList').addEventListener('click', ev => { const b = ev.target.closest('[data-showqr]'); if (b) showSessionQR(findSession(b.dataset.showqr)); });
+
+    /* students who scanned the QR are marked present. Prototype: there's no server, so this
+       reads the shared browser storage (works when the student portal is open in another tab). */
+    const pullScans = quiet => {
+      if (ended()) return;
+      let saved = {}; try { saved = JSON.parse(localStorage.getItem(DB_KEY)) || {}; } catch (_) {}
+      DB.checkins = saved.checkins || DB.checkins || [];
+      DB.checkins.filter(c => c.code === LIVE_S.code && c.date === isoDate(TODAY)).forEach(c => {
+        const i = roster.findIndex(s => s.n === c.name);
+        if (i > -1 && !inst.present.has(i)) { inst.present.add(i); if (!quiet) toast(`${c.name} checked in`); }
+      });
+      sync();
+    };
+    pullScans(true);
+    window.addEventListener('storage', e => { if (e.key === DB_KEY) pullScans(false); });
   },
   students() {
   const counts = { All: STUDENTS.length, [ST_PROGRESS]: STUDENTS.filter(s => s.st === ST_PROGRESS).length, [ST_QUALIFIED]: STUDENTS.filter(s => s.st === ST_QUALIFIED).length, 'Not attending': STUDENTS.filter(isDeclining).length };
@@ -212,9 +240,10 @@ runPage({
   page.addEventListener('click', e => {
     const d = e.target.closest('[data-ag]'); if (d) { inst.agDay = +d.dataset.ag; renderInstTimetable(); return; }
     const b = e.target.closest('[data-tt]'); if (!b) return;
-    const c = CLASSES[+b.dataset.tt];
-    openModal(`<h3 id="modalTitle">${c.type} · ${timeLabel(c.time)}</h3><p class="sub">${dojoName(c.dojo)} · ${c.booked} of ${c.cap} booked</p><div class="rows" style="margin-top:14px">${STUDENTS.slice(0, Math.min(6, c.booked)).map(s => `<div class="row"><span class="av">${initials(s.n)}</span><div class="grow"><div class="t">${s.n}</div><div class="d">${s.g}</div></div></div>`).join('')}</div><p style="font-size:13px;color:var(--muted);margin-top:8px">+ ${Math.max(0, c.booked - 6)} more. The full roster locks on the day.</p>`);
+    const c = CLASSES[+b.dataset.tt], sess = SESSIONS.find(s => s.day === c.day && s.time === c.time && s.dojo === c.dojo);
+    openModal(`<h3 id="modalTitle">${c.type} · ${timeLabel(c.time)}</h3><p class="sub">${dojoName(c.dojo)} · ${c.booked} of ${c.cap} booked</p><div class="rows" style="margin-top:14px">${STUDENTS.slice(0, Math.min(6, c.booked)).map(s => `<div class="row"><span class="av">${initials(s.n)}</span><div class="grow"><div class="t">${s.n}</div><div class="d">${s.g}</div></div></div>`).join('')}</div><p style="font-size:13px;color:var(--muted);margin-top:8px">+ ${Math.max(0, c.booked - 6)} more. The full roster locks on the day.</p>${sess ? `<div class="acts"><button class="sbtn dark" data-showqr="${sess.code}">${icon('scan')}Show check-in QR</button></div>` : ''}`);
   });
+  document.addEventListener('click', e => { const q = e.target.closest('[data-showqr]'); if (q) showSessionQR(findSession(q.dataset.showqr)); });
   renderInstTimetable();
   },
   grading() { renderCandidates(); }

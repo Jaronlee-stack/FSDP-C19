@@ -28,6 +28,11 @@ const DB = (() => {
   try { const raw = localStorage.getItem(DB_KEY); if (raw) return Object.assign(SEED(), JSON.parse(raw, reviveDates)); } catch (_) {}
   return SEED();
 })();
+// the demo student was renamed (Wong → Ang): fix data already saved in this browser under the old name
+const renameOld = n => n === 'Lervyn Wong' ? 'Lervyn Ang' : n;
+['students', 'members'].forEach(k => (DB[k] || []).forEach(r => { r.n = renameOld(r.n); }));
+(DB.checkins || []).forEach(c => { c.name = renameOld(c.name); });
+Object.values(DB.classEnded || {}).forEach(e => ['present', 'noshow'].forEach(k => { if (Array.isArray(e[k])) e[k] = e[k].map(renameOld); }));
 function save() { try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch (_) {} }
 window.addEventListener('pagehide', save);   // every change is kept when you move to another page
 function resetDemo() { try { localStorage.removeItem(DB_KEY); sessionStorage.clear(); } catch (_) {} location.href = url('landingpage/index.html'); }

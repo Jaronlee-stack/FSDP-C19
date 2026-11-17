@@ -28,8 +28,9 @@
           </div>
         </div>
 
-        <!-- left: next belt + your path (gamified) or next class + attendance (standard).
-             right: membership card, week streak, lessons left, your card. -->
+        <!-- desktop: left = next belt + your path (gamified) or next class + attendance (standard);
+             right = membership card, week streak, lessons left, your card.
+             mobile/tablet: membership card on top, then Your path (with the stats inside it), then Next belt. -->
         <div class="home-grid">
           <div class="home-main">
             <div id="levelCards" class="lvl-stack"></div>
@@ -58,7 +59,7 @@
 
           <aside class="home-side" aria-label="Your membership">
             <div class="home-pcard" id="homeCard"></div>
-            <div class="hstats" role="list">
+            <div class="hstats" id="hStats" role="list">
               <div class="hs" role="listitem" id="hsStreak" title="Weeks in a row with at least one class attended"><span class="hs-ic flame"><svg class="ic"><use href="#i-flame"/></svg></span><span><b class="num" id="hsStreakN">0</b><small>week streak</small></span></div>
               <a class="hs" role="listitem" href="packages.html" id="hsLessonsLink"><span class="hs-ic"><svg class="ic"><use href="#i-box"/></svg></span><span><b class="num" id="hsLessons">0</b><small id="hsLessonsL">lessons left</small></span></a>
               <button type="button" class="hs belt-badge" role="listitem" id="beltBadge" aria-haspopup="dialog" aria-label="Show my membership card"><span class="hs-belt" id="hsBeltSwatch"></span><span><b id="hsBelt">4th Kyu</b><small>Your card</small></span></button>
