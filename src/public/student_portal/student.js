@@ -109,6 +109,7 @@ function slotInfo(c, dt) {
   if (c.kids) cls.push('kids');
   if (booked) { cls.push('booked'); sub = 'Booked'; }
   else if (why) { cls.push('full', 'nope'); sub = why; }
+  else if (hqClosedOn(dt)) { cls.push('full', 'nope'); sub = 'HQ closed'; }
   else if (dt < minDate) { cls.push('full'); sub = 'Closed for booking'; }
   else if (dt > maxDate) { cls.push('full'); sub = 'Opens later'; }
   else if (left <= 0) { cls.push('full'); sub = 'Full'; }

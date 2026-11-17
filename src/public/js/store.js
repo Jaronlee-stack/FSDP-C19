@@ -35,7 +35,7 @@ function signOut() {
 document.addEventListener('click', e => { if (e.target.closest('[data-logout]')) { e.preventDefault(); closeSM(); signOut(); } });
 
 /* ---------- prototype database ---------- */
-const DB_KEY = 'ask-prototype-v3';   // v3: attendance + grading feedback; mcRequests added later (merged in from SEED)
+const DB_KEY = 'ask-prototype-v4';   // v4: closures, other-dojo sessions, weekday-aligned attendance, joined dates (v3: attendance + grading feedback; mcRequests added later, merged in from SEED)
 const reviveDates = (k, v) => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/.test(v) ? new Date(v) : v;
 const DB = (() => {
   try { const raw = localStorage.getItem(DB_KEY); if (raw) return Object.assign(SEED(), JSON.parse(raw, reviveDates)); } catch (_) {}
@@ -46,6 +46,8 @@ if (DB.rmSeed !== 2) {   // databases saved before the sample remarks existed: a
   DB.rmSeed = 2;
 }
 if (!DB.fbSeed) { SEED().feedback.forEach(f => DB.feedback.push(f)); DB.fbSeed = true; }   // saved before sample feedback existed
+/* the HQ-wide closure (if any) that covers a date. Class-scope cancellations are handled by closureOn() in the admin portal. */
+const hqClosedOn = date => (DB.closures || []).find(c => c.scope === 'HQ' && isoDate(new Date(c.from)) <= isoDate(new Date(date)) && isoDate(new Date(date)) <= isoDate(new Date(c.to)));
 function save() { try { localStorage.setItem(DB_KEY, JSON.stringify(DB)); } catch (_) {} }
 window.addEventListener('pagehide', save);   // every change is kept when you move to another page
 function resetDemo() { try { localStorage.removeItem(DB_KEY); sessionStorage.clear(); } catch (_) {} location.href = url('landingpage/index.html'); }
@@ -64,19 +66,19 @@ if (DB.admSeed !== 1) {
   const M = (n, no, g, dojo, hrs, st, joinedAgo, x) => ({ n, no, g, dojo, hrs, st, joined: joined(joinedAgo), joinedAt: isoDate(ago(joinedAgo)), source: 'ASK', kind: 'adult', ...x });
   [
     M('Aiden Tan', 'ASK-2026-3101', '6th Kyu', 'hq', 6, 'Active', 30, { kind: 'child', dob: '2017-05-14', guardian: 'Mei Tan', phone: '9111 2201', email: 'mei.tan@email.com', seen: 3, left: 3, exp: inDays(21) }),
-    M('Chloe Lim', 'ASK-2025-2718', '5th Kyu', 'hq', 44, 'Active', 200, { kind: 'child', dob: '2013-09-02', guardian: 'Alvin Lim', phone: '9222 3302', email: 'alvin.lim@email.com', seen: 5, left: 12, exp: inDays(90) }),
+    M('Chloe Lim', 'ASK-2025-2718', '5th Kyu', 'hq', 44, 'Active', 472, { kind: 'child', dob: '2013-09-02', guardian: 'Alvin Lim', phone: '9222 3302', email: 'alvin.lim@email.com', seen: 5, left: 12, exp: inDays(90) }),
     M('Ethan Goh', 'ASK-2026-3102', '6th Kyu', 'hq', 4, 'Active', 45, { kind: 'child', dob: '2019-01-20', guardian: 'Pei Goh', phone: '9333 4403', email: 'pei.goh@email.com', seen: 6, left: 2, exp: inDays(14) }),
-    M('Sophia Wong', 'ASK-2024-2255', '5th Kyu', 'bishan', 61, 'Active', 400, { kind: 'child', dob: '2011-11-08', guardian: 'Kelvin Wong', phone: '9444 5504', email: 'kelvin.wong@email.com', seen: 9, left: 8, exp: inDays(60) }),
+    M('Sophia Wong', 'ASK-2024-2255', '5th Kyu', 'bishan', 61, 'Active', 871, { kind: 'child', dob: '2011-11-08', guardian: 'Kelvin Wong', phone: '9444 5504', email: 'kelvin.wong@email.com', seen: 9, left: 8, exp: inDays(60) }),
     M('Ryan Chua', 'ASK-2026-3103', '6th Kyu', 'hq', 5, 'Active', 20, { dob: '2003-03-30', nsf: true, phone: '9555 6605', email: 'ryan.chua@email.com', seen: 2, left: 9, exp: inDays(70) }),
-    M('Tan Siew Eng', 'ASK-2023-1942', '4th Kyu', 'hq', 132, 'Active', 700, { dob: '1957-07-12', phone: '9666 7706', email: 'siew.eng@email.com', seen: 4, left: 14, exp: inDays(80) }),
-    M('Ivan Teo', 'ASK-2022-1177', '3rd Kyu', 'hq', 150, 'Lapsed', 900, { dob: '1989-02-17', phone: '9777 8807', email: 'ivan.teo@email.com', seen: 120, left: 0, exp: isoDate(ago(60)) }),
-    M('Natalie Ho', 'ASK-2024-2031', '5th Kyu', 'hq', 38, 'Lapsed', 450, { dob: '1995-12-05', phone: '9888 9908', email: 'natalie.ho@email.com', seen: 95, left: 0, exp: isoDate(ago(30)) }),
-    M('Faisal Hamid', 'ASK-2025-2490', '4th Kyu', 'hq', 52, 'Active', 260, { dob: '1991-06-21', phone: '9999 0009', email: 'faisal.h@email.com', seen: 2, left: 3, exp: inDays(5) }),
-    M('Olivia Sim', 'ASK-2025-2511', '5th Kyu', 'hq', 40, 'Active', 240, { dob: '1998-10-10', phone: '9010 1110', email: 'olivia.sim@email.com', seen: 1, left: 4, exp: inDays(9) }),
-    M('Benjamin Ong', 'ASK-2024-2188', '3rd Kyu', 'hq', 88, 'Active', 500, { dob: '1986-04-03', phone: '9121 2211', email: 'ben.ong@email.com', seen: 7, left: 11, exp: inDays(45), due: 48 }),
-    M('Lakshmi Pillai', 'ASK-2023-1650', '2nd Kyu', 'hq', 170, 'Active', 800, { dob: '1980-08-26', phone: '9232 3312', email: 'lakshmi.p@email.com', seen: 3, left: 6, exp: inDays(50), due: 96 }),
+    M('Tan Siew Eng', 'ASK-2023-1942', '4th Kyu', 'hq', 132, 'Active', 1151, { dob: '1957-07-12', phone: '9666 7706', email: 'siew.eng@email.com', seen: 4, left: 14, exp: inDays(80) }),
+    M('Ivan Teo', 'ASK-2022-1177', '3rd Kyu', 'hq', 150, 'Lapsed', 1578, { dob: '1989-02-17', phone: '9777 8807', email: 'ivan.teo@email.com', seen: 120, left: 0, exp: isoDate(ago(60)) }),
+    M('Natalie Ho', 'ASK-2024-2031', '5th Kyu', 'hq', 38, 'Lapsed', 794, { dob: '1995-12-05', phone: '9888 9908', email: 'natalie.ho@email.com', seen: 95, left: 0, exp: isoDate(ago(30)) }),
+    M('Faisal Hamid', 'ASK-2025-2490', '4th Kyu', 'hq', 52, 'Active', 626, { dob: '1991-06-21', phone: '9999 0009', email: 'faisal.h@email.com', seen: 2, left: 3, exp: inDays(5) }),
+    M('Olivia Sim', 'ASK-2025-2511', '5th Kyu', 'hq', 40, 'Active', 423, { dob: '1998-10-10', phone: '9010 1110', email: 'olivia.sim@email.com', seen: 1, left: 4, exp: inDays(9) }),
+    M('Benjamin Ong', 'ASK-2024-2188', '3rd Kyu', 'hq', 88, 'Active', 977, { dob: '1986-04-03', phone: '9121 2211', email: 'ben.ong@email.com', seen: 7, left: 11, exp: inDays(45), due: 48 }),
+    M('Lakshmi Pillai', 'ASK-2023-1650', '2nd Kyu', 'hq', 170, 'Active', 1235, { dob: '1980-08-26', phone: '9232 3312', email: 'lakshmi.p@email.com', seen: 3, left: 6, exp: inDays(50), due: 96 }),
     M('Daniel Park', 'EXT-2026-0041', '6th Kyu', 'tampines', 8, 'Active', 60, { dob: '1994-01-09', source: 'External', phone: '9343 4413', email: 'daniel.park@email.com', seen: 10, left: 0, exp: inDays(30) }),
-    M('Yuki Tanaka', 'EXT-2026-0042', '5th Kyu', 'bedok', 22, 'Active', 85, { dob: '1990-05-28', source: 'External', phone: '9454 5514', email: 'yuki.t@email.com', seen: 16, left: 0, exp: inDays(25) }),
+    M('Yuki Tanaka', 'EXT-2026-0042', '5th Kyu', 'bedok', 22, 'Active', 86, { dob: '1990-05-28', source: 'External', phone: '9454 5514', email: 'yuki.t@email.com', seen: 16, left: 0, exp: inDays(25) }),
     M('Joel Lee', 'ASK-2026-3104', '6th Kyu', 'hq', 7, 'Active', 75, { dob: '2000-09-15', phone: '9565 6615', email: 'joel.lee@email.com', seen: 18, left: 5, exp: inDays(40) })
   ].forEach(m => { if (!MEMBERS.some(x => x.no === m.no)) MEMBERS.push(m); });
   SESSIONS.forEach(s => {

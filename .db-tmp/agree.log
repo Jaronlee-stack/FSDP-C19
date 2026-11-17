@@ -1,0 +1,43 @@
+Prototype loaded with clock 2026-11-06; members 25, sessions 39
+
+== dojos
+
+== instructors
+
+== staff accounts
+
+== packages and fees
+
+== weekly timetable (class_template)
+  ALLOWED  classes:private code (Private lessons are not in the prototype timetable (no code); the seed gives them HQ-xxx-900n codes)
+
+== members
+  ALLOWED  member:EXT-2026-0041.status  proto="Active" seed="Deactivated"  (The prototype member list only knows Active and Lapsed; the seed uses Deactivated here so every membership state (Active/Inactive/Deactivated/Lapsed) has a row)
+  ALLOWED  member:EXT-2026-0042.status  proto="Active" seed="Inactive"  (Same as above: seed uses Inactive to cover the state; the prototype cannot express it)
+  seed-only student_profile: 4 rows (ASK-2025-1522, ASK-2024-1873, ASK-2025-2064, ASK-2026-2977) - seed students the prototype member list does not show
+
+== student packages (Lervyn) and payments
+  seed-only payment: 12 rows (L-1019, L-1020, L-1021, L-1025, L-1026, L-1027, L-1028, L-1029, L-1030, L-1031, L-1032, L-1033) - extra payments for other students, grading fees and history that the prototype does not list
+
+== refunds, exceptions, guests, equipment, follow-ups, imports
+  seed-only refund_request: 1 rows (R-03) - approved refund for a refunded dogi (S-024)
+  seed-only exception_request: 0 rows (none) - none expected
+  seed-only followup_attempt: 4 rows (FA-01, FA-02, FA-03, FA-04) - extra contact attempts (FA-02..04) for the follow-up list
+
+== registration applications
+  seed-only registration_application: 2 rows (APP-05, APP-06) - APP-05 (Ryan Chua, approved) and APP-06 (Tommy Lau, rejected) are history rows for the review states
+
+== grading
+  ALLOWED  panels:test session (Prototype-only demo panel (today 20:00) so the grading lock can be shown; never real data)
+  seed-only grading_session: 3 rows (GR-20251214, GR-20260315, GR-20260927) - three past gradings (Dec 2025, Mar 2026, Sep 2026) behind the student histories
+
+== closures, cancelled class, sent log
+  seed-only class_closure: 4 rows (CL-02, CL-GR-20251214, CL-GR-20260315, CL-GR-20260927) - CL-02 mat resurfacing 10-11 Oct and the three past grading-day closures (derived)
+  seed-only sent_log: 2 rows (SL-02, SL-03) - SL-02 and SL-03 are other office messages
+
+== feedback, remarks, attendance, level-ups
+  info: Lervyn has 3 future Booked rows in the seed (the prototype BOOKINGS list starts empty on purpose, bookings are made in the demo)
+
+== summary
+Compared 1479 values. Unexplained mismatches: 0. Allowed differences: 4.
+RESULT: 0 unexplained mismatches

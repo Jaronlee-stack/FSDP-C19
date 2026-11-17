@@ -399,7 +399,7 @@ function takePayment(pre = {}) {
     .concat([{ id: 'grading', t: 'Grading fee', amt: 0, disc: false }, { id: 'dogi', t: 'Dogi', amt: DOGI_PRICE, disc: false }]);
   const quote = () => {
     if (led) return { item: led.item, base: led.amt, pct: 0, label: '', total: led.amt };
-    const it = items.find(x => x.id === $('#tp-item').value), base = it.id === 'grading' ? (GRADING_FEE[m && m.g] || 60) : it.amt;
+    const it = items.find(x => x.id === $('#tp-item').value), base = it.id === 'grading' ? (GRADING_FEE[(BELTS[BELTS.findIndex(b => b.g === (m && m.g)) + 1] || {}).g] || 60) : it.amt;
     const d = it.disc && m ? discountFor(m.dob, m.nsf) : { pct: 0, label: '' };
     return { item: it.t, base, pct: d.pct, label: d.label, total: Math.round(base * (100 - d.pct)) / 100 };
   };

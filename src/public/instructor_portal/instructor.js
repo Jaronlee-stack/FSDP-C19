@@ -15,7 +15,7 @@ const classTitle = c => c.private ? `${c.type} (Private)` : c.type;
 const rosterOf = c => c.private ? STUDENTS.filter(s => s.n === c.student) : STUDENTS.slice(0, c.booked);
 const classHour = c => +c.time.slice(0, 2);
 const classRange = c => { const h = classHour(c), e = h + 1; return `${h % 12 || 12}:00 – ${e % 12 || 12}:00 ${e < 12 ? 'AM' : 'PM'}`; };
-const myClasses = d => SCHED_ALL.map((c, i) => ({ c, i })).filter(({ c }) => c.ins === MY_INS && c.day === (d.getDay() + 6) % 7);
+const myClasses = d => hqClosedOn(d) ? [] : SCHED_ALL.map((c, i) => ({ c, i })).filter(({ c }) => c.ins === MY_INS && c.day === (d.getDay() + 6) % 7);
 const TONES = [[/^children/i, 'kids'], [/^adults/i, 'adults'], [/^intermediate/i, 'inter'], [/^advanced/i, 'adv'], [/^mixed/i, 'mixed'], [/^ladies/i, 'ladies'], [/^weapons/i, 'weap'], [/^sg50/i, 'sg']];
 const toneOf = type => 't-' + ((TONES.find(([re]) => re.test(type)) || [0, 'adults'])[1]);
 const REMARKS = DB.remarks;

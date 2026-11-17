@@ -1,0 +1,17 @@
+{
+  "note": "Anchor today = Fri 2026-11-06. dow: 0=Mon. date = lastDow(dow, weeksBack) = most recent such weekday strictly before today, minus weeksBack weeks. All taught by Bob Tan Sensei (INS-0042). Row 8 uses Sat 3 Oct (not 10 Oct) because HQ has no sessions on 10-11 Oct.",
+  "rows": [
+    { "index": 0,  "type": "Adults",       "dow": 2, "weeksBack": 0, "date": "2026-11-04", "lesson_id": "LS-20261104-1900-HQ-A" },
+    { "index": 1,  "type": "Intermediate", "dow": 0, "weeksBack": 0, "date": "2026-11-02", "lesson_id": "LS-20261102-2000-HQ-A" },
+    { "index": 2,  "type": "Adults",       "dow": 4, "weeksBack": 0, "date": "2026-10-30", "lesson_id": "LS-20261030-1900-HQ-A" },
+    { "index": 3,  "type": "Mixed",        "dow": 5, "weeksBack": 1, "date": "2026-10-24", "lesson_id": "LS-20261024-1100-HQ-A" },
+    { "index": 4,  "type": "Advanced",     "dow": 3, "weeksBack": 2, "date": "2026-10-22", "lesson_id": "LS-20261022-2000-HQ-A" },
+    { "index": 5,  "type": "Adults",       "dow": 4, "weeksBack": 1, "date": "2026-10-23", "lesson_id": "LS-20261023-1900-HQ-A" },
+    { "index": 6,  "type": "Intermediate", "dow": 0, "weeksBack": 2, "date": "2026-10-19", "lesson_id": "LS-20261019-2000-HQ-A" },
+    { "index": 7,  "type": "Adults",       "dow": 4, "weeksBack": 2, "date": "2026-10-16", "lesson_id": "LS-20261016-1900-HQ-A" },
+    { "index": 8,  "type": "Mixed",        "dow": 5, "weeksBack": 4, "date": "2026-10-03", "lesson_id": "LS-20261003-1100-HQ-A" },
+    { "index": 9,  "type": "Adults",       "dow": 4, "weeksBack": 3, "date": "2026-10-09", "lesson_id": "LS-20261009-1900-HQ-A" },
+    { "index": 10, "type": "Advanced",     "dow": 3, "weeksBack": 5, "date": "2026-10-01", "lesson_id": "LS-20261001-2000-HQ-A" },
+    { "index": 11, "type": "Adults",       "dow": 2, "weeksBack": 5, "date": "2026-09-30", "lesson_id": "LS-20260930-1900-HQ-A" }
+  ]
+}

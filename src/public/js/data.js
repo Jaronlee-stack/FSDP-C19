@@ -79,8 +79,33 @@ const CLASSES = [
   { day: 5, time: '11:00', type: 'Mixed', ins: 'Bob Tan Sensei', cap: 20, booked: 13 },
   { day: 6, time: '09:00', type: 'Adults', ins: 'Tan Kok Hiang Sensei', cap: 20, booked: 16 },
   { day: 6, time: '10:00', type: 'SG50', ins: 'Annie Goh Sensei', cap: 16, booked: 9 },
-  { day: 6, time: '11:00', type: 'Weapons', ins: 'Robin Tan Sensei', cap: 12, booked: 7 }
+  { day: 6, time: '11:00', type: 'Weapons', ins: 'Pang Kim Lock Sensei', cap: 12, booked: 7 }
 ].map(c => ({ ...c, dojo: HQ }));
+
+/* SAMPLE timetables for the other dojos (admin portal only). There is no real source for these: the public site says to ask HQ for each term's timetable.
+   They are NOT bookable online (online booking is HQ only), so they are kept out of CLASSES. */
+const OTHER_DOJO_CLASSES = [
+  { dojo: 'bedok', day: 1, time: '19:00', type: 'Adults', ins: 'Chew Eng Lam Sensei', cap: 16, booked: 9 },
+  { dojo: 'bedok', day: 5, time: '10:00', type: 'Children Beginners', ins: 'Ronald Tan Sensei', cap: 12, booked: 7, kids: true },
+  { dojo: 'tampines', day: 0, time: '19:00', type: 'Adults', ins: 'Quah Yong Lok Sensei', cap: 18, booked: 11 },
+  { dojo: 'tampines', day: 5, time: '11:00', type: 'Mixed', ins: 'Aloyseus Lee Sensei', cap: 16, booked: 8 },
+  { dojo: 'kovan', day: 2, time: '19:00', type: 'Adults', ins: 'Allan Lai Sensei', cap: 16, booked: 8 },
+  { dojo: 'kovan', day: 6, time: '10:00', type: 'Children Beginners', ins: 'Alexander Lee Sensei', cap: 12, booked: 6, kids: true },
+  { dojo: 'sengkang', day: 3, time: '20:00', type: 'Adults', ins: 'Tham Wai Yip Sensei', cap: 16, booked: 9 },
+  { dojo: 'sengkang', day: 5, time: '09:00', type: 'Children Juniors', ins: 'Billy Lim Sensei', cap: 12, booked: 7, kids: true },
+  { dojo: 'bishan', day: 0, time: '20:00', type: 'Adults', ins: 'James Moy Sensei', cap: 16, booked: 10 },
+  { dojo: 'bishan', day: 1, time: '18:00', type: 'Children Beginners', ins: 'Tan Kok Hiang Sensei', cap: 14, booked: 8, kids: true },
+  { dojo: 'toapayoh', day: 2, time: '20:00', type: 'Mixed', ins: 'Quah Yong Lok Sensei', cap: 18, booked: 9 },
+  { dojo: 'toapayoh', day: 3, time: '19:00', type: 'SG50', ins: 'Chew Eng Lam Sensei', cap: 14, booked: 7 },
+  { dojo: 'jurong', day: 0, time: '19:00', type: 'Adults', ins: 'Allan Lai Sensei', cap: 16, booked: 9 },
+  { dojo: 'jurong', day: 5, time: '10:00', type: 'Children Juniors', ins: 'James Moy Sensei', cap: 12, booked: 6, kids: true },
+  { dojo: 'westcoast', day: 1, time: '20:00', type: 'Adults', ins: 'Ronald Tan Sensei', cap: 16, booked: 8 },
+  { dojo: 'westcoast', day: 6, time: '09:00', type: 'Mixed', ins: 'Aloyseus Lee Sensei', cap: 16, booked: 7 },
+  { dojo: 'woodlands', day: 2, time: '19:00', type: 'Adults', ins: 'Tham Wai Yip Sensei', cap: 16, booked: 9 },
+  { dojo: 'woodlands', day: 6, time: '10:00', type: 'Children Beginners', ins: 'Billy Lim Sensei', cap: 12, booked: 6, kids: true },
+  { dojo: 'chongpang', day: 4, time: '19:00', type: 'Adults', ins: 'Alexander Lee Sensei', cap: 14, booked: 7 },
+  { dojo: 'chongpang', day: 2, time: '18:00', type: 'Children Juniors', ins: 'Tan Kok Hiang Sensei', cap: 12, booked: 6, kids: true }
+];
 
 /* one-to-one lessons. Only the instructor sees these: they are arranged with the office, so they are not on the booking timetable. */
 const PRIVATE_CLASSES = [
@@ -156,6 +181,9 @@ const CURRICULUM = {
    so bookings, payments and approvals carry over from page to page. */
 function SEED() {
   const daysAgo = n => { const d = new Date(TODAY); d.setDate(d.getDate() - n); return d; };
+  /* most recent date strictly before today that falls on this weekday (0 = Mon), then weeksBack whole weeks earlier */
+  const lastDow = (dow, weeksBack = 0) => daysAgo((((TODAY.getDay() + 6) % 7) - dow + 6) % 7 + 1 + 7 * weeksBack);
+  const SES = [...CLASSES, ...OTHER_DOJO_CLASSES].map((c, i) => ({ ...c, code: sessionCode(c.dojo, c.day, c.time, (4821 + i * 137) % 9000 + 1000) }));
   return {
     passes: [
   { id: 'P-1834-25', name: '25-lesson pack', total: 25, left: 18, bought: new Date(2026, 8, 15), expires: new Date(2027, 0, 15) }
@@ -168,14 +196,14 @@ function SEED() {
   { n: 'Priya Lee', g: '1st Kyu', s: 62, need: 60, seen: 3, st: 'Qualified', dojo: 'hq', age: 'Adult' },
   { n: 'David Koh', g: '5th Kyu', s: 14, need: 30, seen: 18, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Lervyn Wong', g: '4th Kyu', s: 29, need: 36, seen: 2, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
-  { n: 'Siti Rahman', g: '2nd Kyu', s: 44, need: 48, seen: 5, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
-  { n: 'Marcus Lim', g: '6th Kyu', s: 9, need: 24, seen: 21, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
-  { n: 'Hannah Teo', g: '5th Kyu', s: 31, need: 30, seen: 2, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
-  { n: 'Kenji Sato', g: '3rd Kyu', s: 20, need: 36, seen: 6, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
+  { n: 'Siti Rahman', g: '2nd Kyu', s: 44, need: 48, seen: 5, st: ST_PROGRESS, dojo: 'kovan', age: 'Adult' },
+  { n: 'Marcus Lim', g: '6th Kyu', s: 9, need: 24, seen: 21, st: ST_PROGRESS, dojo: 'toapayoh', age: 'Adult' },
+  { n: 'Hannah Teo', g: '5th Kyu', s: 31, need: 30, seen: 2, st: ST_PROGRESS, dojo: 'tampines', age: 'Adult' },
+  { n: 'Kenji Sato', g: '3rd Kyu', s: 20, need: 36, seen: 6, st: ST_PROGRESS, dojo: 'westcoast', age: 'Adult' },
   { n: 'Rachel Ong', g: '4th Kyu', s: 35, need: 36, seen: 1, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Arjun Nair', g: '6th Kyu', s: 4, need: 24, seen: 3, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' },
   { n: 'Wei Jie Chua', g: '2nd Kyu', s: 50, need: 48, seen: 2, st: 'Qualified', dojo: 'hq', age: 'Adult' },
-  { n: 'Grace Yeo', g: '5th Kyu', s: 18, need: 30, seen: 15, st: ST_PROGRESS, dojo: 'hq', age: 'Adult' }
+  { n: 'Grace Yeo', g: '5th Kyu', s: 18, need: 30, seen: 15, st: ST_PROGRESS, dojo: 'bishan', age: 'Adult' }
 ],
     apps: [
   { n: 'Sarah Lee', dojo: 'hq', date: '1 Nov 2026', paid: 690, group: 'Adult', age: 27, gender: 'Female', nat: 'Singaporean', phone: '9001 2345', email: 'sarah.lee@email.com', ec: 'Daniel Lee (Spouse) · 9002 3456', exp: '—', prev: 'No', med: 'No', dogi: 'Cotton (Standard), size 3', pkg: '25 lessons', signer: 'Sarah Lee' },
@@ -184,18 +212,18 @@ function SEED() {
   { n: 'Emma Koh', dojo: 'bishan', date: '29 Oct 2026', paid: 240, group: 'Child', age: 9, gender: 'Female', nat: 'Singaporean', phone: '9345 6789', email: 'koh.family@email.com', ec: 'Jason Koh (Parent) · 9345 6789', exp: '—', prev: 'No', med: 'Yes · Peanut allergy', dogi: 'Cotton (Standard), size 0', pkg: '1-month pass', signer: 'Jason Koh (parent/guardian)' }
 ],
     members: [
-  { n: 'Lervyn Wong', no: 'ASK-2025-1834', g: '4th Kyu', dojo: 'hq', hrs: 61, st: 'Active', joined: 'Jun 2025' },
-  { n: 'Jamie Tan', no: 'ASK-2024-0921', g: '3rd Kyu', dojo: 'hq', hrs: 112, st: 'Active', joined: 'Mar 2024' },
-  { n: 'David Koh', no: 'ASK-2024-1440', g: '5th Kyu', dojo: 'hq', hrs: 28, st: 'Lapsed', joined: 'Aug 2024' },
-  { n: 'Priya Lee', no: 'ASK-2021-0310', g: '1st Kyu', dojo: 'hq', hrs: 284, st: 'Active', joined: 'Jan 2021' },
-  { n: 'Siti Rahman', no: 'ASK-2022-0788', g: '2nd Kyu', dojo: 'kovan', hrs: 176, st: 'Active', joined: 'May 2022' },
-  { n: 'Marcus Lim', no: 'ASK-2026-0102', g: '6th Kyu', dojo: 'toapayoh', hrs: 9, st: 'Active', joined: 'Feb 2026' },
-  { n: 'Grace Yeo', no: 'ASK-2023-1203', g: '5th Kyu', dojo: 'bishan', hrs: 41, st: 'Lapsed', joined: 'Dec 2023' },
-  { n: 'Kenji Sato', no: 'ASK-2023-0456', g: '3rd Kyu', dojo: 'westcoast', hrs: 98, st: 'Active', joined: 'Apr 2023' },
-  { n: 'Wei Jie Chua', no: 'ASK-2022-0090', g: '2nd Kyu', dojo: 'hq', hrs: 190, st: 'Active', joined: 'Jan 2022' },
-  { n: 'Hannah Teo', no: 'ASK-2025-0612', g: '5th Kyu', dojo: 'tampines', hrs: 47, st: 'Active', joined: 'Jun 2025' }
+  { n: 'Lervyn Wong', no: 'ASK-2025-1834', g: '4th Kyu', dojo: 'hq', hrs: 61, st: 'Active', joined: 'Jun 2025', joinedAt: '2025-06-14' },
+  { n: 'Jamie Tan', no: 'ASK-2024-0921', g: '3rd Kyu', dojo: 'hq', hrs: 112, st: 'Active', joined: 'Mar 2024', joinedAt: '2024-03-18' },
+  { n: 'David Koh', no: 'ASK-2024-1440', g: '5th Kyu', dojo: 'hq', hrs: 28, st: 'Lapsed', joined: 'Aug 2024', joinedAt: '2024-08-13' },
+  { n: 'Priya Lee', no: 'ASK-2021-0310', g: '1st Kyu', dojo: 'hq', hrs: 284, st: 'Active', joined: 'Jan 2021', joinedAt: '2021-01-11' },
+  { n: 'Siti Rahman', no: 'ASK-2022-0788', g: '2nd Kyu', dojo: 'kovan', hrs: 176, st: 'Active', joined: 'May 2022', joinedAt: '2022-05-09' },
+  { n: 'Marcus Lim', no: 'ASK-2026-0102', g: '6th Kyu', dojo: 'toapayoh', hrs: 9, st: 'Active', joined: 'Sep 2026', joinedAt: '2026-09-14' },
+  { n: 'Grace Yeo', no: 'ASK-2023-1203', g: '5th Kyu', dojo: 'bishan', hrs: 41, st: 'Lapsed', joined: 'Dec 2023', joinedAt: '2023-12-05' },
+  { n: 'Kenji Sato', no: 'ASK-2023-0456', g: '3rd Kyu', dojo: 'westcoast', hrs: 98, st: 'Active', joined: 'Apr 2023', joinedAt: '2023-04-17' },
+  { n: 'Wei Jie Chua', no: 'ASK-2022-0090', g: '2nd Kyu', dojo: 'hq', hrs: 190, st: 'Active', joined: 'Jan 2022', joinedAt: '2022-01-24' },
+  { n: 'Hannah Teo', no: 'ASK-2025-0612', g: '5th Kyu', dojo: 'tampines', hrs: 47, st: 'Active', joined: 'Jun 2025', joinedAt: '2025-06-21' }
 ],
-    sessions: CLASSES.map((c, i) => ({ ...c, code: sessionCode(c.dojo, c.day, c.time, (4821 + i * 137) % 9000 + 1000) })),
+    sessions: SES,
     gradApps: [
   { n: 'Jamie Tan', from: '3rd Kyu', to: '2nd Kyu', dojo: 'hq', sub: '1 Nov', note: 'Weapons requirement met', sched: null },
   { n: 'Priya Lee', from: '1st Kyu', to: '1st Dan', dojo: 'hq', sub: '30 Oct', note: 'Yudansha points 2.5 / 2.0', sched: null },
@@ -211,10 +239,9 @@ function SEED() {
   { n: 'Wei Jie Chua', from: '2nd Kyu', to: '1st Kyu', done: false }
 ],
     pays: [
-  { item: '25 lessons', date: '15 Sep 2026', method: 'Visa •••• 4242', amt: 600, st: 'Paid', inv: 'INV-2041870' },
+  { item: '25-lesson pack', date: '15 Sep 2026', method: 'Visa •••• 4242', amt: 600, st: 'Paid', inv: 'INV-2041870' },
   { item: 'Annual dues 2026', date: '2 Jan 2026', method: 'Visa •••• 4242', amt: 48, st: 'Paid', inv: 'INV-2042181' },
-  { item: '10 lessons', date: '20 Nov 2025', method: 'PayNow', amt: 270, st: 'Paid', inv: 'INV-2042492' },
-  { item: 'Registration, dogi and 10 lessons', date: '14 Jun 2025', method: 'Visa •••• 4242', amt: 375, st: 'Paid', inv: 'INV-2042803' }
+  { item: '10-lesson pack', date: '20 Nov 2025', method: 'PayNow', amt: 270, st: 'Paid', inv: 'INV-2042492' }
 ],
     grade: {
   target: '3rd Kyu', targetLabel: '3rd Kyu (Brown)',
@@ -225,18 +252,18 @@ function SEED() {
 },
     /* anonymous class ratings (no student name is ever stored). Seeded so the instructor profile has something to show. */
     feedback: [
-  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(2), rating: 5, tags: ['Clear explanations', 'Felt safe'], note: 'Sensei broke ikkyo down step by step. I finally understand the entry.' },
-  { ins: 'Bob Tan Sensei', type: 'Intermediate', date: daysAgo(3), rating: 5, tags: ['Learned something new'], note: 'Loved the new variation. Challenging but fair.' },
-  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(6), rating: 4, tags: ['Good pace', 'Fun partner work'], note: '' },
-  { ins: 'Bob Tan Sensei', type: 'Mixed', date: daysAgo(8), rating: 5, tags: ['Felt safe', 'Clear explanations'], note: 'Felt welcome as a newer student. Thank you for the extra tips on ukemi.' },
-  { ins: 'Bob Tan Sensei', type: 'Advanced', date: daysAgo(10), rating: 4, tags: ['Learned something new'], note: 'Great technique focus. Would like a little more time on weapons.' },
-  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(13), rating: 3, tags: ['Good pace'], note: 'Class ran a few minutes over and the warm-up felt rushed.' },
-  { ins: 'Bob Tan Sensei', type: 'Intermediate', date: daysAgo(16), rating: 5, tags: ['Clear explanations', 'Learned something new'], note: 'Very clear demonstrations. Easy to follow even from the back row.' },
-  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(20), rating: 4, tags: ['Fun partner work'], note: '' },
-  { ins: 'Bob Tan Sensei', type: 'Mixed', date: daysAgo(23), rating: 5, tags: ['Felt safe', 'Good pace'], note: 'Calm, patient and encouraging.' },
-  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(27), rating: 2, tags: [], note: 'The mat was crowded, so partner work was hard to do safely.' },
-  { ins: 'Bob Tan Sensei', type: 'Advanced', date: daysAgo(31), rating: 4, tags: ['Clear explanations'], note: '' },
-  { ins: 'Bob Tan Sensei', type: 'Adults', date: daysAgo(36), rating: 5, tags: ['Learned something new', 'Felt safe'], note: 'Best class this month.' }
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: lastDow(2), rating: 5, tags: ['Clear explanations', 'Felt safe'], note: 'Sensei broke ikkyo down step by step. I finally understand the entry.' },
+  { ins: 'Bob Tan Sensei', type: 'Intermediate', date: lastDow(0), rating: 5, tags: ['Learned something new'], note: 'Loved the new variation. Challenging but fair.' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: lastDow(4), rating: 4, tags: ['Good pace', 'Fun partner work'], note: '' },
+  { ins: 'Bob Tan Sensei', type: 'Mixed', date: lastDow(5, 1), rating: 5, tags: ['Felt safe', 'Clear explanations'], note: 'Felt welcome as a newer student. Thank you for the extra tips on ukemi.' },
+  { ins: 'Bob Tan Sensei', type: 'Advanced', date: lastDow(3, 2), rating: 4, tags: ['Learned something new'], note: 'Great technique focus. Would like a little more time on weapons.' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: lastDow(4, 1), rating: 3, tags: ['Good pace'], note: 'Class ran a few minutes over and the warm-up felt rushed.' },
+  { ins: 'Bob Tan Sensei', type: 'Intermediate', date: lastDow(0, 2), rating: 5, tags: ['Clear explanations', 'Learned something new'], note: 'Very clear demonstrations. Easy to follow even from the back row.' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: lastDow(4, 2), rating: 4, tags: ['Fun partner work'], note: '' },
+  { ins: 'Bob Tan Sensei', type: 'Mixed', date: lastDow(5, 4), rating: 5, tags: ['Felt safe', 'Good pace'], note: 'Calm, patient and encouraging.' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: lastDow(4, 3), rating: 2, tags: [], note: 'The mat was crowded, so partner work was hard to do safely.' },
+  { ins: 'Bob Tan Sensei', type: 'Advanced', date: lastDow(3, 5), rating: 4, tags: ['Clear explanations'], note: '' },
+  { ins: 'Bob Tan Sensei', type: 'Adults', date: lastDow(2, 5), rating: 5, tags: ['Learned something new', 'Felt safe'], note: 'Best class this month.' }
 ],
     fbSeed: true,
     /* instructor remarks. kind: 'class' (whole class, keyed by date|time), 'student' (one student in one class) or 'grading' (a note for the examiner panel, kept per student) */
@@ -244,10 +271,10 @@ function SEED() {
   { kind: 'grading', key: 'seed-g1', student: 'Jamie Tan', text: 'Strong ukemi and calm under pressure. Keep the hips lower in iriminage.', at: daysAgo(4), by: 'Bob Tan Sensei', label: 'Adults · Thu' },
   { kind: 'grading', key: 'seed-g2', student: 'Priya Lee', text: 'Ready for Shodan. Jo kata is excellent, but rushes the opening of ikkyo.', at: daysAgo(6), by: 'Bob Tan Sensei', label: 'Advanced · Tue' },
   /* what the signed-in student can read back: notes for the classes they attended */
-  { kind: 'class', key: `${isoDate(daysAgo(3))}|19:00`, student: null, text: 'We drilled ikkyo omote and ura. At home, practise stepping off the line before you pivot. Next class: shomen uchi variations.', at: daysAgo(3), by: 'Bob Tan Sensei', label: `Adults · ${dayName(daysAgo(3))} ${fmtShort(daysAgo(3))}` },
-  { kind: 'student', key: `${isoDate(daysAgo(3))}|19:00`, student: 'Lervyn Wong', text: 'Your ukemi is improving. Keep your chin tucked on back rolls and breathe out as you land.', at: daysAgo(3), by: 'Bob Tan Sensei', label: `Adults · ${dayName(daysAgo(3))} ${fmtShort(daysAgo(3))}` },
-  { kind: 'class', key: `${isoDate(daysAgo(6))}|19:00`, student: null, text: 'Today was shihonage. The key is to extend through the arm, not lift with the shoulder.', at: daysAgo(6), by: 'Bob Tan Sensei', label: `Adults · ${dayName(daysAgo(6))} ${fmtShort(daysAgo(6))}` },
-  { kind: 'grading', key: `${isoDate(daysAgo(6))}|19:00`, student: 'Lervyn Wong', text: 'On track for the next grading. Keep up your attendance and work on your suwari-waza.', at: daysAgo(6), by: 'Bob Tan Sensei', label: `Adults · ${dayName(daysAgo(6))} ${fmtShort(daysAgo(6))}` }
+  { kind: 'class', key: `${isoDate(lastDow(0))}|19:00`, student: null, text: 'We drilled ikkyo omote and ura. At home, practise stepping off the line before you pivot. Next class: shomen uchi variations.', at: lastDow(0), by: 'Bob Tan Sensei', label: `Adults · ${dayName(lastDow(0))} ${fmtShort(lastDow(0))}` },
+  { kind: 'student', key: `${isoDate(lastDow(0))}|19:00`, student: 'Lervyn Wong', text: 'Your ukemi is improving. Keep your chin tucked on back rolls and breathe out as you land.', at: lastDow(0), by: 'Bob Tan Sensei', label: `Adults · ${dayName(lastDow(0))} ${fmtShort(lastDow(0))}` },
+  { kind: 'class', key: `${isoDate(lastDow(4))}|19:00`, student: null, text: 'Today was shihonage. The key is to extend through the arm, not lift with the shoulder.', at: lastDow(4), by: 'Bob Tan Sensei', label: `Adults · ${dayName(lastDow(4))} ${fmtShort(lastDow(4))}` },
+  { kind: 'grading', key: `${isoDate(lastDow(4))}|19:00`, student: 'Lervyn Wong', text: 'On track for the next grading. Keep up your attendance and work on your suwari-waza.', at: lastDow(4), by: 'Bob Tan Sensei', label: `Adults · ${dayName(lastDow(4))} ${fmtShort(lastDow(4))}` }
 ],
     /* grading panels. The 13 Dec one is the real date. The test session is today, 20:00-21:00, so the lock on the timetable can be seen: it opens at 19:45.
        Only the examiners listed can open the grading page, and only during the shift. */
@@ -259,19 +286,18 @@ function SEED() {
 ],
     /* the signed-in student's past classes. status: 'present' (+1 session) | 'noshow' (lesson used, not counted) | 'pending' (waiting for the instructor) */
     attendance: [
-  { date: daysAgo(3), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
-  { date: daysAgo(6), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
-  { date: daysAgo(10), time: '19:00', type: 'Adults', ins: 'James Tan Sensei', status: 'noshow' },
-  { date: daysAgo(13), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
-  { date: daysAgo(17), time: '11:00', type: 'Mixed', ins: 'Bob Tan Sensei', status: 'present' },
-  { date: daysAgo(24), time: '19:00', type: 'Adults', ins: 'Steven Goh Sensei', status: 'present' },
-  { date: daysAgo(31), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' }
+  { date: lastDow(2), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
+  { date: lastDow(0), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
+  { date: lastDow(5), time: '11:00', type: 'Mixed', ins: 'Bob Tan Sensei', status: 'present' },
+  { date: lastDow(4), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' },
+  { date: lastDow(3, 1), time: '19:00', type: 'Adults', ins: 'Steven Goh Sensei', status: 'noshow' },
+  { date: lastDow(2, 1), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status: 'present' }
 ],
     /* sessions counted (marked present) that the student hasn't seen on the gamified home yet */
-    levelUps: [{ kind: 'session', date: daysAgo(3), type: 'Adults' }],
+    levelUps: [{ kind: 'session', date: lastDow(2), type: 'Adults' }],
     /* instructor feedback from each grading the student has taken (newest first) */
     gradingFeedback: [
-  { from: '5th Kyu', to: '4th Kyu', date: new Date(2026, 2, 13), by: 'Steven Goh Sensei', result: 'Pass',
+  { from: '5th Kyu', to: '4th Kyu', date: new Date(2026, 2, 15), by: 'Steven Goh Sensei', result: 'Pass',
     well: 'Confident ukemi and a calm, upright posture. Your shomenuchi ikkyo has good timing.',
     next: 'Keep your hips lower in iriminage and finish each throw before you turn away. Practise suwari-waza knee walking.' },
   { from: '6th Kyu', to: '5th Kyu', date: new Date(2025, 11, 14), by: 'Bob Tan Sensei', result: 'Pass',
@@ -306,7 +332,7 @@ function SEED() {
         L(3, 'ASK-2022-0090', 'Wei Jie Chua', '50-lesson pack', 980, tm(3), 'Paid', 'desk'),
         L(4, 'ASK-2023-0456', 'Kenji Sato', '10-lesson pack', 270, tm(4), 'Paid', 'online'),
         L(5, 'ASK-2022-0788', 'Siti Rahman', 'Annual dues', 48, tm(5), 'Paid', 'desk'),
-        L(6, 'ASK-2025-0612', 'Hannah Teo', 'Grading fee', 40, tm(7), 'Paid', 'desk'),
+        L(6, 'ASK-2025-0612', 'Hannah Teo', 'Grading fee', 50, ear(2, 12), 'Paid', 'desk'),
         L(7, 'ASK-2024-0921', 'Jamie Tan', 'Unlimited · 2 weeks', 96, tm(15), 'Processing', 'auto'),
         L(8, 'ASK-2024-1440', 'David Koh', 'Annual dues', 48, tm(9), 'Outstanding', 'desk'),
         L(9, 'ASK-2023-1203', 'Grace Yeo', 'Annual dues', 48, tm(9), 'Outstanding', 'desk'),
@@ -354,7 +380,9 @@ function SEED() {
   { id: 'F-03', no: 'ASK-2024-1440', name: 'David Koh', kind: 'renewal', owner: 'ADM-102', due: daysAgo(-3), attempts: [] }
 ],
     closures: [
-  { id: 'C-01', scope: 'HQ', from: addDays(TODAY, 20), to: addDays(TODAY, 20), note: 'Public holiday' }
+  { id: 'C-01', scope: 'HQ', from: addDays(TODAY, 20), to: addDays(TODAY, 20), note: 'Public holiday' },
+  { id: 'C-02', scope: 'HQ', from: new Date(2026, 11, 13), to: new Date(2026, 11, 13), note: 'Grading day: Sunday classes paused' },
+  { id: 'C-03', scope: 'class', code: SES.find(s => s.dojo === HQ && s.day === 1 && s.time === '19:00' && s.type === 'Adults').code, from: lastDow(1), to: lastDow(1), label: 'Adults 7 PM', note: 'Class cancelled by the dojo', students: 5, lessons: 5 }
 ],
     rosters: {},        // per class and date: { 'YYYY-MM-DD|HH:MM': { rows, submitted, ... } }
     memberInfo: {},     // per member no.: contact, medical, documents, notes
@@ -384,7 +412,7 @@ function SEED() {
       followTriggers: { declineDays: 14, renewalDays: 30 }
     },
     sentLog: [
-  { at: daysAgo(2), by: 'Daniel Ong', aud: 'Adults · Tue 7 PM', title: 'Class cancelled' }
+  { at: lastDow(1), by: 'Daniel Ong', aud: 'Adults · Tue 7 PM', title: 'Class cancelled' }
 ],
     interventions: [
   { id: 'N-01', name: 'Extra beginner slot on Saturday', slot: 'Sat 10 AM', start: daysAgo(40), before: 6, after: 11, decision: 'continue' }

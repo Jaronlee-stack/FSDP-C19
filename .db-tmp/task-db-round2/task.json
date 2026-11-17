@@ -1,0 +1,7 @@
+{
+  "task_id": "task-db-round2",
+  "task_description": "Revise database/db.sql, seed.sql, README.md (joined_on, derived grading closures, non-HQ sample timetables, wider session range) and keep src/public/js/data.js + store.js prototype data in agreement with the seed. Detailed decisions: c:/Users/CedrikHwang/FSDP-C19/.db-tmp/plan2.md",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002"],
+  "blocked_reason": null
+}
