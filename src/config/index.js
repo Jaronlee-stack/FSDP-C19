@@ -46,5 +46,14 @@ module.exports = {
   loginRate: { windowMs: int(env.LOGIN_RATE_WINDOW_MS, 15 * 60 * 1000), max: int(env.LOGIN_RATE_MAX, 10) },
   changePwRate: { windowMs: int(env.CHANGE_PW_RATE_WINDOW_MS, 15 * 60 * 1000), max: int(env.CHANGE_PW_RATE_MAX, 5) },
   trustProxy: env.TRUST_PROXY ? (/^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY) : false,
+  brevo: env.BREVO_API_KEY ? {
+    apiKey: env.BREVO_API_KEY,
+    senderEmail: env.BREVO_SENDER_EMAIL || 'noreply@aikidoshinjukai.com.sg',
+    senderName: env.BREVO_SENDER_NAME || 'Aikido Shinju-Kai'
+  } : null,
+  telegram: env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_ADMIN_CHAT_ID ? {
+    botToken: env.TELEGRAM_BOT_TOKEN,
+    adminChatId: env.TELEGRAM_ADMIN_CHAT_ID
+  } : null,
   warnings
 };
