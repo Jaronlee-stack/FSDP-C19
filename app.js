@@ -32,7 +32,13 @@ if (require.main === module) {
   const app = createApp();
   config.warnings.forEach(w => console.warn('[config] ' + w));
   const server = app.listen(config.PORT, () => {
-    console.log(`ASK server listening on port ${config.PORT} (${config.NODE_ENV}), API at ${config.API_PREFIX}${config.FAKE_TODAY ? `, fake today ${config.FAKE_TODAY}` : ''}`);
+    const url = `http://localhost:${config.PORT}`;
+    console.log(`\n🚀 ASK server running at ${url}`);
+    console.log(`📍 API endpoint: ${url}${config.API_PREFIX}`);
+    console.log(`📱 Student portal: ${url}/student_portal/login.html`);
+    console.log(`👨‍💼 Instructor portal: ${url}/instructor_portal/login.html`);
+    if (config.FAKE_TODAY) console.log(`⏰ Fake date: ${config.FAKE_TODAY}`);
+    console.log('');
   });
   const stop = () => server.close(() => require('./src/config/db').pool.end().finally(() => process.exit(0)));
   process.on('SIGINT', stop);
