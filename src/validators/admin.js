@@ -85,7 +85,7 @@ const followupCreate = z.strictObject({ memberNo: text(50).optional(), kind: z.e
 const followupPatch = z.strictObject({ ownerId: id.nullable().optional(), dueDate: day.optional(), status: z.enum(['open', 'done']).optional() }).refine(atLeastOne, 'Nothing to change.');
 const attempt = z.strictObject({ method: z.enum(['WhatsApp', 'Call', 'Email', 'SMS']), outcome: text(255), note: text(1000).optional(), nextDate: day.optional() });
 const notify = z.strictObject({
-  templateId: id.optional(), title: text(120).optional(),
+  templateId: id.optional(), title: text(120).optional(), body: text(1000).optional(),
   audience: z.strictObject({ type: z.enum(['lesson', 'student', 'all', 'dojo', 'grade', 'lapsed', 'unpaid']), target: text(100).optional() })
 });
 

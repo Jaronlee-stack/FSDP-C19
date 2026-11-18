@@ -510,6 +510,26 @@ function openCheckIn() {
     if (code) location.href = url('student_portal/checkin.html') + '?qr=' + encodeURIComponent(code);
   });
 }
+
+/* =====================================================================
+   HOME — one number per idea, plus the gamified path
+   ===================================================================== */
+const VIEW_KEY = 'ask-home-view', SOUND_KEY = 'ask-sound';
+const pref = (k, d) => { try { return localStorage.getItem(k) || d; } catch (_) { return d; } };
+const setPref = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
+const soundOn = () => pref(SOUND_KEY, 'on') === 'on';
+const gameView = () => pref(VIEW_KEY, 'game') === 'game';
+const MILESTONE = 6;   // a reward chest every 6 sessions
+
+/* membership card (shown on Profile, and when the belt badge on Home is tapped) */
+function memberCardHTML(id = 'memberCard') {
+  return `<div class="pcard" id="${id}"><div class="pcard-body"><div class="pcard-tile"><span class="pcard-holo"></span>
+    <div class="pcard-top"><span class="pcard-org"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><span class="pcard-kanji">合気道</span></div>
+    <div class="pcard-mid"><span class="pcard-av">${initials(ME.name)}</span><div><div class="pcard-name">${esc(ME.name)}</div><div class="pcard-rank" style="--belt:${beltOf(ME.grade)}"><i></i>${esc(ME.grade)}</div></div></div>
+    <div class="pcard-bot"><span>MEMBER NO.<b>${esc(ME.no)}</b></span><span style="text-align:right">PRINCIPAL DOJO<b>${esc(DOJOS.find(d => d.id === ME.dojo).short)}</b></span></div>
+    <span class="pcard-glare"></span></div>
+    <div class="pcard-foot"><span class="st">${esc(ME.status || 'Active')}${ME.expiry ? ` · Expires ${MON[ME.expiry.getMonth()]} ${ME.expiry.getFullYear()}` : ''}</span><button type="button" data-qr>${icon('scan')}Scan to check in</button></div></div></div>`;
+}
 document.addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
 
 /* weeks in a row (this week or last, backwards) with at least one class attended */

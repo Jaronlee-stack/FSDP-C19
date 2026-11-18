@@ -26,6 +26,8 @@ if (env.APP_FAKE_TODAY) {
   else warnings.push('APP_FAKE_TODAY must look like YYYY-MM-DD: ignored.');
 }
 
+if (env.TELEGRAM_BOT_TOKEN && !env.TELEGRAM_WEBHOOK_SECRET) warnings.push('TELEGRAM_WEBHOOK_SECRET is not set: the Telegram webhook rejects every update until it is.');
+
 module.exports = {
   NODE_ENV,
   isProd,
@@ -51,9 +53,10 @@ module.exports = {
     senderEmail: env.BREVO_SENDER_EMAIL || 'noreply@aikidoshinjukai.com.sg',
     senderName: env.BREVO_SENDER_NAME || 'Aikido Shinju-Kai'
   } : null,
-  telegram: env.TELEGRAM_BOT_TOKEN && env.TELEGRAM_ADMIN_CHAT_ID ? {
+  telegram: env.TELEGRAM_BOT_TOKEN ? {
     botToken: env.TELEGRAM_BOT_TOKEN,
-    adminChatId: env.TELEGRAM_ADMIN_CHAT_ID
+    adminChatId: env.TELEGRAM_ADMIN_CHAT_ID || null,
+    webhookSecret: env.TELEGRAM_WEBHOOK_SECRET || null
   } : null,
   warnings
 };

@@ -36,7 +36,7 @@ if (require.main === module) {
     console.log(`\n🚀 ASK server running at ${url}`);
     console.log(`📍 API endpoint: ${url}${config.API_PREFIX}`);
     console.log(`📱 Student portal: ${url}/student_portal/login.html`);
-    console.log(`👨‍💼 Instructor portal: ${url}/instructor_portal/login.html`);
+    console.log(`👨‍💼 Staff sign-in (instructors & admin): ${url}/admin_portal/signin.html`);
     if (config.FAKE_TODAY) console.log(`⏰ Fake date: ${config.FAKE_TODAY}`);
     console.log('');
   });

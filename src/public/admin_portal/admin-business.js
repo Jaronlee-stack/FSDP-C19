@@ -565,10 +565,11 @@ async function nfInit() {
     if (!t.value.trim() || !b.value.trim()) { toast('Add a title and a message first.', 'bad'); (t.value.trim() ? b : t).focus(); return; }
     const a = radio('aud'), type = NF.aud[a], target = a === 'All members' ? undefined : $('#n-target').value;
     if (type !== 'all' && !target) { toast('Choose who to send this to.', 'bad'); return; }
-    const sent = await run(() => ASK.act.notifySend(Object.assign({ audience: Object.assign({ type }, target ? { target } : {}) }, tpl === 'own' ? { title: t.value.trim() } : { templateId: tpl })));
+    const sent = await run(() => ASK.act.notifySend(Object.assign({ audience: Object.assign({ type }, target ? { target } : {}) }, tpl === 'own' ? { title: t.value.trim(), body: b.value.trim() } : { templateId: tpl })));
     if (!sent) return;
     NF.data = (await run(() => ASK.load.deskNotifications())) || NF.data; nfSent();
-    toast(`Sent to ${sent.audience} · ${plural(sent.recipients, 'recipient')}${$('#n-email').checked ? ' (push + email)' : ''}`);
+    const tg = sent.telegram || { sent: 0 };
+    toast(`Sent to ${sent.audience} · ${plural(sent.recipients, 'recipient')} · ${tg.sent} on Telegram${tg.failed ? ` (${tg.failed} failed)` : ''}`);
     $('#n-tpl').value = ''; $('#n-tpl').dispatchEvent(new Event('change', { bubbles: true }));
   });
   await syncAud(); nfSent(); show();

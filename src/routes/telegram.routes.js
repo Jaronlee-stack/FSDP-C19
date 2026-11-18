@@ -1,51 +1,26 @@
 'use strict';
-/* Telegram bot webhook endpoint */
+/* Telegram bot webhook. Only Telegram may call it: it must echo the secret set with setWebhook's secret_token. */
+const crypto = require('node:crypto');
 const router = require('express').Router();
+const config = require('../config');
 const telegramBotService = require('../services/telegramBotService');
 
-// Webhook endpoint for Telegram updates
+const fromTelegram = req => {
+  const secret = config.telegram?.webhookSecret;
+  const got = req.get('X-Telegram-Bot-Api-Secret-Token');
+  if (!secret || !got) return false;
+  const a = Buffer.from(got), b = Buffer.from(secret);
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+};
+
 router.post('/webhook', async (req, res) => {
+  if (!fromTelegram(req)) return res.status(401).json({ error: { code: 'UNAUTHENTICATED', message: 'Invalid webhook secret.' } });
   try {
-    const { message, callback_query } = req.body;
-
-    // Handle text messages
-    if (message) {
-      const result = await telegramBotService.handleWebhookMessage(message);
-      return res.json({ ok: true, processed: result.processed });
-    }
-
-    // Handle callback queries (inline buttons) - future enhancement
-    if (callback_query) {
-      return res.json({ ok: true });
-    }
-
-    res.json({ ok: true });
+    if (req.body.message) await telegramBotService.handleWebhookMessage(req.body.message);
   } catch (error) {
-    console.error('[telegram-webhook] Error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('[telegram-webhook] Error:', error.message);
   }
-});
-
-// Link member number to telegram chat (called by student via reply)
-router.post('/link', async (req, res) => {
-  try {
-    const { memberNo, telegramChatId } = req.body;
-
-    if (!memberNo || !telegramChatId) {
-      return res.status(400).json({ error: 'memberNo and telegramChatId required' });
-    }
-
-    const result = await telegramBotService.linkStudentTelegram(memberNo, telegramChatId);
-    
-    if (result.success) {
-      res.json({ ok: true, userId: result.userId });
-    } else {
-      res.status(400).json({ error: result.error });
-    }
-  } catch (error) {
-    console.error('[telegram-link] Error:', error);
-    res.status(500).json({ error: error.message });
-  }
+  res.json({ ok: true });   // always 200 to Telegram, or it retries the same update
 });
 
 module.exports = router;
