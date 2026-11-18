@@ -18,12 +18,13 @@
 --   4 Onboarding       auto_activation_rule, registration_application,
 --                      application_checklist, guest_pass
 --   5 Classes          class_template, class_session, class_attendance,
---                      makeup_class, class_closure, class_feedback,
---                      instructor_remark, check_in
+--                      class_waitlist, makeup_class, class_closure, class_feedback,
+--                      class_feedback_prompt, instructor_remark, check_in
 --   6 Grading          grading_session, grading_examiner, grading_application,
 --                      grading_candidate, grading_history
 --   7 Office           mc_request, followup, followup_attempt, notification_template,
 --                      sent_log, import_issue, policy_setting
+--   8 Audit            audit_log (append-only)
 --
 -- Design decisions (details in database/README.md)
 --   D1 Weekly timetable (class_template) is separate from a dated occurrence
@@ -37,6 +38,8 @@
 --      a users row whose role is 'student', and so on.
 --   D4 Grading is NOT a class type. It has its own tables and its venue is fixed
 --      to the ASK HQ Dojo (dojo id 'hq'), enforced by CHECK + FK.
+--   D5 audit_log is append-only: a trigger rejects UPDATE, DELETE and TRUNCATE
+--      (the one exception is the FK ON DELETE SET NULL on actor_user_id).
 -- =====================================================================
 
 -- ---------------------------------------------------------------------
@@ -44,6 +47,8 @@
 -- schema (class_booking, admin_profile, frontdesk_profile).
 -- ---------------------------------------------------------------------
 DROP VIEW IF EXISTS v_grading_conflict;
+DROP TABLE IF EXISTS audit_log CASCADE;
+DROP FUNCTION IF EXISTS audit_log_guard() CASCADE;
 DROP TABLE IF EXISTS policy_setting CASCADE;
 DROP TABLE IF EXISTS import_issue CASCADE;
 DROP TABLE IF EXISTS sent_log CASCADE;
@@ -58,6 +63,8 @@ DROP TABLE IF EXISTS grading_examiner CASCADE;
 DROP TABLE IF EXISTS grading_session CASCADE;
 DROP TABLE IF EXISTS check_in CASCADE;
 DROP TABLE IF EXISTS instructor_remark CASCADE;
+DROP TABLE IF EXISTS class_feedback_prompt CASCADE; -- backend: which students already answered the rating pop-up
+DROP TABLE IF EXISTS class_waitlist CASCADE;         -- backend: roster waitlist
 DROP TABLE IF EXISTS class_feedback CASCADE;
 DROP TABLE IF EXISTS class_closure CASCADE;
 DROP TABLE IF EXISTS makeup_class CASCADE;
@@ -119,6 +126,8 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     last_login_at TIMESTAMPTZ,
+    must_change_password BOOLEAN NOT NULL DEFAULT FALSE,   -- TRUE for staff-issued temporary passwords: the user must set their own before anything else
+    password_changed_at TIMESTAMPTZ,             -- sessions issued before this moment are rejected
     UNIQUE (id, role)                            -- target of the composite FKs below
 );
 
@@ -170,6 +179,7 @@ CREATE TABLE instructor_profile (
     dan_grade SMALLINT NOT NULL CHECK (dan_grade BETWEEN 1 AND 10),
     photo_file VARCHAR(255),
     is_chief BOOLEAN NOT NULL DEFAULT FALSE,
+    status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive')),   -- backend: the Staff page can deactivate an instructor account
     FOREIGN KEY (user_id, role) REFERENCES users(id, role) ON DELETE CASCADE
 );
 
@@ -242,6 +252,7 @@ CREATE TABLE payment (
     student_package_id VARCHAR(255) REFERENCES student_package(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     paid_at TIMESTAMPTZ,
+    note VARCHAR(500),                           -- backend: discount label, void or adjust reason shown on the desk ledger
     CHECK ((status IN ('Paid', 'Refunded')) = (paid_at IS NOT NULL))
 );
 
@@ -270,6 +281,7 @@ CREATE TABLE exception_request (
     decided_by VARCHAR(255) REFERENCES staff_profile(user_id) ON DELETE SET NULL,
     requested_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     decided_at TIMESTAMPTZ,
+    decision_note TEXT,                          -- backend: the Business Admin's reason for the decision
     CHECK ((status = 'pending') = (decided_at IS NULL))
 );
 
@@ -335,6 +347,7 @@ CREATE TABLE registration_application (
     reviewed_by VARCHAR(255) REFERENCES staff_profile(user_id) ON DELETE SET NULL,
     reviewed_at TIMESTAMPTZ,
     review_note TEXT,
+    password_hash VARCHAR(255),                  -- bcrypt hash of the password the applicant chose; kept only while pending, cleared on approve/reject. Never returned by an API.
     user_id VARCHAR(255) REFERENCES student_profile(user_id) ON DELETE SET NULL   -- set once approved
 );
 
@@ -348,7 +361,8 @@ CREATE TABLE application_checklist (
 CREATE TABLE guest_pass (
     id VARCHAR(255) PRIMARY KEY,                 -- GP-01
     user_id VARCHAR(255) NOT NULL REFERENCES guest_profile(user_id) ON DELETE CASCADE,
-    pass_type VARCHAR(10) NOT NULL CHECK (pass_type IN ('trial', 'day', 'week')),
+    pass_type VARCHAR(10) NOT NULL CHECK (pass_type IN ('trial', 'single', 'day', 'week', 'month', 'private')),   -- backend: single/month/private added for the trial page
+    amount_paid NUMERIC(10, 2) NOT NULL DEFAULT 0 CHECK (amount_paid >= 0),   -- backend: guests have no student_profile, so no payment row; the price is kept here
     used BOOLEAN NOT NULL DEFAULT FALSE,
     issued_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     valid_until DATE                             -- NULL for a trial pass
@@ -415,6 +429,15 @@ CREATE TABLE class_attendance (
     booked_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     marked_by VARCHAR(255) REFERENCES instructor_profile(user_id) ON DELETE SET NULL,
     marked_at TIMESTAMPTZ,
+    booked_via VARCHAR(20) NOT NULL DEFAULT 'online' CHECK (booked_via IN ('online', 'desk', 'walk-in', 'waitlist')),   -- backend: roster "how" column
+    PRIMARY KEY (lesson_id, user_id)
+);
+
+-- Backend: students waiting for a place in a full class (roster waitlist)
+CREATE TABLE class_waitlist (
+    lesson_id VARCHAR(255) NOT NULL REFERENCES class_session(lesson_id) ON DELETE CASCADE,
+    user_id VARCHAR(255) NOT NULL REFERENCES student_profile(user_id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (lesson_id, user_id)
 );
 
@@ -437,6 +460,8 @@ CREATE TABLE class_closure (
     note VARCHAR(255),
     CHECK (to_date >= from_date)
 );
+-- Backend: the closure that cancelled a lesson, so deleting the closure reopens exactly those lessons (a single cancelled class has no closure)
+ALTER TABLE class_session ADD COLUMN IF NOT EXISTS closure_id VARCHAR(255) REFERENCES class_closure(id) ON DELETE SET NULL;
 
 -- Anonymous: deliberately no student column
 CREATE TABLE class_feedback (
@@ -447,6 +472,16 @@ CREATE TABLE class_feedback (
     tags TEXT[] NOT NULL DEFAULT '{}',
     note TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Backend: records only THAT a student answered (or skipped) the rating pop-up for a lesson, so it is not asked twice.
+-- It is deliberately a separate table: class_feedback stays anonymous (no link between a rating and a student).
+CREATE TABLE class_feedback_prompt (
+    lesson_id VARCHAR(255) NOT NULL REFERENCES class_session(lesson_id) ON DELETE CASCADE,
+    user_id VARCHAR(255) NOT NULL REFERENCES student_profile(user_id) ON DELETE CASCADE,
+    state VARCHAR(10) NOT NULL CHECK (state IN ('rated', 'skipped')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (lesson_id, user_id)
 );
 
 CREATE TABLE instructor_remark (
@@ -483,6 +518,8 @@ CREATE INDEX idx_class_session_dojo_date ON class_session(dojo_id, session_date)
 CREATE INDEX idx_class_session_instructor_date ON class_session(instructor_id, session_date);
 CREATE INDEX idx_class_session_date ON class_session(session_date);
 CREATE INDEX idx_attendance_user ON class_attendance(user_id);
+CREATE INDEX idx_waitlist_user ON class_waitlist(user_id);
+CREATE INDEX idx_feedback_prompt_user ON class_feedback_prompt(user_id);
 CREATE INDEX idx_attendance_package ON class_attendance(student_package_id);
 CREATE INDEX idx_attendance_marked_by ON class_attendance(marked_by);
 CREATE INDEX idx_makeup_user ON makeup_class(user_id);
@@ -545,7 +582,7 @@ CREATE TABLE grading_candidate (
     from_rank_id VARCHAR(255) NOT NULL REFERENCES belt_rank(id) ON DELETE RESTRICT,
     to_rank_id VARCHAR(255) NOT NULL REFERENCES belt_rank(id) ON DELETE RESTRICT,
     fee NUMERIC(8, 2) NOT NULL CHECK (fee >= 0),
-    result VARCHAR(20) NOT NULL DEFAULT 'Pending' CHECK (result IN ('Pending', 'Pass', 'Fail')),
+    result VARCHAR(20) NOT NULL DEFAULT 'Pending' CHECK (result IN ('Pending', 'Pass', 'Retake', 'Fail')),   -- backend: 'Retake' added (instructor rubric)
     score NUMERIC(5, 2) CHECK (score BETWEEN 0 AND 100),
     well_done TEXT,
     to_improve TEXT,
@@ -646,13 +683,14 @@ CREATE TABLE mc_request (
     exception_id VARCHAR(255) REFERENCES exception_request(id) ON DELETE SET NULL,
     requested_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     decided_by VARCHAR(255) REFERENCES staff_profile(user_id) ON DELETE SET NULL,
-    decided_at TIMESTAMPTZ
+    decided_at TIMESTAMPTZ,
+    decision_note TEXT                           -- backend: reason sent to the member when a request is not approved
 );
 
 CREATE TABLE followup (
     id VARCHAR(255) PRIMARY KEY,                 -- F-01
     user_id VARCHAR(255) NOT NULL REFERENCES student_profile(user_id) ON DELETE CASCADE,
-    kind VARCHAR(20) NOT NULL CHECK (kind IN ('declining', 'renewal')),
+    kind VARCHAR(20) NOT NULL CHECK (kind IN ('declining', 'renewal', 'newcomer')),   -- backend: 'newcomer' added (Newcomers not returned list)
     owner_id VARCHAR(255) REFERENCES staff_profile(user_id) ON DELETE SET NULL,
     due_date DATE NOT NULL,
     status VARCHAR(10) NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'done'))
@@ -689,13 +727,14 @@ CREATE TABLE import_issue (
     issue_type VARCHAR(50) NOT NULL CHECK (issue_type IN ('Missing information', 'Unmatched name', 'Pipeline error')),
     person_name VARCHAR(255),
     detail TEXT NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'fixed', 'dismissed'))
+    status VARCHAR(20) NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'fixed', 'dismissed')),
+    matched_user_id VARCHAR(255) REFERENCES student_profile(user_id) ON DELETE SET NULL   -- backend: the member a row was matched to when it was fixed
 );
 
 -- Booking rules, fees, discounts, follow-up triggers (key/value)
 CREATE TABLE policy_setting (
     setting_key VARCHAR(255) PRIMARY KEY,
-    value_text VARCHAR(255) NOT NULL,
+    value_text TEXT NOT NULL,                    -- backend: was VARCHAR(255); the interventions list is stored here as JSON text
     value_type VARCHAR(10) NOT NULL CHECK (value_type IN ('int', 'numeric', 'text', 'bool')),
     description VARCHAR(500)
 );
@@ -710,3 +749,47 @@ CREATE INDEX idx_followup_attempt_followup ON followup_attempt(followup_id);
 CREATE INDEX idx_sent_log_sent_by ON sent_log(sent_by);
 CREATE INDEX idx_sent_log_template ON sent_log(template_id);
 CREATE INDEX idx_import_issue_status ON import_issue(status);
+
+-- =====================================================================
+-- 8. AUDIT LOG (append-only)
+-- =====================================================================
+CREATE TABLE audit_log (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    occurred_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    actor_user_id VARCHAR(255) REFERENCES users(id) ON DELETE SET NULL,   -- NULL for system events and failed sign-ins
+    actor_name VARCHAR(255),                     -- snapshots, so a row stays readable if the user is ever removed
+    actor_role VARCHAR(20),
+    actor_admin_type VARCHAR(20),
+    action VARCHAR(60) NOT NULL CHECK (action ~ '^[a-z_]+\.[a-z_]+$'),   -- group.verb, e.g. payment.collected
+    entity_type VARCHAR(40),
+    entity_id VARCHAR(255),
+    summary TEXT NOT NULL,
+    details JSONB NOT NULL DEFAULT '{}'::jsonb,  -- ids and changed field names; never passwords, hashes, tokens or card data
+    ip VARCHAR(64),
+    user_agent VARCHAR(255)
+);
+
+CREATE INDEX idx_audit_time ON audit_log(occurred_at DESC, id DESC);
+CREATE INDEX idx_audit_actor ON audit_log(actor_user_id);
+CREATE INDEX idx_audit_action ON audit_log(action);
+CREATE INDEX idx_audit_entity ON audit_log(entity_type, entity_id);
+
+-- Rejects UPDATE, DELETE and TRUNCATE. The only change allowed is the foreign
+-- key's ON DELETE SET NULL (actor_user_id going from a value to NULL).
+CREATE FUNCTION audit_log_guard() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF TG_OP = 'UPDATE' THEN
+        IF OLD.actor_user_id IS NOT NULL AND NEW.actor_user_id IS NULL
+           AND (to_jsonb(NEW) - 'actor_user_id') = (to_jsonb(OLD) - 'actor_user_id') THEN
+            RETURN NEW;
+        END IF;
+    END IF;
+    RAISE EXCEPTION 'audit_log is append-only (% blocked)', TG_OP USING ERRCODE = 'insufficient_privilege';
+END $$;
+
+CREATE TRIGGER audit_log_no_change BEFORE UPDATE OR DELETE ON audit_log
+    FOR EACH ROW EXECUTE FUNCTION audit_log_guard();
+CREATE TRIGGER audit_log_no_truncate BEFORE TRUNCATE ON audit_log
+    FOR EACH STATEMENT EXECUTE FUNCTION audit_log_guard();
+
+COMMENT ON TABLE audit_log IS 'Append-only history of staff, auth, finance, grading and policy actions. A DBA can still DROP the table or the trigger.';

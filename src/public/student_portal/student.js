@@ -2,7 +2,11 @@
 /* AIKIDO SHINJU-KAI — student.js  (member portal pages) */
 
 
-const stu = { week: 0, slots: [], agDay: null };
+const stu = { week: 0, slots: [], agDay: null, tt: null };
+
+/* every student page first loads the student's home data (passes, bookings, attendance, grade, notes) from the API */
+const stuReady = ALLOWED && !GATED ? ASK.load.home() : Promise.resolve();
+const stuPage = fn => async () => { try { await stuReady; await fn(); } catch (e) { ASK.errToast(e); } };
 
 /* "?" buttons: [data-help="panelId"] shows or hides that panel and keeps aria-expanded in sync */
 document.addEventListener('click', e => {
@@ -27,21 +31,6 @@ function classDate(weekOffset, day) { return addDays(mondayOf(TODAY), weekOffset
 function classStart(date, c) { const s = new Date(date); s.setHours(+c.time.slice(0, 2), 0, 0, 0); return s; }
 
 function classEnd(date, c) { const s = classStart(date, c); s.setHours(s.getHours() + 1); return s; }
-
-/* first visit: two classes already booked in the coming days */
-function seedBookings() {
-  if (DB.seeded) return;
-  const pick = off => {
-    for (let k = off; k < off + 4; k++) {
-      const d = addDays(TODAY, k), day = (d.getDay() + 6) % 7;
-      const c = CLASSES.find(x => x.day === day && x.type === 'Adults' && !whyNot(x)) || CLASSES.find(x => x.day === day && !whyNot(x));
-      if (c && !isBooked(bookKey(d, c))) return { c, date: d, key: bookKey(d, c), passId: MY_PASSES[0] && MY_PASSES[0].id };
-    }
-    return null;
-  };
-  [pick(2), pick(5)].filter(Boolean).forEach(b => BOOKINGS.push(b));
-  DB.seeded = true; save();
-}
 
 /* ---------- lesson packages + expiry ---------- */
 function passRow(p, first) {
@@ -87,34 +76,48 @@ function renderUpcoming() {
 document.addEventListener('click', e => { const b = e.target.closest('[data-cancel]'); if (b) confirmCancel(b.dataset.cancel); });
 
 function confirmCancel(key) {
-  const i = BOOKINGS.findIndex(b => b.key === key), u = BOOKINGS[i]; if (!u) return;
-  const hrs = (classStart(u.date, u.c) - Date.now()) / 36e5, refund = hrs >= 4;
+  const u = BOOKINGS.find(b => b.key === key); if (!u) return;
+  const hrs = (classStart(u.date, u.c) - NOW()) / 36e5, refund = hrs >= DB.policies.booking.cancelHours;
   openModal(`<h3 id="modalTitle">Cancel this class?</h3><p class="sub">${u.c.type} · ${dayName(u.date)} ${fmtDate(u.date)} · ${timeLabel(u.c.time)}</p><div class="note${refund ? '' : ' warn'}" style="margin-top:18px"><svg class="ic"><use href="#i-info"/></svg><span>${u.unlimited ? 'This class is on your Unlimited plan, so nothing is deducted.' : refund ? 'You\'re cancelling more than 4 hours before class, so the lesson goes back to its package with the same expiry date.' : 'This class starts in less than 4 hours, so the lesson won\'t be returned.'}</span></div><div class="acts"><button class="sbtn red" id="doCancel">Cancel class</button><button class="sbtn" data-close>Keep it</button></div>`);
-  $('#doCancel').addEventListener('click', () => {
-    BOOKINGS.splice(i, 1);
-    const p = MY_PASSES.find(x => x.id === u.passId);
-    if (p && refund) p.left++;
-    save(); renderPassViews(); renderUpcoming(); renderBook(); if ($('#nextClass')) renderNextClass(); closeModal();
-    toast(refund && p ? 'Class cancelled. 1 lesson returned.' : 'Class cancelled.');
+  $('#doCancel').addEventListener('click', async () => {
+    try {
+      const r = await ASK.act.cancel(u.lessonId);
+      closeModal();
+      await refreshAfterBooking();
+      toast(r.refunded ? 'Class cancelled. 1 lesson returned.' : 'Class cancelled.');
+    } catch (e) { closeModal(); ASK.errToast(e); }
   });
 }
 
-function slotInfo(c, dt) {
-  const key = bookKey(dt, c), booked = isBooked(key);
-  const left = c.cap - c.booked, why = whyNot(c);
-  const minDate = addDays(TODAY, 1), maxDate = addDays(TODAY, 30);
-  const idx = stu.slots.push({ c, dt, key }) - 1;
+/* re-load what a booking or cancellation changes: passes and bookings (home data) and the week on screen */
+async function refreshAfterBooking() {
+  stu.tt = null;
+  await ASK.load.home();
+  if ($('#bookGrid')) await loadWeek();
+  renderPassViews(); renderUpcoming();
+  if ($('#nextClass')) renderNextClass();
+  if ($('#bookGrid')) renderBook();
+}
+
+/* the lessons of the week on screen come from the server, which also says whether each one can be booked and why not */
+async function loadWeek() {
+  stu.tt = await ASK.load.timetable(isoDate(classDate(stu.week, 0)));
+}
+
+function slotInfo(s) {
+  const idx = stu.slots.push({ s }) - 1;
   const cls = [];
   let sub;
-  if (c.kids) cls.push('kids');
-  if (booked) { cls.push('booked'); sub = 'Booked'; }
-  else if (why) { cls.push('full', 'nope'); sub = why; }
-  else if (hqClosedOn(dt)) { cls.push('full', 'nope'); sub = 'HQ closed'; }
-  else if (dt < minDate) { cls.push('full'); sub = 'Closed for booking'; }
-  else if (dt > maxDate) { cls.push('full'); sub = 'Opens later'; }
-  else if (left <= 0) { cls.push('full'); sub = 'Full'; }
-  else sub = `${left} spot${left > 1 ? 's' : ''} left`;
-  return { idx, cls: cls.join(' '), sub, booked };
+  if (s.kids) cls.push('kids');
+  if (s.state === 'booked') { cls.push('booked'); sub = 'Booked'; }
+  else if (s.state === 'blocked') { cls.push('full', 'nope'); sub = s.whyNot; }
+  else if (s.state === 'closed') { cls.push('full', 'nope'); sub = 'HQ closed'; }
+  else if (s.state === 'cancelled') { cls.push('full', 'nope'); sub = 'Cancelled'; }
+  else if (s.state === 'tooSoon') { cls.push('full'); sub = 'Closed for booking'; }
+  else if (s.state === 'tooLate') { cls.push('full'); sub = 'Opens later'; }
+  else if (s.state === 'full') { cls.push('full'); sub = 'Full'; }
+  else sub = `${s.left} spot${s.left > 1 ? 's' : ''} left`;
+  return { idx, cls: cls.join(' '), sub, booked: s.state === 'booked' };
 }
 
 function renderBook() {
@@ -123,16 +126,19 @@ function renderBook() {
   $('#wkLabel').textContent = `${mon.getDate()} ${MON[mon.getMonth()]} – ${sun.getDate()} ${MON[sun.getMonth()]}`;
   $('#wkPrev').disabled = stu.week === 0; $('#wkNext').disabled = stu.week === 4;
   stu.slots = [];
+  const sessions = stu.tt ? stu.tt.sessions : [];
+  const on = (dt, t) => sessions.filter(s => s.date === isoDate(dt) && s.time === t);
+  const times = [...new Set([...TIMES, ...sessions.map(s => s.time)])].sort();
 
   // desktop: week grid
   let html = '<div class="hd"></div>';
   for (let d = 0; d < 7; d++) { const dt = addDays(mon, d); html += `<div class="hd${+dt === +TODAY ? ' today' : ''}">${DAY[dt.getDay()]}<b>${dt.getDate()}</b></div>`; }
-  TIMES.forEach(t => {
+  times.forEach(t => {
     html += `<div class="tm">${timeLabel(t)}</div>`;
     for (let d = 0; d < 7; d++) {
       const dt = addDays(mon, d);
-      html += '<div class="cell">' + CLASSES.filter(c => c.day === d && c.time === t).map(c => {
-        const s = slotInfo(c, dt);
+      html += '<div class="cell">' + on(dt, t).map(c => {
+        const s = slotInfo(c);
         return `<button class="slotb ${s.cls}" data-i="${s.idx}"><b>${c.type}</b><span>${s.booked ? c.ins.replace(' Sensei', '') : s.sub}</span></button>`;
       }).join('') + '</div>';
     }
@@ -149,24 +155,25 @@ function renderBook() {
     return `<button type="button" class="ag-day${d === stu.agDay ? ' on' : ''}${+dt === +TODAY ? ' today' : ''}" data-ag="${d}" aria-pressed="${d === stu.agDay}"><span>${DAY[dt.getDay()]}</span><b>${dt.getDate()}</b></button>`;
   }).join('');
   const dt = addDays(mon, stu.agDay);
-  const items = CLASSES.filter(c => c.day === stu.agDay).sort((a, b) => a.time.localeCompare(b.time)).map(c => {
-    const s = slotInfo(c, dt);
+  const items = sessions.filter(c => c.date === isoDate(dt)).sort((a, b) => a.time.localeCompare(b.time)).map(c => {
+    const s = slotInfo(c);
     return `<button type="button" class="ag-item ${s.cls}" data-i="${s.idx}"><span class="ag-time">${timeLabel(c.time)}<small>60 min</small></span><span class="ag-main"><b>${c.type}</b><span>${c.ins}</span></span><span class="ag-st">${s.sub}</span></button>`;
   }).join('');
   $('#bookAgenda').innerHTML = `<div class="ag-days">${chips}</div><div class="ag-head">${dayName(dt)} ${fmtDate(dt)} · HQ Dojo</div><div class="ag-list">${items || '<p class="ag-empty">No classes at HQ this day.</p>'}</div>`;
 }
 
 function openBooking(i) {
-  const s = stu.slots[+i]; if (!s) return;
-  const { c, dt, key } = s;
-  if (isBooked(key)) { confirmCancel(key); return; }
-  const why = whyNot(c);
-  if (why) { toast(`${c.type} is for ${why.toLowerCase()}.`, 'info'); return; }
-  const left = c.cap - c.booked;
+  const slot = stu.slots[+i]; if (!slot) return;
+  const c = slot.s, dt = ASK.d(c.date), key = stuKey(dt, c.time);
+  if (c.state === 'booked') { confirmCancel(key); return; }
+  if (c.state === 'blocked') { toast(`${c.type} is for ${c.whyNot.toLowerCase()}.`, 'info'); return; }
+  const notes = { closed: 'HQ is closed on that day.', cancelled: 'That class is cancelled.', tooSoon: 'Booking for this class has closed.', tooLate: 'This class opens for booking later.', full: 'This class is full.' };
+  if (notes[c.state]) { toast(notes[c.state], 'info'); return; }
+  const left = c.left;
   const unl = unlimitedOn(dt), pass = unl ? null : passFor(dt);
   const after = unl ? 'Unlimited' : pass ? `${pass.left - 1} left in ${esc(pass.name)}` : '—';
-  openModal(`<h3 id="modalTitle">${c.type}</h3><p class="sub">${dayName(dt)} ${fmtDate(dt)} · ${timeLabel(c.time)} – ${timeLabel(String(+c.time.slice(0, 2) + 1).padStart(2, '0') + ':00')}</p>
-    <div class="kv"><div><span>Dojo</span><span>HQ Dojo · Thomson V One</span></div><div><span>Instructor</span><span>${c.ins}</span></div><div><span>Spots left</span><span>${left} of ${c.cap}</span></div>
+  openModal(`<h3 id="modalTitle">${c.type}</h3><p class="sub">${dayName(dt)} ${fmtDate(dt)} · ${timeLabel(c.time)} – ${timeLabel(c.end)}</p>
+    <div class="kv"><div><span>Dojo</span><span>HQ Dojo · Thomson V One</span></div><div><span>Instructor</span><span>${esc(c.ins)}</span></div><div><span>Spots left</span><span>${left} of ${c.cap}</span></div>
     <div><span>Paid with</span><span>${unl ? `Unlimited (until ${fmtShort(DB.unlimited.until)})` : pass ? `1 lesson · ${esc(pass.name)}` : 'No valid lessons'}</span></div>
     ${pass ? `<div><span>Lesson expires</span><span>${fmtDate(pass.expires)}</span></div>` : ''}
     <div><span>Balance after</span><span>${after}</span></div></div>
@@ -179,11 +186,14 @@ function openBooking(i) {
     </ul>` : ''}
     <div class="acts">${!unl && !pass ? `<a class="btn btn-dark arrow" href="packages.html">Top up<span class="dot">${icon('arrow')}</span></a>` : `<button class="btn btn-dark arrow" id="doBook" autofocus>Confirm booking<span class="dot">${icon('arrow')}</span></button>`}</div>`);
   const btn = $('#doBook'); if (!btn) return;
-  btn.addEventListener('click', () => {
-    BOOKINGS.push({ c, date: dt, key, passId: pass ? pass.id : null, unlimited: unl });
-    if (pass) pass.left--;
-    save(); renderPassViews(); renderBook(); closeModal();
-    toast('Booked. Confirmation sent to your email.');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try {
+      await ASK.act.book(c.lessonId);
+      closeModal();
+      await refreshAfterBooking();
+      toast('Booked. Confirmation sent to your email.');
+    } catch (e) { closeModal(); ASK.errToast(e); await refreshAfterBooking().catch(() => {}); }
   });
 }
 
@@ -203,12 +213,13 @@ function openBuy(id) {
       : `<div><span>Lessons expire</span><span>${fmtDate(exp)}</span></div><div><span>New balance</span><span>${totalCredits() + p.lessons} lessons</span></div>`}
     <div><span>Pay with</span><span>Visa •••• 4242</span></div></div>
     <div class="slide" id="buySlide"><div class="fill"></div><div class="lbl"><em>Slide to pay ${money(p.amt)}</em></div><div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${icon('arrow')}</div></div>`);
-  slideCommit($('#buySlide'), () => {
-    if (p.lessons === Infinity) DB.unlimited = { since: new Date(TODAY), until: exp };
-    else MY_PASSES.push({ id: 'P-' + String(Date.now()).slice(-6), name: p.name, total: p.lessons, left: p.lessons, bought: new Date(TODAY), expires: exp });
-    PAYS.unshift({ item: p.lessons === Infinity ? 'Unlimited · 2 weeks' : p.t, date: fmtDate(new Date()), method: 'Visa •••• 4242', amt: p.amt, st: 'Paid', inv: newInv() });
-    save(); renderPays(); renderPassViews(); renderBook();
-    setTimeout(() => { closeModal(); toast(`${p.t} added. Receipt sent by email.`); }, 500);
+  slideCommit($('#buySlide'), async () => {
+    try {
+      await ASK.act.buy(p.id, 'Visa');
+      await ASK.load.packages();
+      renderPassViews();
+      setTimeout(() => { closeModal(); toast(`${p.t} added. Receipt sent by email.`); }, 500);
+    } catch (e) { closeModal(); ASK.errToast(e); await ASK.load.packages().then(renderPassViews).catch(() => {}); }
   });
 }
 
@@ -245,7 +256,7 @@ function renderMCList() {
   $('#mcCount').hidden = !pending; $('#mcCount').textContent = `${pending} waiting`;
   $('#mcList').innerHTML = list.map(r => {
     const [cls, lbl] = mcStatus[r.status];
-    const when = r.kind === 'mc' ? `MC ${fmtShort(new Date(r.from))} – ${fmtShort(new Date(r.to))}` : 'Compassion Guaranteed';
+    const when = r.kind === 'mc' ? 'Medical certificate' : 'Compassion Guaranteed';
     return `<div class="row"><span class="av${r.status === 'approved' ? ' navy' : ''}">${icon(r.kind === 'mc' ? 'doc' : 'gift')}</span><div class="grow"><div class="t">+${plural(r.days, 'day')} · ${esc(r.passName)}</div><div class="d">${when} · sent ${fmtShort(new Date(r.date))}${r.status === 'approved' && r.newExp ? ` · now expires ${fmtDate(new Date(r.newExp))}` : ''}${r.status === 'rejected' && r.reason ? ` · ${esc(r.reason)}` : ''}</div></div><div class="acts"><span class="pill ${cls}">${lbl}</span>${r.status === 'pending' ? `<button type="button" class="sbtn ghost" data-mc-withdraw="${esc(r.id)}">Withdraw</button>` : ''}</div></div>`;
   }).join('');
 }
@@ -256,7 +267,7 @@ function initMC() {
   if (!act.length) { $('#mcSubmit').disabled = true; $('#mcSum').innerHTML = `<div class="note warn">${icon('info')}<span>You have no active lesson package to extend. Unlimited plans renew every 2 weeks and don't need extending.</span></div>`; }
   $('#mcForm').addEventListener('change', renderMCForm);
   $('#mcForm').addEventListener('input', renderMCForm);
-  $('#mcForm').addEventListener('submit', e => {
+  $('#mcForm').addEventListener('submit', async e => {
     e.preventDefault();
     const st = mcState();
     if (!st.pass) { toast('Choose a package to extend.', 'bad'); return; }
@@ -274,21 +285,18 @@ function initMC() {
       if (!ok) { toast('Check the highlighted fields.', 'bad'); return; }
     }
     const f = $('#mc-file').files[0];
-    MC_REQS.unshift({
-      id: 'MC-' + String(Date.now()).slice(-6), n: ME.name, no: ME.no, passId: st.pass.id, passName: st.pass.name,
-      kind: st.kind, from: st.from, to: st.to, days: st.days, oldExp: st.pass.expires,
-      file: st.kind === 'mc' && f ? `mc-uploads/${ME.no}/${Date.now()}-${f.name.replace(/\s+/g, '-')}` : null, fileName: f && st.kind === 'mc' ? f.name : null,
-      note: $('#mc-note').value.trim(), date: new Date(), status: 'pending'
-    });
-    save();
+    try {
+      /* file uploads are not built yet: only the file name is sent as the document reference */
+      await ASK.act.extension(st.pass.id, st.kind === 'mc' ? { kind: 'MC', days: st.days, documentRef: f.name } : { kind: 'Compassion', days: st.days });
+      await ASK.load.packages();
+    } catch (err) { ASK.errToast(err); return; }
     $('#mcForm').reset(); $$('#mcForm input[data-dp]').forEach(i => i.dpSet && i.dpSet(null)); $$('#mcForm .fld').forEach(x => x.classList.remove('invalid'));
     renderMCForm(); renderMCList();
     toast('Request sent. HQ usually replies within 2 working days.');
   });
-  document.addEventListener('click', e => {
+  document.addEventListener('click', async e => {
     const w = e.target.closest('[data-mc-withdraw]'); if (!w) return;
-    const i = MC_REQS.findIndex(r => r.id === w.dataset.mcWithdraw); if (i < 0) return;
-    MC_REQS.splice(i, 1); save(); renderMCList(); toast('Request withdrawn.', 'info');
+    try { await ASK.act.withdrawExtension(w.dataset.mcWithdraw); await ASK.load.packages(); renderMCList(); toast('Request withdrawn.', 'info'); } catch (err) { ASK.errToast(err); }
   });
   renderMCForm(); renderMCList();
   if (location.hash === '#mc') setTimeout(() => $('#mc').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 300);
@@ -297,47 +305,20 @@ function initMC() {
 /* ---------- class rating: a pop-up once a class has ended ---------- */
 const RATE_TAGS = ['Clear explanations', 'Good pace', 'Felt safe', 'Learned something new', 'Fun partner work'];
 function agoText(end) {
-  const m = Math.round((Date.now() - end) / 60000);
+  const m = Math.round((NOW() - end) / 60000);
   if (m < 60) return `ended ${Math.max(1, m)} min ago`;
   const h = Math.round(m / 60); if (h < 24) return `ended ${plural(h, 'hour')} ago`;
   return `ended ${plural(Math.round(h / 24), 'day')} ago`;
 }
-/* latest class the student could have attended that has already finished (stands in for attendance data) */
-function lastEndedClass() {
-  const now = new Date();
-  for (let k = 0; k < 8; k++) {
-    const d = addDays(TODAY, -k), day = (d.getDay() + 6) % 7;
-    const list = CLASSES.filter(c => c.day === day && !whyNot(c)).sort((a, b) => b.time.localeCompare(a.time));
-    for (const c of list) { const end = classEnd(d, c); if (end < now) return { c, date: d, end, key: `${isoDate(d)}|${c.time}` }; }
-  }
-  return null;
-}
-
-/* any booked class that has finished moves to the rating queue */
-function checkEnded() {
-  const now = new Date();
-  for (let i = BOOKINGS.length - 1; i >= 0; i--) {
-    const u = BOOKINGS[i];
-    if (classEnd(u.date, u.c) < now) {
-      BOOKINGS.splice(i, 1);
-      // until the instructor ends the class, the outcome is unknown: no +1 yet, and the lesson stays used either way
-      if (!ATTENDANCE.some(a => `${isoDate(a.date)}|${a.time}` === u.key)) ATTENDANCE.unshift({ date: u.date, time: u.c.time, type: u.c.type, ins: u.c.ins, status: 'pending' });
-      queueRating({ c: u.c, date: u.date, end: classEnd(u.date, u.c), key: u.key });
-    }
-  }
-}
-function queueRating(r) {
-  if (!r || DB.rated.includes(r.key) || DB.rateQueue.some(x => x.key === r.key)) return;
-  DB.rateQueue.push(r);
-}
-/* pop up the first rating the student hasn't been asked about yet */
+/* The rating queue (attended classes not rated yet) comes from the server with the home data.
+   pop up the first rating the student hasn't been asked about in this visit */
 function promptRating() {
-  checkEnded(); save(); syncNotifDot(); renderUpcoming();
+  syncNotifDot(); renderUpcoming();
   if ($('#attList')) { renderNextClass(); renderAttendance(); }
   const i = DB.rateQueue.findIndex(r => !DB.prompted.includes(r.key));
   if (i < 0 || $('#modal').classList.contains('open')) return;
   if ($('#levelCards') && gameView() && DB.levelUps.length) return;   // don't cover the level-up moment; ask on a later visit
-  DB.prompted.push(DB.rateQueue[i].key); save();
+  DB.prompted.push(DB.rateQueue[i].key);
   openRating(i);
 }
 function openRating(i) {
@@ -354,9 +335,13 @@ function openRating(i) {
   let rating = 0;
   peekRating($('#rsPeek'), v => { rating = v; $('#rsSend').disabled = !v; });
   $('#rsTags').addEventListener('click', e => { const b = e.target.closest('.rtag'); if (b) b.setAttribute('aria-pressed', b.classList.toggle('on')); });
-  $('#rsSend').addEventListener('click', () => {
-    FEEDBACK.push({ ins: r.c.ins, type: r.c.type, date: r.date, rating, tags: $$('#rsTags .rtag.on').map(b => b.textContent), note: $('#rsNote').value.trim() });
-    DB.rated.push(r.key); DB.rateQueue.splice(i, 1); save(); syncNotifDot(); closeModal();
+  $('#rsSend').addEventListener('click', async () => {
+    const note = $('#rsNote').value.trim();
+    try {
+      await ASK.act.rate({ lessonId: r.lessonId, rating, tags: $$('#rsTags .rtag.on').map(b => b.textContent), ...(note ? { note } : {}) });
+    } catch (e) { closeModal(); ASK.errToast(e); return; }
+    const at = DB.rateQueue.indexOf(r); if (at > -1) DB.rateQueue.splice(at, 1);
+    syncNotifDot(); closeModal();
     toast(`Thanks. Your feedback went to ${r.c.ins}.`);
   });
   $('#rsLater').addEventListener('click', () => { closeModal(); toast('Saved for later. Find it under notifications.', 'info'); });
@@ -403,9 +388,11 @@ const gradeChecks = () => [
 
 const gradeEligible = () => gradeChecks().every(c => c[2]);
 
+/* the fee comes from the server (grading fee of the target rank, plus the late fee after the close date) */
 function gradeFee() {
-  const lines = [[`Grading fee · ${GRADE.target}`, `Adult grading · ${fmtDate(GRADE.date)}`, GRADING_FEE[GRADE.target] || 50]];
-  if (TODAY > GRADE.close) lines.push(['Late submission charge', `Applications closed ${fmtDate(GRADE.close)}`, LATE_FEE]);
+  const f = GRADE.fee || { base: 0, late: 0 };
+  const lines = [[`Grading fee · ${GRADE.target}`, GRADE.date ? `Adult grading · ${fmtDate(GRADE.date)}` : 'No grading is scheduled yet', f.base]];
+  if (f.late) lines.push(['Late submission charge', `Applications closed ${fmtDate(GRADE.close)}`, f.late]);
   return { lines, total: lines.reduce((a, l) => a + l[2], 0) };
 }
 
@@ -424,18 +411,14 @@ function renderStuGrading() {
   $('#ga-book').disabled = !ok || !!sub;
   $('#gaSubmit').disabled = !ok || !!sub;
   $('#gaFees').innerHTML = feeHTML(gradeFee());
-  $('#gaDemoWrap').hidden = ok || !!sub;
+  $('#gaTitle').textContent = `Checklist · ${GRADE.target}`;
+  $('#gaWhen').textContent = GRADE.date ? `Adult grading · ${fmtDate(GRADE.date)}` : 'No grading is scheduled yet';
+  $('#ga-cur').value = `${GRADE.currentRank || ME.grade}${GRADE.passedOn ? ' · ' + fmtDate(GRADE.passedOn) : ''}`;
+  $('#ga-target').innerHTML = `<option>${esc(GRADE.targetLabel)}</option>`;
 }
 
 function initGradingApp() {
   $('#ga-book').addEventListener('change', () => fldOf($('#ga-book')).classList.remove('invalid'));
-  $('#gaDemo').addEventListener('click', () => {
-    GRADE.sessions = GRADE.needSessions;
-    const s = STUDENTS.find(x => x.n === ME.name); if (s) s.s = Math.max(s.s, s.need);
-    save();
-    renderStuGrading();
-    toast('Prototype: requirements marked as met', 'info');
-  });
   $('#gradeForm').addEventListener('submit', e => {
     e.preventDefault();
     if (!gradeEligible() || GRADE.submitted) return;
@@ -449,14 +432,13 @@ function initGradingApp() {
       <div class="kv"><div><span>Principal dojo</span><span>${esc(dojoName(ME.dojo))}</span></div><div><span>Membership book</span><span>${esc(f.name)}</span></div><div><span>Pay with</span><span>Visa •••• 4242</span></div></div>
       <div class="fees" style="margin-bottom:18px">${feeHTML(fee)}</div>
       <div class="slide" id="gaSlide"><div class="fill"></div><div class="lbl"><em>Slide to pay ${money(fee.total)}</em></div><div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${icon('arrow')}</div></div>`);
-    slideCommit($('#gaSlide'), () => {
-      const date = fmtDate(new Date());
-      GRADE.submitted = { ref: 'GRD-' + String(Date.now()).slice(-6), total: fee.total, date, file: `grading-uploads/${ME.no}/${Date.now()}-${f.name.replace(/\s+/g, '-')}` };
-      GRAD_APPS.unshift({ n: ME.name, from: ME.grade, to: GRADE.target, dojo: ME.dojo, sub: fmtShort(TODAY), note: 'Membership book uploaded · fee paid', sched: null });
-      PAYS.unshift({ item: `Grading fee · ${GRADE.target}`, date, method: 'Visa •••• 4242', amt: fee.total, st: 'Paid', inv: newInv() });
-      renderPays(); renderStuGrading();
-      save();
-      setTimeout(() => { closeModal(); toast('Grading application submitted. Confirmation sent by email.'); }, 500);
+    slideCommit($('#gaSlide'), async () => {
+      try {
+        /* the membership book photo is not uploaded yet: only its file name is sent */
+        await ASK.act.applyGrading({ sessionId: GRADE.sessionId, bookFile: f.name, method: 'Visa' });
+        await ASK.load.grading(); renderStuGrading();
+        setTimeout(() => { closeModal(); toast('Grading application submitted. Confirmation sent by email.'); }, 500);
+      } catch (e) { closeModal(); ASK.errToast(e); await ASK.load.grading().then(renderStuGrading).catch(() => {}); }
     });
   });
   renderStuGrading();
@@ -516,7 +498,7 @@ document.addEventListener('click', e => { if (e.target.closest('[data-curriculum
 /* ---------- check-in (mockup): the student scans the location QR code ---------- */
 /* the booked class happening today (or still to start), closest to now */
 function todaysBooking() {
-  const now = new Date();
+  const now = NOW();
   return BOOKINGS
     .filter(u => daysBetween(TODAY, u.date) === 0 && classEnd(u.date, u.c) >= now)
     .sort((a, b) => classStart(a.date, a.c) - classStart(b.date, b.c))[0] || null;
@@ -542,8 +524,7 @@ function handleDojoScan(dojoId) {
   if (d.id !== at) return scanFail(`That code is for ${d.name}. Your class today is at ${dojoName(at)}.`);
   recordMyAttendance({ date: b.date, time: b.c.time, type: b.c.type, ins: b.c.ins, status: 'present' });   // also drops the booking, +1 session, level-up card
   DB.checkIns = DB.checkIns || [];
-  DB.checkIns.unshift({ dojo: d.id, at: new Date(), key: b.key, type: b.c.type, time: b.c.time, ins: b.c.ins, date: b.date });
-  save();
+  DB.checkIns.unshift({ dojo: d.id, at: NOW(), key: b.key, type: b.c.type, time: b.c.time, ins: b.c.ins, date: b.date });   // mock: kept in memory only, nothing is sent to the server
   location.href = url('student_portal/checkin.html');
 }
 
@@ -574,7 +555,7 @@ function memberCardHTML(id = 'memberCard') {
     <div class="pcard-mid"><span class="pcard-av">${initials(ME.name)}</span><div><div class="pcard-name">${esc(ME.name)}</div><div class="pcard-rank" style="--belt:${beltOf(ME.grade)}"><i></i>${esc(ME.grade)}</div></div></div>
     <div class="pcard-bot"><span>MEMBER NO.<b>${esc(ME.no)}</b></span><span style="text-align:right">PRINCIPAL DOJO<b>${esc(DOJOS.find(d => d.id === ME.dojo).short)}</b></span></div>
     <span class="pcard-glare"></span></div>
-    <div class="pcard-foot"><span class="st">Active · Expires Jan 2027</span><button type="button" data-qr>${icon('scan')}Scan to check in</button></div></div></div>`;
+    <div class="pcard-foot"><span class="st">${esc(ME.status || 'Active')}${ME.expiry ? ` · Expires ${MON[ME.expiry.getMonth()]} ${ME.expiry.getFullYear()}` : ''}</span><button type="button" data-qr>${icon('scan')}Scan to check in</button></div></div></div>`;
 }
 document.addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
 
@@ -640,7 +621,7 @@ const home = { shown: 0 };   // sessions currently drawn on the path (gamified v
 const pendingSessions = () => DB.levelUps.filter(l => l.kind === 'session').length;
 
 function renderHomeTop() {
-  const h = new Date().getHours();
+  const h = NOW().getHours();
   $('#greet').textContent = `Good ${h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'}, ${ME.name.split(' ')[0]}`;
   const n = streakWeeks();
   $('#hsStreakN').textContent = n;
@@ -666,7 +647,7 @@ function renderNextBelt(count) {
       <button type="button" class="icon-btn nb-tree" data-curriculum aria-label="View ${esc(GRADE.targetLabel)} curriculum" title="Curriculum">${icon('tree')}</button>
     </div>
     <div class="pbar" role="progressbar" aria-label="Sessions toward ${esc(GRADE.target)}" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${count}"><i id="nbFill" style="transform:scaleX(${pct})"></i></div>
-    <p class="nb-sub" id="nbSub">${left ? `<b>${plural(left, 'more session')}</b> to be ready for grading.` : `<b>Sessions done.</b> You're ready to apply.`} Next grading ${fmtShort(GRADE.date)}, apply by ${fmtShort(GRADE.close)}.</p>
+    <p class="nb-sub" id="nbSub">${left ? `<b>${plural(left, 'more session')}</b> to be ready for grading.` : `<b>Sessions done.</b> You're ready to apply.`} ${GRADE.date ? `Next grading ${fmtShort(GRADE.date)}, apply by ${fmtShort(GRADE.close)}.` : 'No grading is scheduled yet.'}</p>
     <p class="nb-months ${monthsMet ? 'ok' : ''}">${icon(monthsMet ? 'check' : 'clock')}<span>${GRADE.monthsInRank} of ${GRADE.needMonths} months at ${esc(ME.grade)}${monthsMet ? ' · met' : ''}</span></p>`;
 }
 
@@ -905,7 +886,7 @@ function renderAttendance() {
 }
 
 /* notes from instructors: the three newest on the home page, the full history in a drawer */
-const NOTE_KIND = { class: ['Class note', 'k-class'], student: ['For you', 'k-student'], grading: ['Grading note', 'k-grading'] };
+const NOTE_KIND = { class: ['Class note', 'k-class'], student: ['For you', 'k-student'] };   // grading notes are for instructors and examiners only
 const noteRow = r => `<article class="note-row"><div class="note-top"><span class="note-kind ${NOTE_KIND[r.kind][1]}">${NOTE_KIND[r.kind][0]}</span><span>${esc(r.label)}</span><span>${esc(r.by)}</span></div><p>${esc(r.text)}</p></article>`;
 function renderNotes() {
   const list = $('#notesList'); if (!list) return;
@@ -927,18 +908,17 @@ function renderHome(anim) {
   renderNextBelt(home.shown);
   if (game) { renderLevelCards(); renderPath(home.shown, anim); } else { const promo = DB.levelUps.find(l => l.kind === 'promotion'); $('#levelCards').hidden = !promo; $('#levelCards').innerHTML = promo ? `<div class="note"><svg class="ic"><use href="#i-award"/></svg><span><b>Promoted to ${esc(promo.to)}.</b> Congratulations.</span><button class="sbtn ghost" data-claim="promotion">Dismiss</button></div>` : ''; }
   renderNextClass(); renderAttendance(); renderNotes();
-  save();
 }
 
 /* the level-up moment: one tap = one counted session joins the path */
 function claim(kind, btn) {
   if (kind === 'promotion') {
-    DB.levelUps = DB.levelUps.filter(l => l.kind !== 'promotion'); save();
+    DB.levelUps = DB.levelUps.filter(l => l.kind !== 'promotion');
     if (gameView()) { chime(true); confetti(); toast('Congratulations on your new grade.'); }
     renderHome(false); return;
   }
   const i = DB.levelUps.findIndex(l => l.kind === 'session'); if (i < 0) return;
-  DB.levelUps.splice(i, 1); save();
+  DB.levelUps.splice(i, 1);
   const before = home.shown, after = before + 1, need = GRADE.needSessions, big = after >= need && before < need;
   chime(big);
   const go = () => {
@@ -963,20 +943,6 @@ function claim(kind, btn) {
 function openMemberCard() {
   openModal(`<h3 id="modalTitle">Membership card</h3><p class="sub">${esc(ME.grade)} · ${esc(dojoName(ME.dojo))}</p><div style="margin-top:16px">${memberCardHTML('modalMemberCard')}</div>`);
   profileCard($('#modalMemberCard'));
-}
-
-/* prototype: stand in for the instructor marking your next class */
-function simulateNext(status) {
-  const b = BOOKINGS.slice().sort((x, y) => x.date - y.date)[0];
-  let rec;
-  if (b) rec = { date: b.date, time: b.c.time, type: b.c.type, ins: b.c.ins, status };
-  else {
-    const p = activePasses()[0]; if (p) p.left--;   // as if it had been booked: the lesson is used either way
-    rec = { date: addDays(TODAY, -1), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status };
-  }
-  recordMyAttendance(rec);
-  save(); renderHome(false);
-  toast(status === 'present' ? 'Marked present. Your +1 is waiting on Home.' : 'No-show recorded. Lesson used, no refund, not counted.', status === 'present' ? 'ok' : 'info');
 }
 
 /* grading feedback the student sees (instructor writes it in the grading form) */
@@ -1004,8 +970,7 @@ function renderFeedback() {
 
 /* ---------- pages ---------- */
 runPage({
-  home() {
-    seedBookings();
+  home: stuPage(() => {
     renderHome(false);
     $('#homeView').addEventListener('click', e => {
       const b = e.target.closest('[data-v]'); if (!b || (b.dataset.v === 'game') === gameView()) return;
@@ -1015,26 +980,34 @@ runPage({
     $('#beltBadge').addEventListener('click', openMemberCard);
     $('#notesAll').addEventListener('click', () => openDrawer('Notes from your instructors', `<div class="notes-list">${remarksForStudent(ME.name).map(noteRow).join('')}</div>`));
     $('.page').addEventListener('click', e => {
-      const c = e.target.closest('[data-claim]'); if (c) { claim(c.dataset.claim, c.closest('.lvl-card')); return; }
-      const sim = e.target.closest('[data-sim]'); if (sim) simulateNext(sim.dataset.sim);
+      const c = e.target.closest('[data-claim]'); if (c) claim(c.dataset.claim, c.closest('.lvl-card'));
     });
-  },
-  book() {
-    $('#wkPrev').addEventListener('click', () => { stu.week = Math.max(0, stu.week - 1); stu.agDay = null; renderBook(); });
-    $('#wkNext').addEventListener('click', () => { stu.week = Math.min(4, stu.week + 1); stu.agDay = null; renderBook(); });
+  }),
+  book: stuPage(async () => {
+    const go = async step => {
+      const week = Math.max(0, Math.min(4, stu.week + step));
+      try { stu.week = week; stu.agDay = null; await loadWeek(); } catch (e) { ASK.errToast(e); }
+      renderBook();
+    };
+    $('#wkPrev').addEventListener('click', () => go(-1));
+    $('#wkNext').addEventListener('click', () => go(1));
     $('.page').addEventListener('click', e => {
       const d = e.target.closest('[data-ag]'); if (d) { stu.agDay = +d.dataset.ag; renderBook(); return; }
       const b = e.target.closest('[data-i]'); if (b) openBooking(b.dataset.i);
     });
+    await loadWeek();
     renderBook();
-  },
-  packages() {
+  }),
+  packages: stuPage(async () => {
+    await ASK.load.packages();
+    renderPassViews();
     document.addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) openBuy(b.dataset.buy); });
     renderShop();
     initMC();
-  },
-  grading() { initGradingApp(); renderFeedback(); },
-  payments() {
+  }),
+  grading: stuPage(async () => { await ASK.load.grading(); initGradingApp(); renderFeedback(); }),
+  payments: stuPage(async () => {
+    await ASK.load.payments();
     renderPays();
     $('#payRows').addEventListener('click', e => {
       const b = e.target.closest('[data-rcpt]'); if (!b) return;
@@ -1042,26 +1015,37 @@ runPage({
       openModal(`<h3 id="modalTitle">Receipt</h3><p class="sub">${esc(p.item)}</p><div class="kv"><div><span>Receipt no.</span><span class="num">${p.inv}</span></div><div><span>Date</span><span>${p.date}</span></div><div><span>Member</span><span>${ME.name} · ${ME.no}</span></div><div><span>Paid by</span><span>${p.method}</span></div><div><span>Amount</span><span>${money(p.amt)}</span></div></div><div class="acts"><button class="sbtn dark" data-pdf="${i}" data-close>${icon('download')}Save PDF</button></div>`);
     });
     document.addEventListener('click', e => { const b = e.target.closest('[data-pdf]'); if (b) downloadReceipt(+b.dataset.pdf); });
-  },
-  profile() {
+  }),
+  profile: stuPage(async () => {
+    const pf = await ASK.load.profile();
     $('#profileCard').innerHTML = memberCardHTML(); profileCard($('#memberCard'));
-    $('#profileForm').addEventListener('submit', e => { e.preventDefault(); toast('Profile saved'); });
-    if (location.hash === '#terms') { const d = $('#terms details'); if (d) { d.open = true; $('#terms').scrollIntoView(); } }
-    $('#pwBtn').addEventListener('click', () => openModal(`<h3 id="modalTitle">Change password</h3><p class="sub">Use at least 8 characters.</p><form id="pwForm" style="display:grid;gap:14px;margin-top:18px" novalidate><div class="fld"><label for="pw1">Current password</label><input id="pw1" type="password" autofocus></div><div class="fld"><label for="pw2">New password</label><input id="pw2" type="password"><span class="err">At least 8 characters.</span></div><button class="sbtn dark" type="submit" style="justify-self:start">Update password</button></form>`));
-    document.addEventListener('submit', e => {
-      if (e.target.id !== 'pwForm') return; e.preventDefault();
-      if ($('#pw2').value.length < 8) { fldOf($('#pw2')).classList.add('invalid'); return; }
-      closeModal(); toast('Password updated');
+    const fill = p => {
+      $('#p-name').value = p.name; $('#p-email').value = p.email; $('#p-phone').value = p.contactNo; $('#p-ec').value = p.emergencyContact;
+      $('#pfJoined').textContent = fmtDate(ASK.d(p.joinedOn));
+      $('#pfDues').textContent = p.lastRenewedAt ? `Paid ${fmtDate(ASK.d(p.lastRenewedAt))}` : 'Not paid yet';
+      $('#pfStatus').textContent = p.status; $('#pfStatus').className = 'pill ' + (p.status === 'Active' ? 'ok' : 'warn');
+    };
+    fill(pf);
+    $('#profileForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = $('#p-email').value.trim(), phone = $('#p-phone').value.trim();
+      if (!emailOk(email) || !phoneOk(phone)) { toast('Check your email and mobile number.', 'bad'); return; }
+      try {
+        fill(await ASK.act.updateProfile({ email, contactNo: phone, emergencyContact: $('#p-ec').value.trim() }));
+        toast('Profile saved');
+      } catch (err) { ASK.errToast(err); }
     });
-  },
-  checkin() { renderCheckIn(); }
+    if (location.hash === '#terms') { const d = $('#terms details'); if (d) { d.open = true; $('#terms').scrollIntoView(); } }
+    $('#pwBtn').addEventListener('click', () => ASK.openChangePassword());
+  }),
+  checkin: stuPage(() => renderCheckIn())
 });
 
 /* which class the member just checked in to:
    a booked class on the mat right now (or next up today), else the next eligible
    HQ class today — so the confirmation always names a real session. */
 function checkInClass() {
-  const now = new Date();
+  const now = NOW();
   const windowOpen = (date, c) => classStart(date, c).getTime() - 30 * 60000; // doors 30 min before
   // 1) a booked class happening today, closest to now
   const bookedToday = todaysBooking();
@@ -1076,13 +1060,13 @@ function checkInClass() {
 }
 
 function renderCheckIn() {
-  const now = new Date();
+  const now = NOW();
   const fmtTime = d => { let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'), ap = h < 12 ? 'AM' : 'PM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; };
   $('#ciMember').textContent = ME.name;
   $('#ciNo').textContent = ME.no;
   $('#ciTime').textContent = `${fmtTime(now)} · ${fmtDate(now)}`;
 
-  const scan = (DB.checkIns || [])[0], recent = scan && Date.now() - new Date(scan.at) < 10 * 60000 ? scan : null;
+  const scan = (DB.checkIns || [])[0], recent = scan && NOW() - new Date(scan.at) < 10 * 60000 ? scan : null;
   const where = recent ? dojoName(recent.dojo) : 'HQ Dojo · Thomson V One';
   const info = recent && recent.type ? { c: { type: recent.type, time: recent.time, ins: recent.ins }, date: new Date(recent.date), booked: true } : checkInClass();
   if (info) {
@@ -1106,11 +1090,7 @@ function renderCheckIn() {
   }
 }
 
-/* on every student page: seed, refresh lesson widgets, and ask about any class that just ended */
-if (ALLOWED) {
-  seedBookings();
-  queueRating(lastEndedClass());
-  renderPassViews();
-  setTimeout(promptRating, 1200);
-  setInterval(promptRating, 60000);
+/* on every student page: refresh the lesson widgets, and ask about any attended class that is not rated yet */
+if (ALLOWED && !GATED) {
+  stuReady.then(() => { renderPassViews(); syncNotifDot(); setTimeout(promptRating, 1200); }).catch(() => {});
 }

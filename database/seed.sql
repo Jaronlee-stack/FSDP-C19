@@ -23,6 +23,10 @@
 --  * CT-23..CT-42 are SAMPLE timetables for the 10 open non-HQ dojos (2 classes
 --    a week each). No real non-HQ timetable exists (the public site says "ask
 --    HQ"). They are not bookable online (HQ only), so they have no bookings.
+--  * Lervyn Wong (S-001): 29 of 36 sessions toward 3rd Kyu (accumulated_hours 29,
+--    total 56), matching the prototype.
+--  * audit_log has about 16 sample rows (2026-09-15..2026-11-05) for the Business
+--    Admin audit page. Ids refer to rows that exist in this file. No secrets.
 --  * class_session covers 2026-09-21..2026-12-20.
 --  * membership.last_renewed_at is the last annual dues payment inside the
 --    date window.
@@ -163,7 +167,7 @@ FROM (SELECT '$2b$10$T88/9UZzmA2kWCyjDC44VObKDgRfr0bt1x5Fk0u3gqnD4Q8Q5UBTu'::var
 
 INSERT INTO student_profile (user_id, member_no, full_name, dob, joined_on, gender, age_group, contact_no, dojo_id, rank_id, source,
     total_accumulated_hours, accumulated_hours, weapon_hours, discount_type, guardian_name, guardian_contact, emergency_contact, medical_notes) VALUES
-('S-001', 'ASK-2025-1834', 'Lervyn Wong', '2006-03-12', '2025-06-14', 'Male', 'Adult', '9123 4567', 'hq', '4k', 'ASK', 61, 34, 6, 'none', NULL, NULL, 'May Wong (Parent)', NULL),
+('S-001', 'ASK-2025-1834', 'Lervyn Wong', '2006-03-12', '2025-06-14', 'Male', 'Adult', '9123 4567', 'hq', '4k', 'ASK', 56, 29, 6, 'none', NULL, NULL, 'May Wong (Parent)', NULL),
 ('S-002', 'ASK-2024-0921', 'Jamie Tan', '1997-06-02', '2024-03-18', 'Male', 'Adult', '9010 2211', 'hq', '3k', 'ASK', 112, 40, 12, 'none', NULL, NULL, 'Linda Tan (Mother)', NULL),
 ('S-003', 'ASK-2024-1440', 'David Koh', '1985-09-19', '2024-08-13', 'Male', 'Adult', '9232 1100', 'hq', '5k', 'ASK', 28, 28, 3, 'none', NULL, NULL, 'Helen Koh (Spouse)', NULL),
 ('S-004', 'ASK-2021-0310', 'Priya Lee', '1988-01-25', '2021-01-11', 'Female', 'Adult', '9345 8821', 'hq', '1k', 'ASK', 284, 90, 30, 'none', NULL, NULL, 'Arun Lee (Spouse)', NULL),
@@ -345,19 +349,21 @@ INSERT INTO equipment_order (id, user_id, item, size, paid, status, requested_at
 -- ---------------------------------------------------------------------
 INSERT INTO registration_application (id, full_name, dojo_id, applicant_group, age, gender, nationality, phone, email, emergency_contact,
     prior_experience, previous_member, medical_declaration, dogi_choice, package_id, amount_paid, signer, submitted_at, status,
-    reviewed_by, reviewed_at, review_note, user_id) VALUES
+    reviewed_by, reviewed_at, review_note, user_id, password_hash) VALUES
+-- password_hash: demo bcrypt hash of "password123" on every OPEN application, so staff can activate it and the new member
+-- signs in with that password. NULL once an application is approved or rejected (the hash is cleared then).
 ('APP-01', 'Sarah Lee', 'hq', 'Adult', 27, 'Female', 'Singaporean', '9001 2345', 'sarah.lee@email.com', 'Daniel Lee (Spouse) · 9002 3456',
-    NULL, FALSE, NULL, 'Cotton (Standard), size 3', 'a25', 690, 'Sarah Lee', '2026-11-01 11:00+08', 'Submitted', NULL, NULL, NULL, NULL),
+    NULL, FALSE, NULL, 'Cotton (Standard), size 3', 'a25', 690, 'Sarah Lee', '2026-11-01 11:00+08', 'Submitted', NULL, NULL, NULL, NULL, '$2b$10$T88/9UZzmA2kWCyjDC44VObKDgRfr0bt1x5Fk0u3gqnD4Q8Q5UBTu'),
 ('APP-02', 'Raj Kumaran', 'kovan', 'Adult', 34, 'Male', 'Singapore PR', '9123 9876', 'raj.k@email.com', 'Meena Kumaran (Spouse) · 9765 4321',
-    'Karate, 2 years · 7th Kyu', FALSE, 'Mild asthma, carries inhaler', 'Heavyweight Cotton, size 5', 'a10', 375, 'Raj Kumaran', '2026-10-31 15:30+08', 'Under review', NULL, NULL, NULL, NULL),
+    'Karate, 2 years · 7th Kyu', FALSE, 'Mild asthma, carries inhaler', 'Heavyweight Cotton, size 5', 'a10', 375, 'Raj Kumaran', '2026-10-31 15:30+08', 'Under review', NULL, NULL, NULL, NULL, '$2b$10$T88/9UZzmA2kWCyjDC44VObKDgRfr0bt1x5Fk0u3gqnD4Q8Q5UBTu'),
 ('APP-03', 'Liu Wei', 'toapayoh', 'Adult', 41, 'Male', 'Chinese', '8234 5566', 'liu.wei@email.com', 'Zhang Min (Spouse) · 8123 4455',
-    'Aikido (Aikikai Beijing), 1st Kyu', FALSE, NULL, 'Competition Grade, size 4', 'a50', 1100, 'Liu Wei', '2026-10-30 10:20+08', 'Needs info', 'ADM-101', '2026-11-05 15:00+08', 'Record check needed for carried-over rank (see X-01).', NULL),
+    'Aikido (Aikikai Beijing), 1st Kyu', FALSE, NULL, 'Competition Grade, size 4', 'a50', 1100, 'Liu Wei', '2026-10-30 10:20+08', 'Needs info', 'ADM-101', '2026-11-05 15:00+08', 'Record check needed for carried-over rank (see X-01).', NULL, '$2b$10$T88/9UZzmA2kWCyjDC44VObKDgRfr0bt1x5Fk0u3gqnD4Q8Q5UBTu'),
 ('APP-04', 'Emma Koh', 'bishan', 'Child', 9, 'Female', 'Singaporean', '9345 6789', 'koh.family@email.com', 'Jason Koh (Parent) · 9345 6789',
-    NULL, FALSE, 'Peanut allergy', 'Cotton (Standard), size 0', 'k1', 240, 'Jason Koh (parent/guardian)', '2026-10-29 09:45+08', 'Submitted', NULL, NULL, NULL, NULL),
+    NULL, FALSE, 'Peanut allergy', 'Cotton (Standard), size 0', 'k1', 240, 'Jason Koh (parent/guardian)', '2026-10-29 09:45+08', 'Submitted', NULL, NULL, NULL, NULL, '$2b$10$T88/9UZzmA2kWCyjDC44VObKDgRfr0bt1x5Fk0u3gqnD4Q8Q5UBTu'),
 ('APP-05', 'Ryan Chua', 'hq', 'Adult', 23, 'Male', 'Singaporean', '9555 6605', 'ryan.chua@email.com', 'Chua Ah Beng (Father) · 9555 0000',
-    NULL, FALSE, NULL, 'Cotton (Standard), size 4', 'a10', 330, 'Ryan Chua', '2026-10-16 18:00+08', 'Approved', 'ADM-101', '2026-10-17 10:00+08', 'All checks passed.', 'S-019'),
+    NULL, FALSE, NULL, 'Cotton (Standard), size 4', 'a10', 330, 'Ryan Chua', '2026-10-16 18:00+08', 'Approved', 'ADM-101', '2026-10-17 10:00+08', 'All checks passed.', 'S-019', NULL),
 ('APP-06', 'Tommy Lau', 'hq', 'Adult', 31, 'Male', 'Singaporean', '9666 1234', 'tommy.lau@email.com', 'Lau Mei (Sister) · 9666 4321',
-    NULL, TRUE, NULL, NULL, 'a10', 0, 'Tommy Lau', '2026-09-22 16:00+08', 'Rejected', 'ADM-001', '2026-09-23 09:30+08', 'Duplicate of an existing member record.', NULL);
+    NULL, TRUE, NULL, NULL, 'a10', 0, 'Tommy Lau', '2026-09-22 16:00+08', 'Rejected', 'ADM-001', '2026-09-23 09:30+08', 'Duplicate of an existing member record.', NULL, NULL);
 
 INSERT INTO application_checklist (application_id, rule_id, done)
 SELECT a.id, r.id,
@@ -664,4 +670,25 @@ INSERT INTO import_issue (id, file_name, row_no, issue_type, person_name, detail
 ('I-02', 'tampines-roll-sep.csv', 31, 'Unmatched name', 'Kenji S.', 'Could be Kenji Sato (ASK-2023-0456)', 'open'),
 ('I-03', 'bedok-roll-oct.csv', 6, 'Pipeline error', NULL, 'Row could not be read: unexpected date format', 'open');
 
+-- ---------------------------------------------------------------------
+-- 8. Audit log (sample history; the table is append-only, see db.sql)
+-- ---------------------------------------------------------------------
+INSERT INTO audit_log (occurred_at, actor_user_id, actor_name, actor_role, actor_admin_type, action, entity_type, entity_id, summary, details, ip, user_agent) VALUES
+('2026-09-15 09:02+08', 'ADM-001', 'Grace Lim', 'admin', 'business', 'auth.login', 'user', 'ADM-001', 'Signed in', '{"portal":"admin"}', '10.0.0.12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0'),
+('2026-09-17 08:40+08', NULL, NULL, NULL, NULL, 'auth.login_failed', 'user', 'ADM-101', 'Failed sign-in attempt', '{"portal":"admin","reason":"wrong_password"}', '10.0.0.31', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/126.0'),
+('2026-09-17 08:41+08', 'ADM-101', 'Daniel Ong', 'admin', 'frontdesk', 'auth.login', 'user', 'ADM-101', 'Signed in', '{"portal":"admin"}', '10.0.0.31', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/126.0'),
+('2026-09-18 10:15+08', 'ADM-001', 'Grace Lim', 'admin', 'business', 'staff.role_changed', 'staff', 'ADM-102', 'Changed Farah Yusof from Business Admin to Front desk', '{"before":"business","after":"frontdesk"}', '10.0.0.12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0'),
+('2026-09-19 17:30+08', 'ADM-001', 'Grace Lim', 'admin', 'business', 'staff.deactivated', 'staff', 'ADM-102', 'Deactivated staff account ADM-102', '{"before":"active","after":"inactive"}', '10.0.0.12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0'),
+('2026-09-27 13:10+08', 'INS-0042', 'Bob Tan Sensei', 'instructor', NULL, 'grading.result_submitted', 'grading_session', 'GR-20260927', 'Submitted results for September Grading 2026', '{"sessionId":"GR-20260927"}', '10.0.0.45', 'Mozilla/5.0 (iPad; CPU OS 17_5) Safari/605.1'),
+('2026-09-28 09:20+08', 'ADM-001', 'Grace Lim', 'admin', 'business', 'grading.promotion_decided', 'grading_session', 'GR-20260927', 'Confirmed promotions for September Grading 2026', '{"sessionId":"GR-20260927"}', '10.0.0.12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0'),
+('2026-09-30 11:05+08', 'ADM-001', 'Grace Lim', 'admin', 'business', 'closure.created', 'class_closure', 'CL-02', 'Closed HQ from 10 Oct to 11 Oct 2026 (Mat resurfacing)', '{"dojoId":"hq","from":"2026-10-10","to":"2026-10-11"}', '10.0.0.12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0'),
+('2026-10-20 19:40+08', 'ADM-101', 'Daniel Ong', 'admin', 'frontdesk', 'payment.collected', 'payment', 'L-1012', 'Collected S$85 (Dogi) at the desk', '{"item":"Dogi","amount":85,"channel":"desk"}', '10.0.0.31', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/126.0'),
+('2026-10-28 19:45+08', 'ADM-101', 'Daniel Ong', 'admin', 'frontdesk', 'payment.voided', 'payment', 'L-1020', 'Voided desk payment L-1020 (S$96)', '{"amount":96}', '10.0.0.31', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/126.0'),
+('2026-10-30 10:00+08', 'ADM-001', 'Grace Lim', 'admin', 'business', 'exception.decided', 'exception_request', 'X-04', 'Declined access exception X-04', '{"decision":"declined"}', '10.0.0.12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0'),
+('2026-11-01 09:30+08', 'ADM-001', 'Grace Lim', 'admin', 'business', 'refund.decided', 'refund_request', 'R-02', 'Declined refund R-02 (S$60)', '{"decision":"declined","amount":60}', '10.0.0.12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0'),
+('2026-11-02 21:15+08', 'ADM-101', 'Daniel Ong', 'admin', 'frontdesk', 'booking.overridden', 'class_session', 'LS-20261102-2000-HQ-A', 'Added a member to a full class (override)', '{"lessonId":"LS-20261102-2000-HQ-A"}', '10.0.0.31', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/126.0'),
+('2026-11-03 09:10+08', 'ADM-001', 'Grace Lim', 'admin', 'business', 'policy.updated', 'policy_setting', 'registration_fee', 'Updated policy registration_fee', '{"key":"registration_fee","before":"55","after":"60"}', '10.0.0.12', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/126.0'),
+('2026-11-04 21:05+08', 'ADM-101', 'Daniel Ong', 'admin', 'frontdesk', 'attendance.corrected', 'class_session', 'LS-20261104-1900-HQ-A', 'Corrected an attendance mark', '{"lessonId":"LS-20261104-1900-HQ-A"}', '10.0.0.31', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/126.0'),
+('2026-11-05 10:00+08', 'ADM-101', 'Daniel Ong', 'admin', 'frontdesk', 'refund.requested', 'refund_request', 'R-01', 'Requested refund R-01 (S$270)', '{"amount":270}', '10.0.0.31', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/126.0'),
+('2026-11-05 15:00+08', 'ADM-101', 'Daniel Ong', 'admin', 'frontdesk', 'registration.info_requested', 'registration_application', 'APP-03', 'Asked for more information on application APP-03', '{"applicationId":"APP-03"}', '10.0.0.31', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Edge/126.0');
 COMMIT;

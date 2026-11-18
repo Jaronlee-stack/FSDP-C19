@@ -39,6 +39,14 @@
             </div>
           </div>
 
+          <div class="card white">
+            <div class="card-h"><div><h3>Sign-in password</h3><span class="sub">The student types their own password. Staff never see or note it.</span></div></div>
+            <div class="grid2">
+              <div class="fld"><label for="rg-pw">Password<span class="req">*</span></label><div class="pw-wrap"><input id="rg-pw" type="password" autocomplete="new-password" maxlength="200" spellcheck="false"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password" aria-pressed="false"><svg class="ic"><use href="#i-eye"/></svg></button></div><span class="err" id="rgPwErr">Use at least 8 characters with a letter and a number.</span><span class="hint">At least 8 characters with a letter and a number. They sign in with their member number or email and this password.</span></div>
+              <div class="fld"><label for="rg-pw2">Confirm password<span class="req">*</span></label><div class="pw-wrap"><input id="rg-pw2" type="password" autocomplete="new-password" maxlength="200" spellcheck="false"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password" aria-pressed="false"><svg class="ic"><use href="#i-eye"/></svg></button></div><span class="err" id="rgPw2Err">Passwords do not match.</span></div>
+            </div>
+          </div>
+
           <div class="card white" id="rgGuardian" hidden>
             <div class="card-h"><div><h3>Parent or guardian</h3><span class="sub">Needed for students under 18. They sign for the student.</span></div></div>
             <div class="grid2">
@@ -62,14 +70,14 @@
           <div class="card white">
             <div class="card-h"><h3>Dogi, package and proof</h3></div>
             <div class="grid2">
+              <div class="fld"><label for="rg-dogitype">Dogi<span class="req">*</span></label><select id="rg-dogitype"></select></div>
               <div class="fld"><label for="rg-dogi">Dogi size<span class="req">*</span></label><select id="rg-dogi"><option value="">Select</option></select><span class="err">Choose a dogi size.</span></div>
-              <div class="fld"><label for="rg-pkg">Lesson package<span class="opt">Optional</span></label><select id="rg-pkg"><option value="">No package yet</option></select></div>
-              <div class="fld full"><label for="rg-ns">NS proof<span class="opt">Optional</span></label><input id="rg-ns" type="file" accept="image/*,application/pdf"><span class="hint" id="rgNsState">For National Servicemen. Only a Business Admin can open the papers.</span></div>
+              <div class="fld full"><label for="rg-pkg">Lesson package<span class="req">*</span></label><select id="rg-pkg"><option value="">Choose a package</option></select><span class="err">Choose a lesson package.</span></div>
             </div>
           </div>
 
           <div class="card white">
-            <div class="card-h"><div><h3>Fees</h3><span class="sub">Prices come from Policies. Stripe is the only way to pay.</span></div></div>
+            <div class="card-h"><div><h3>Fees</h3><span class="sub">Prices come from Policies. This is a preview: the total charged is worked out when the student is registered. Stripe is the only way to pay.</span></div></div>
             <div class="kv" id="rgFees" style="margin:0"></div>
           </div>
 
@@ -89,11 +97,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/portal.js"></script>
-<script src="admin-shell.js"></script>
-<script src="admin-desk.js"></script>
-<script src="admin-members.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-members.js"></script>
 </body>
 </html>

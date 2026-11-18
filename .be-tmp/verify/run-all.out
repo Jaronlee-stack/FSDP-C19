@@ -1,0 +1,52 @@
+﻿running api-auth ... ok (68/68, 12s)
+running api-public ... ok (40/40, 3s)
+running api-student ... ok (119/119, 3s)
+running api-instructor ... ok (53/53, 2s)
+running api-account ... ok (152/152, 17s)
+running api-audit ... ok (147/147, 5s)
+running api-admin-desk ... ok (273/273, 5s)
+running api-admin-business ... ok (316/316, 6s)
+running api-sqli ... ok (92/92, 8s)
+running browser-login ... ok (168/168, 138s)
+running browser-student ... ok (76/76, 75s)
+running browser-instructor ... ok (32/32, 34s)
+running browser-admin-desk ... ok (150/150, 190s)
+running browser-admin-business ... ok (118/118, 138s)
+running browser-account ... ok (127/127, 80s)
+running browser-audit ... ok (57/57, 48s)
+
+=== Summary ===
+suite                     result    checks
+api-auth                  PASS      68/68
+api-public                PASS      40/40
+api-student               PASS      119/119
+api-instructor            PASS      53/53
+api-account               PASS      152/152
+api-audit                 PASS      147/147
+api-admin-desk            PASS      273/273
+api-admin-business        PASS      316/316
+api-sqli                  PASS      92/92
+browser-login             PASS      168/168
+browser-student           PASS      76/76
+browser-instructor        PASS      32/32
+browser-admin-desk        PASS      150/150
+browser-admin-business    PASS      118/118
+browser-account           PASS      127/127
+browser-audit             PASS      57/57
+no SEED/save/DB_KEY/demo/prototype-storage leftovers in src/publicPASS
+localStorage only used for the three UI preferences               PASS
+no SQL outside src/models                                         PASS
+qr_token / password_hash are not handled in controllers, routes, mPASS
+registration response path returns no tempPassword (registrationSePASS
+registration_application.password_hash is not in applicationModel PASS
+remarkModel.forStudent never selects kind 'grading'               PASS
+round-2 files exist (audit page, account.js, audit model/service/rPASS
+audit.html is an admin page (data-portal admin, data-page audit) lPASS
+portal.js ADMIN_PAGES has the BA-only 'audit' entry               PASS
+no session/local storage use in account.js or admin-audit.js      PASS
+audit_log has the append-only trigger in db.sql                   PASS
+README.md and database/README.md document the round-2 endpoints, ePASS
+production start without JWT_SECRET fails fast                    PASS
+
+Total suite checks: 1988/1988; static checks: 14/14
+ALL PASSED

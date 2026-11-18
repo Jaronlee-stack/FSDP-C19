@@ -1,0 +1,10 @@
+import { resetDb, pgConnect } from './lib.mjs';
+await resetDb();
+const c = await pgConnect();
+const q = async (s, p = []) => (await c.query(s, p)).rows;
+console.log(await q(`select lesson_id, to_char(start_time,'HH24:MI') s, class_type, status, mat, dojo_id from class_session where instructor_id='INS-0042' and session_date='2026-11-06' order by start_time`));
+console.log(await q(`select s.lesson_id, a.user_id, a.attendance_status, a.booked_via from class_attendance a join class_session s using(lesson_id) where s.instructor_id='INS-0042' and s.session_date between '2026-11-05' and '2026-11-09' order by 1,2`));
+console.log(await q(`select count(*) filter (where is_private) priv from class_template where instructor_id='INS-0042'`));
+console.log(await q(`select s.session_date, s.lesson_id from class_session s where s.instructor_id='INS-0042' and s.template_id in (select id from class_template where is_private) and s.session_date >= '2026-11-01' order by 1 limit 5`));
+console.log(await q(`select user_id, total_accumulated_hours t, accumulated_hours a, weapon_hours w from student_profile where user_id in ('S-001','S-002','S-004')`));
+await c.end();

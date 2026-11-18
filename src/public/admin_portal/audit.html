@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="audit" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="audit">
+        <div class="page-h"><div><h1>Audit log</h1><p>Who changed what, and when. Entries cannot be edited or deleted.</p></div><div class="acts wrap"><button class="sbtn" id="auExport" data-ba><svg class="ic"><use href="#i-download"/></svg>Export CSV</button></div></div>
+        <div class="card white"><div class="au-filters" id="auFilters">
+          <div class="fld"><label for="au-from">From</label><input id="au-from" type="date"></div>
+          <div class="fld"><label for="au-to">To</label><input id="au-to" type="date"></div>
+          <div class="fld"><label for="au-actor">Who</label><select id="au-actor"><option value="">Everyone</option></select></div>
+          <div class="fld"><label for="au-group">Area</label><select id="au-group"><option value="">All areas</option></select></div>
+          <div class="fld"><label for="au-type">Record type</label><select id="au-type"><option value="">All records</option></select></div>
+          <div class="fld"><label for="au-q">Search</label><input id="au-q" type="search" placeholder="Summary, ID or action" autocomplete="off"></div>
+        </div></div>
+        <div class="tbl-wrap"><table class="tbl au-tbl"><thead><tr><th>Time</th><th>Who</th><th>Action</th><th>Record</th><th>What happened</th><th></th></tr></thead><tbody id="auRows"></tbody></table></div>
+        <div class="pager" id="auPager" hidden><button class="sbtn" id="auPrev"><svg class="ic"><use href="#i-left"/></svg>Previous</button><span id="auPageInfo" aria-live="polite"></span><button class="sbtn" id="auNext">Next<svg class="ic"><use href="#i-right"/></svg></button></div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-business.js,admin-audit.js"></script>
+</body>
+</html>

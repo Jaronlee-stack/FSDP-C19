@@ -1,0 +1,7 @@
+{
+  "task_id": "task-ask-backend-rewire",
+  "task_description": "Build the Node + Express + PostgreSQL MVC backend (JWT httpOnly cookie auth, /api/v1 REST) for the ASK Aikido project on database/db.sql + seed.sql, then rewire every static page in src/public (landing, student, instructor, admin portals) to use the API instead of localStorage/sessionStorage. Plan: c:/Users/CedrikHwang/FSDP-C19/.be-tmp/plan.md. Brief: c:/Users/CedrikHwang/FSDP-C19/.be-tmp/task.md.",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005", "FEAT-006"],
+  "blocked_reason": null
+}

@@ -41,10 +41,10 @@
               <div class="card-h"><div><h2>Written comments</h2><span class="sub" id="fbCount"></span></div></div>
               <div class="fb-list" id="fbList"></div>
             </div>
-            <label class="demo-row"><input type="checkbox" id="demoPanel"><span><b>Demo: put me on the grading panel</b><small>Prototype only. In the real system the office schedules the panel, and Grading opens during each examiner's shift.</small></span></label>
           </div>
         </div>
         <div class="acct-bar">
+          <button class="sbtn" id="pwBtn"><svg class="ic"><use href="#i-lock"/></svg>Change password</button>
           <button class="sbtn" id="forgotPw"><svg class="ic"><use href="#i-lock"/></svg>Forgot password</button>
           <button class="sbtn" data-logout><svg class="ic"><use href="#i-logout"/></svg>Sign out</button>
         </div>
@@ -53,9 +53,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/portal.js"></script>
-<script src="instructor.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,instructor-data.js,../js/portal.js,instructor.js"></script>
 </body>
 </html>

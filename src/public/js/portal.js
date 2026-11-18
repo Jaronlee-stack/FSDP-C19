@@ -14,13 +14,17 @@ const ADMIN_PAGES = [
   ['payments', 'card', 'Payments', 'Operations', false], ['applications', 'inbox', 'Registrations', 'Operations', false], ['equipment', 'box', 'Equipment', 'Operations', false],
   ['followups', 'flag', 'Follow-ups', 'Operations', false], ['notify', 'mega', 'Notifications', 'Operations', false],
   ['insights', 'chart', 'Insights', 'Management', true], ['revenue', 'receipt', 'Revenue', 'Management', true], ['grading', 'award', 'Grading', 'Management', true], ['reports', 'doc', 'Reports', 'Management', true],
-  ['policies', 'shield', 'Policies', 'Control', true], ['staff', 'id', 'Staff', 'Control', true], ['imports', 'upload', 'Import issues', 'Control', true]
+  ['policies', 'shield', 'Policies', 'Control', true], ['staff', 'id', 'Staff', 'Control', true], ['audit', 'clock', 'Audit log', 'Control', true], ['imports', 'upload', 'Import issues', 'Control', true]
 ];
 /* pages with no menu item highlight their parent */
 const ADMIN_PARENT = { roster: 'sessions', member: 'members', register: 'applications' };
 function adminPortal() {
   const ba = isBA(), who = ADMIN ? ADMIN.name : 'Admin';
-  const cnt = { applications: () => APPS.length + MC_REQS.filter(r => r.status === 'pending').length + (ba ? (DB.exceptions || []).filter(x => x.status === 'pending').length : 0), imports: () => (DB.imports || []).filter(i => i.status === 'open').length };
+  /* the badge counts come from the server (GET /admin/summary, loaded before this page runs) */
+  const cnt = {
+    applications: () => (ASK.summary && ASK.summary.applications) || 0,
+    imports: () => (ASK.summary && ASK.summary.importsOpen) || 0
+  };
   return {
     label: ba ? 'Business Admin' : 'Front desk', dir: 'admin_portal/', login: 'admin_portal/signin.html?expired', parent: ADMIN_PARENT,
     me: [initials(who), who, ba ? 'Business Admin · HQ Dojo' : 'Front desk · HQ Dojo'],
@@ -31,16 +35,18 @@ function adminPortal() {
 
 const PORTALS = {
   student: {
-    label: 'Student', dir: 'student_portal/', login: 'student_portal/login.html', me: ['LW', 'Lervyn Wong', '4th Kyu · HQ Dojo'], ben: true,
+    label: 'Student', dir: 'student_portal/', login: 'student_portal/login.html', me: ['', '', ''], ben: true,
     pages: [['home', 'home', 'Home'], ['book', 'cal', 'Book a class'], ['packages', 'box', 'Packages'], ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['profile', 'user', 'Profile']]
   },
   instructor: {
-    label: 'Instructor', dir: 'instructor_portal/', login: 'admin_portal/signin.html?denied', me: ['BT', 'Bob Tan Sensei', '6th Dan · HQ Dojo'],
+    label: 'Instructor', dir: 'instructor_portal/', login: 'admin_portal/signin.html?denied', me: ['', '', ''],
     pages: [['today', 'home', 'Schedule'], ['grading', 'award', 'Grading'], ['profile', 'user', 'Profile']]
   },
   admin: adminPortal()
 };
 const PORTAL = document.body.dataset.portal, P = PORTALS[PORTAL];
+/* the name and label in the sidebar come from the signed-in account (GET /auth/me), (the blanks above are never shown to a signed-out visitor: the guard redirects first) */
+if (ASK.me && ASK.me.role === PORTAL && PORTAL !== 'admin') P.me = [initials(ASK.me.name), ASK.me.name, ASK.me.label];
 /* the office portal needs a role as well as a sign-in; a session with no admin type is treated as expired */
 const ALLOWED = AUTH.role === PORTAL && (PORTAL !== 'admin' || !!ADMIN);
 const pageFile = key => url(P.dir + (key === P.pages[0][0] ? 'index' : key) + '.html');
@@ -48,12 +54,13 @@ const pageFile = key => url(P.dir + (key === P.pages[0][0] ? 'index' : key) + '.
 /* ---------- examiner access ----------
    The Examiner role is added on top of the instructor role only while that instructor is on a scheduled grading
    panel, and only during the shift. Everyone else never sees Grading and is sent home if they open its address.
-   Prototype only: this runs in the browser, so the real check must be repeated on the server. */
+   This is only for hiding the menu item: the server repeats the check (15 minutes before the start until the end, examiners only). */
 function examinerShift() {
   if (PORTAL !== 'instructor') return null;
-  const at = (d, t) => { const x = startOfDay(d); x.setHours(+t.slice(0, 2), +t.slice(3), 0, 0); return x; }, now = new Date();
-  // access opens 15 minutes before the start, as on the timetable
-  return DB.panels.find(sh => sh.examiners.includes(P.me[1]) && (sh.demoOn || (now >= new Date(+at(sh.date, sh.from) - 15 * 60000) && now <= at(sh.date, sh.to)))) || null;
+  const now = +NOW();
+  // the server sends each panel's window (opens 15 minutes before the start, closes at the end); ASK.panels comes from GET /instructor/grading
+  const p = ASK.panels.find(x => now >= Date.parse(x.window.opensAt) && now <= Date.parse(x.window.end));
+  return p ? { id: p.session.id, label: p.session.label, venue: p.session.venue, date: ASK.d(p.session.date), from: p.session.from, to: p.session.to, lead: p.session.lead, examiners: p.session.examiners, left: p.counts.left } : null;
 }
 /* office portal: a Business Admin page opened by the front desk goes back to that person's home, with a message */
 const ADM_BLOCKED = ALLOWED && PORTAL === 'admin' && !isBA() && ADMIN_PAGES.some(p => p[0] === PAGE && p[4]);
@@ -90,7 +97,7 @@ function buildShell() {
     <div class="rail-top"><a class="brand" href="${pageFile(P.pages[0][0])}"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt=""><span class="t">SHINJU-KAI</span></a><button class="rail-toggle" data-rail-toggle aria-label="Collapse sidebar" aria-expanded="true">${icon('left')}</button></div>
     <div class="rail-role">${P.label}</div>
     <nav aria-label="${P.label} portal">${P.pages.map((p, i) => `${p[4] && p[4] !== (P.pages[i - 1] || [])[4] ? `<div class="grp">${p[4]}</div>` : ''}<a href="${pageFile(p[0])}" data-label="${p[2]}"${p[0] === cur[0] ? ' class="on" aria-current="page"' : ''}>${icon(p[1])}<span class="t">${p[2]}</span>${p[3] ? cnt(p) : ''}</a>`).join('')}</nav>
-    <div class="rail-me"><span class="av">${P.me[0]}</span><div class="me-info"><b>${P.me[1]}</b><span>${P.me[2]}</span></div><button data-logout aria-label="Log out" title="Log out">${icon('logout')}</button></div>
+    <div class="rail-me"><span class="av">${P.me[0]}</span><div class="me-info"><b>${P.me[1]}</b><span>${P.me[2]}</span></div>${PORTAL === 'admin' ? `<button data-account aria-label="Change password" title="Change password">${icon('lock')}</button>` : ''}<button data-logout aria-label="Log out" title="Log out">${icon('logout')}</button></div>
   </aside>`);
 
   main.insertAdjacentHTML('afterbegin', `<div class="topbar">
@@ -108,7 +115,7 @@ function buildShell() {
     }${many ? `<button type="button" data-sm-open aria-expanded="false"${onMore ? ' class="on"' : ''}>${icon('more')}<span>More</span></button>` : ''}</nav>`);
 
   // phones: the menu button and "More" open the sidebar as an 80% sheet with the page dimmed behind it
-  SM_LINKS = P.pages.map(p => [p[2], pageFile(p[0]), p[1], p === cur]).concat([[isStaff(PORTAL) ? 'Sign out' : 'Log out', null, 'logout']]);
+  SM_LINKS = P.pages.map(p => [p[2], pageFile(p[0]), p[1], p === cur]).concat(PORTAL === 'admin' ? [['Change password', null, 'lock', 'account']] : [], [[isStaff(PORTAL) ? 'Sign out' : 'Log out', null, 'logout']]);
   // the phone top bar is white, so the status bar should be too
   const tc = $('meta[name="theme-color"]'); if (tc && matchMedia('(max-width: 900px)').matches) tc.content = '#FFFFFF';
 
@@ -131,14 +138,14 @@ function setCount(key, n) {
 /* buttons that jump to another page of the same portal */
 document.addEventListener('click', e => {
   const b = e.target.closest('[data-page-link]'); if (!b) return;
-  e.preventDefault(); save(); location.href = pageFile(b.dataset.pageLink);
+  e.preventDefault(); location.href = pageFile(b.dataset.pageLink);
 });
 
 /* ---------- notifications (bell) ---------- */
-const seenKey = 'ask-notif-' + PORTAL;
+let notifSeen = false;   // kept in page memory only: the dot comes back on the next page load
 function syncNotifDot() {
   const dot = $('[data-notif] .badge-dot'); if (!dot) return;
-  let seen = false; try { seen = sessionStorage.getItem(seenKey) === '1'; } catch (_) {}
+  const seen = notifSeen;
   dot.hidden = PORTAL === 'student' ? (!DB.rateQueue.length && seen) : seen;
 }
 function openNotifs() {
@@ -158,29 +165,31 @@ function openNotifs() {
     if (nr) rows.push(row('doc', `Note from ${esc(nr.by)}`, `${esc(nr.label)} · ${esc(nr.text.length > 70 ? nr.text.slice(0, 70) + '…' : nr.text)}`, `<a class="sbtn" href="${pageFile('home')}">Read</a>`));
     if (next) rows.push(row('cal', 'Booking confirmed', `${next.c.type} · ${dayName(next.date)} ${fmtShort(next.date)} · ${timeLabel(next.c.time)} · HQ Dojo`));
     const f = activePasses()[0]; if (f && daysBetween(TODAY, f.expires) <= 30) rows.push(row('clock', 'Lessons expiring soon', `${plural(f.left, 'lesson')} in your ${esc(f.name)} expire on ${fmtDate(f.expires)}`));
-    rows.push(row('award', 'Grading applications close 29 Nov', 'Adult grading on 13 Dec at HQ Dojo'));
+    if (GRADE.date && GRADE.close) rows.push(row('award', `Grading applications close ${fmtShort(GRADE.close)}`, `Adult grading on ${fmtShort(GRADE.date)} at HQ Dojo`));
   } else if (PORTAL === 'instructor') {
     const sh = examinerShift();
-    if (sh) rows.push(row('award', 'Grading shift is open', `${esc(sh.venue)} · ${fmtDate(sh.date)} · ${sh.from}–${sh.to}. You are on the examiner panel, ${CANDIDATES.filter(c => !c.done).length} candidates to score.`, `<a class="sbtn dark" href="${pageFile('grading')}">Open grading</a>`));
+    if (sh) rows.push(row('award', 'Grading shift is open', `${esc(sh.venue)} · ${fmtDate(sh.date)} · ${sh.from}–${sh.to}. You are on the examiner panel, ${sh.left} candidates to score.`, `<a class="sbtn dark" href="${pageFile('grading')}">Open grading</a>`));
     rows.push(row('flag', 'Low attendance', `${STUDENTS.filter(isDeclining).length} students not seen in 14+ days`));
-    const wk = FEEDBACK.filter(f => f.ins === P.me[1] && daysBetween(f.date, TODAY) <= 7);
-    if (wk.length) rows.push(row('star', 'New class feedback', `${plural(wk.length, 'rating')} from students this week. See your profile.`));
+    const wk = (ASK.insProfile && ASK.insProfile.feedback.lastSevenDays) || 0;
+    if (wk) rows.push(row('star', 'New class feedback', `${plural(wk, 'rating')} from students this week. See your profile.`));
   } else {
     /* office portal: every figure is counted from the data. Front desk and Business Admin see different lists. */
-    const mcp = MC_REQS.filter(r => r.status === 'pending').length;
+    const S = ASK.summary || {};   // counts from the server (GET /admin/summary)
+    const n = k => S[k] || 0;
+    const mcp = n('mcPending');
     if (!isBA()) {
-      rows.push(row('inbox', 'Incomplete registrations', `${plural(APPS.length, 'registration')} waiting to be activated`, `<a class="sbtn" href="${pageFile('applications')}">Open</a>`));
-      rows.push(row('box', 'Items to collect', `${plural((DB.equipment || []).filter(e => e.status !== 'Handed over').length, 'order')} not handed over yet`, `<a class="sbtn" href="${pageFile('equipment')}">Open</a>`));
-      rows.push(row('flag', 'Follow-ups due', `${plural((DB.followups || []).filter(f => !f.attempts.length).length, 'student')} not contacted yet`, `<a class="sbtn" href="${pageFile('followups')}">Open</a>`));
+      rows.push(row('inbox', 'Incomplete registrations', `${plural(n('applicationsWaiting'), 'registration')} waiting to be activated`, `<a class="sbtn" href="${pageFile('applications')}">Open</a>`));
+      rows.push(row('box', 'Items to collect', `${plural(n('equipmentOpen'), 'order')} not handed over yet`, `<a class="sbtn" href="${pageFile('equipment')}">Open</a>`));
+      rows.push(row('flag', 'Follow-ups due', `${plural(n('followupsUntouched'), 'student')} not contacted yet`, `<a class="sbtn" href="${pageFile('followups')}">Open</a>`));
       if (mcp) rows.push(row('doc', 'Extension requests', `${plural(mcp, 'request')} with a medical certificate or compassion extension`, `<a class="sbtn" href="${pageFile('applications')}">Open</a>`));
     } else {
-      rows.push(row('shield', 'Exceptions', `${plural((DB.exceptions || []).filter(x => x.status === 'pending').length, 'item')} sent by the front desk`, `<a class="sbtn" href="${pageFile('applications')}">Open</a>`));
-      rows.push(row('card', 'Payment failures', `${plural((DB.ledger || []).filter(l => l.st === 'Failed').length, 'failed payment')}`, `<a class="sbtn" href="${pageFile('revenue')}">Open</a>`));
-      rows.push(row('upload', 'Import issues', `${plural((DB.imports || []).filter(i => i.status === 'open').length, 'row')} need fixing`, `<a class="sbtn" href="${pageFile('imports')}">Open</a>`));
-      rows.push(row('award', 'Promotion results', `${PROPOSALS.length} signed by instructors`, `<a class="sbtn" href="${pageFile('grading')}">Open</a>`));
+      rows.push(row('shield', 'Exceptions', `${plural(n('exceptionsPending'), 'item')} sent by the front desk`, `<a class="sbtn" href="${pageFile('applications')}">Open</a>`));
+      rows.push(row('card', 'Payment failures', `${plural(n('failedPayments'), 'failed payment')}`, `<a class="sbtn" href="${pageFile('revenue')}">Open</a>`));
+      rows.push(row('upload', 'Import issues', `${plural(n('importsOpen'), 'row')} need fixing`, `<a class="sbtn" href="${pageFile('imports')}">Open</a>`));
+      rows.push(row('award', 'Promotion results', `${n('promotionsPending')} signed by instructors`, `<a class="sbtn" href="${pageFile('grading')}">Open</a>`));
     }
   }
-  try { sessionStorage.setItem(seenKey, '1'); } catch (_) {}
+  notifSeen = true;
   syncNotifDot();
   openModal(`<h3 id="modalTitle">Notifications</h3><div class="rows notif">${rows.join('') || '<p style="color:var(--muted)">You\'re all caught up.</p>'}</div>`);
 }

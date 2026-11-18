@@ -58,7 +58,7 @@ document.querySelector('main').insertAdjacentHTML('afterend', `  <footer class="
         <div><h4>Office hours</h4><ul><li>Mon–Fri · 10 AM – 9 PM</li><li>Sat–Sun · 8 AM – 6 PM</li><li>Closed on public holidays</li></ul></div>
       </div>
       <div class="foot-big" aria-hidden="true">SHINJU-KAI 合気道</div>
-      <div class="foot-bot"><span>© 2026 Aikido Shinju-Kai. Student project concept.</span><span>Privacy · Terms · Accessibility · <a href="#" data-reset style="color:inherit">Reset prototype data</a></span></div>
+      <div class="foot-bot"><span>© 2026 Aikido Shinju-Kai. Student project concept.</span><span>Privacy · Terms · Accessibility</span></div>
     </div>
   </footer>`);
 
@@ -115,7 +115,7 @@ function logoLoop(el, names) {
    scroll or use the arrows, so nobody has to wait for a face to come round ---------- */
 const INS_IMG = 'https://aikidoshinjukai.com.sg/images/instructors/';
 const insSlug = n => n.replace(/ (Sensei|Shihan)$/, '').toLowerCase().replace(/[^a-z\s]/g, '').trim().replace(/\s+/g, '-');
-const insCard = (n, dan, img) => `<article class="ins"><div class="ph"><img src="${INS_IMG + (img || insSlug(n) + '.jpg')}" alt="${esc(n)}" loading="lazy" draggable="false" onerror="this.remove()"><span class="ini" aria-hidden="true">${initials(n)}</span></div><div class="meta"><span class="nm">${esc(n)}</span><span class="dan">${esc(dan)}</span></div></article>`;
+const insCard = (n, dan, img) => `<article class="ins"><div class="ph"><img src="${INS_IMG + (img || insSlug(n) + '.jpg')}" alt="${esc(n)}" loading="lazy" draggable="false" data-fallback="remove"><span class="ini" aria-hidden="true">${initials(n)}</span></div><div class="meta"><span class="nm">${esc(n)}</span><span class="dan">${esc(dan)}</span></div></article>`;
 
 function scrollMarquee(root, cardsHTML, { dir = 1, speed = 42, label = 'Instructors' } = {}) {
   root.classList.add('mqs');
@@ -263,7 +263,7 @@ function depthCarousel(root, items, { onChange } = {}) {
     if (changed && onChange) onChange(items[idx], idx);
   };
   const build = () => {
-    stage.innerHTML = items.map((it, i) => `<div class="dc-card" data-i="${i}" aria-roledescription="slide" aria-label="${i + 1} of ${items.length}: ${esc(it.name)}"><img src="${it.img}" alt="" draggable="false" onerror="this.style.opacity=0"><span class="code">${esc(it.code)}</span>${it.status ? `<span class="closed">${esc(it.status)}</span>` : ''}<div class="cap"><b>${esc(it.name)}</b><span>${esc(it.region)} · ${esc(it.addr.split(',').slice(-1)[0].trim())}</span></div><span class="tint"></span></div>`).join('');
+    stage.innerHTML = items.map((it, i) => `<div class="dc-card" data-i="${i}" aria-roledescription="slide" aria-label="${i + 1} of ${items.length}: ${esc(it.name)}"><img src="${it.img}" alt="" draggable="false" data-fallback="hide"><span class="code">${esc(it.code)}</span>${it.status ? `<span class="closed">${esc(it.status)}</span>` : ''}<div class="cap"><b>${esc(it.name)}</b><span>${esc(it.region)} · ${esc(it.addr.split(',').slice(-1)[0].trim())}</span></div><span class="tint"></span></div>`).join('');
     cards = $$('.dc-card', stage);
     dots.innerHTML = items.map((it, i) => `<button type="button" class="dc-dot" role="tab" data-i="${i}" aria-label="${esc(it.name)}"></button>`).join('');
     cancelAnimationFrame(anim); pos = 0; focus = 0; layout(0); paintDots();

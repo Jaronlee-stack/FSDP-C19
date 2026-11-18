@@ -16,7 +16,7 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="insights">
-        <div class="page-h"><div><h1>Insights</h1><p>How classes, centres and members are doing. Figures marked Sample data are example numbers for this prototype.</p></div></div>
+        <div class="page-h"><div><h1>Insights</h1><p>How classes, centres and members are doing, worked out from the bookings, attendance and payments on record.</p></div></div>
         <div class="card white"><div id="insFilters" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:10px">
           <div class="fld"><label for="f-period">Period</label><select id="f-period"></select></div>
           <div class="fld"><label for="f-cmp">Compare to</label><select id="f-cmp"></select></div>
@@ -40,12 +40,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/portal.js"></script>
-<script src="admin-shell.js"></script>
-<script src="admin.js"></script>
-<script src="admin-desk.js"></script>
-<script src="admin-business.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin.js,admin-business.js"></script>
 </body>
 </html>

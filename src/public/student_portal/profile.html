@@ -19,19 +19,18 @@
         <div class="page-h"><div><h1>Profile</h1><p>Keep your contact and emergency details up to date.</p></div></div>
         <div class="g-side">
           <form class="card white grid2" id="profileForm" novalidate>
-            <div class="fld full"><label for="p-name">Name</label><input id="p-name" value="Lervyn Wong"></div>
-            <div class="fld"><label for="p-email">Email</label><input id="p-email" type="email" value="lervyn@email.com"></div>
-            <div class="fld"><label for="p-phone">Mobile</label><input id="p-phone" value="9123 4567"></div>
-            <div class="fld"><label for="p-ec">Emergency contact</label><input id="p-ec" value="May Wong (Parent)"></div>
-            <div class="fld"><label for="p-ecp">Emergency mobile</label><input id="p-ecp" value="9876 5432"></div>
+            <div class="fld full"><label for="p-name">Name</label><input id="p-name" value="" readonly><span class="hint">Ask the HQ office to change your name.</span></div>
+            <div class="fld"><label for="p-email">Email</label><input id="p-email" type="email" value=""></div>
+            <div class="fld"><label for="p-phone">Mobile</label><input id="p-phone" value=""></div>
+            <div class="fld full"><label for="p-ec">Emergency contact</label><input id="p-ec" value=""><span class="hint">Name, relationship and mobile number</span></div>
             <div class="fld full"><button class="sbtn dark" type="submit"><svg class="ic"><use href="#i-check"/></svg>Save changes</button></div>
           </form>
           <div class="card">
-            <div class="card-h"><h3>Membership</h3><span class="pill ok">Active</span></div>
+            <div class="card-h"><h3>Membership</h3><span class="pill ok" id="pfStatus">Active</span></div>
             <div id="profileCard"></div>
             <div class="kv" style="border-top:1px solid var(--line);margin-top:16px">
-              <div><span>Date joined</span><span>14 Jun 2025</span></div>
-              <div><span>Annual dues</span><span>Paid to Jan 2027</span></div>
+              <div><span>Date joined</span><span id="pfJoined"></span></div>
+              <div><span>Annual dues</span><span id="pfDues"></span></div>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="sbtn" id="pwBtn"><svg class="ic"><use href="#i-lock"/></svg>Change password</button><button class="sbtn ghost" data-logout><svg class="ic"><use href="#i-logout"/></svg>Log out</button></div>
           </div>
@@ -54,10 +53,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/ben.js"></script>
-<script src="../js/portal.js"></script>
-<script src="student.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,../js/ben.js,../js/portal.js,student-data.js,student.js"></script>
 </body>
 </html>

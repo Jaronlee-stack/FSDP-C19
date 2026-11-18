@@ -40,7 +40,6 @@
             <div class="card white path-card game-only" id="pathCard">
               <div class="card-h"><div><h3>Your path</h3><span class="sub" id="pathSub">Every class you attend moves you one step</span></div></div>
               <div class="gpath" id="gpath" aria-label="Sessions toward your next grade"></div>
-              <p class="proto-note">Prototype: mark your next class as <button type="button" data-sim="present">Present</button> or <button type="button" data-sim="noshow">No-show</button></p>
             </div>
 
             <!-- STANDARD: plain lists -->
@@ -52,7 +51,6 @@
               <div class="card-h"><div><h3>Recent attendance</h3><span class="sub">Only classes you attend count toward grading</span></div></div>
               <div class="att-list" id="attList"></div>
               <p class="att-rule"><svg class="ic"><use href="#i-info"/></svg><span>Missed a class? The lesson stays used and isn't counted. Cancel at least 4 hours before to get the lesson back. Sick? Send your MC under Packages to ask for an extension.</span></p>
-              <p class="proto-note">Prototype: mark your next class as <button type="button" data-sim="present">Present</button> or <button type="button" data-sim="noshow">No-show</button></p>
             </div>
             <div class="card white notes-card" id="notesCard">
               <div class="card-h"><div><h3>Notes from your instructors</h3><span class="sub">What to work on and what you learnt. Kept as your history.</span></div><button class="sbtn" id="notesAll" hidden>See all</button></div>
@@ -74,10 +72,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/ben.js"></script>
-<script src="../js/portal.js"></script>
-<script src="student.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,../js/ben.js,../js/portal.js,student-data.js,student.js"></script>
 </body>
 </html>

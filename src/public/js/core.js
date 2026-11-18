@@ -25,7 +25,10 @@ const startOfDay = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return 
 const mondayOf = d => { const x = startOfDay(d); const k = (x.getDay() + 6) % 7; return addDays(x, -k); };
 const daysBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / 864e5);
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
-const TODAY = startOfDay(new Date());
+/* the server's date (set by api.js from /reference); the browser clock is only the fallback before that arrives */
+let TODAY = startOfDay(new Date());
+/* the current time on the server's clock: use this, not new Date(), for anything the business rules care about */
+const NOW = () => new Date(Date.now() + (typeof ASK !== 'undefined' ? ASK.skewMs : 0));
 
 function toast(msg, type = 'ok') {
   const t = document.createElement('div');
@@ -147,6 +150,8 @@ const SPRITE = `<svg width="0" height="0" style="position:absolute" aria-hidden=
     <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
     <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6a10 10 0 0 1 1.4-.1c6.4 0 10 6.1 10 6.1a17 17 0 0 1-3.2 3.9M6.6 7.2A17 17 0 0 0 2 12s3.6 6.5 10 6.5c1.7 0 3.2-.4 4.5-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
     <symbol id="i-sign" viewBox="0 0 24 24"><path d="M3 17c3 0 4-6 6-6s1 5 3 5 2-3 4-3 2 2 5 2"/><path d="M3 21h18"/></symbol>
     <symbol id="i-pen" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol>
     <symbol id="i-redo" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></symbol>
@@ -211,17 +216,21 @@ document.addEventListener('click', e => {
 
 /* ---------- 4. MODAL / DRAWER ---------- */
 let lastFocus = null;
-function openModal(html, wide = false) {
+let modalLocked = false;   // a locked dialog (forced password change) ignores Escape, the overlay, the close button and swipes
+function openModal(html, wide = false, opts = {}) {
   lastFocus = document.activeElement;
+  modalLocked = !!opts.locked;
   $('#modalBody').innerHTML = html;
   enhance($('#modalBody'));
   $('#modal .modal').classList.toggle('wide', wide);
+  $('#modal .modal').classList.toggle('locked', modalLocked);
   $('#modal').classList.add('open');
   $('#modal').setAttribute('aria-hidden', 'false');
   setTimeout(() => ($('#modalBody [autofocus]') || $('#modal .modal-x')).focus({ preventScroll: true }), 50);
 }
+function unlockModal() { modalLocked = false; $('#modal .modal').classList.remove('locked'); }
 function closeModal() {
-  if (!$('#modal').classList.contains('open')) return;
+  if (modalLocked || !$('#modal').classList.contains('open')) return;
   $('#modal').classList.remove('open');
   $('#modal').setAttribute('aria-hidden', 'true');
   $$('#modalBody iframe').forEach(f => f.remove()); // stop any playing video
@@ -418,7 +427,9 @@ function openSM() {
   $('#sm').classList.toggle('nav-mode', nav);
   $('#smList').innerHTML = SM_LINKS.map(([l, h, ic, on], i) => h
     ? `<li><a href="${h}" style="--i:${i}"${on ? ' class="on" aria-current="page"' : ''}>${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></a></li>`
-    : `<li><button type="button" data-logout style="--i:${i}">${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></button></li>`).join('');
+    : on === 'account'
+      ? `<li><button type="button" data-account style="--i:${i}">${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></button></li>`
+      : `<li><button type="button" data-logout style="--i:${i}">${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></button></li>`).join('');
   $('#smFoot').hidden = nav;
   smReturn = document.activeElement;
   $('#sm').classList.add('open'); $('#sm').setAttribute('aria-hidden', 'false');
@@ -662,6 +673,17 @@ function signaturePad(root, opts = {}) {
 
 /* ---------- FORM HELPERS ---------- */
 const val = id => ($('#' + id).value || '').trim();
+
+/* show/hide eye on a password field: <div class="pw-wrap"><input type="password">${pwEye()}</div> */
+const pwEye = () => `<button type="button" class="pw-eye" data-pw-eye aria-label="Show password" aria-pressed="false">${icon('eye')}</button>`;
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-pw-eye]'); if (!b) return;
+  const inp = $('input', b.parentElement); if (!inp) return;
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  b.setAttribute('aria-pressed', String(show)); b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  b.innerHTML = icon(show ? 'eyeoff' : 'eye');
+});
 
 const radio = name => { const r = $(`input[name="${name}"]:checked`); return r ? r.value : ''; };
 
@@ -1055,9 +1077,22 @@ function datePicker(input, { min, max, start, first }) {
 }
 
 
-/* after the page's own scripts have run: upgrade selects / dates, label tables, animate in */
-document.addEventListener('DOMContentLoaded', () => {
+/* after the page's own scripts have run: upgrade selects / dates, label tables, animate in.
+   The page scripts load after the API data arrives (see api.js), so api.js calls this once they have all run. */
+function coreReady() {
   enhance(document);
   autoLabelTables();
   animateIn(document.body);
-});
+  $$('img[data-fallback]').forEach(imgFallback);   // images that failed before this script was running
+}
+
+/* a photo that cannot load falls back to what is behind it (the initials). Written as data-fallback on the <img> because the
+   Content-Security-Policy does not allow inline onerror handlers. data-fallback="remove" drops the image, "hide" makes it transparent. */
+function imgFallback(img) {
+  if (!img.complete || img.naturalWidth > 0) return;
+  if (img.dataset.fallback === 'remove') img.remove(); else img.style.opacity = 0;
+}
+document.addEventListener('error', e => {
+  const img = e.target;
+  if (img && img.tagName === 'IMG' && img.dataset.fallback) { if (img.dataset.fallback === 'remove') img.remove(); else img.style.opacity = 0; }
+}, true);

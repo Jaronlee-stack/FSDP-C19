@@ -40,8 +40,8 @@
         </div>
 
         <div id="tabTimetable" data-ba hidden style="display:none;gap:14px">
-          <div class="list-bar"><p class="sub-note" style="max-width:560px">A Session is the weekly plan. A Class is one dated occurrence of it. Each session has a mat, an effective date range and a code written to its dojo's NFC tag. Only HQ classes can be booked online. Saving is blocked when the same instructor or the same mat is used at the same time, or when HQ is closed on the first day.</p><div class="acts-inline"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="sesSearch" type="search" placeholder="Class or instructor" aria-label="Search by class or instructor" autocomplete="off"></label><button class="sbtn dark" id="newSession"><svg class="ic"><use href="#i-plus"/></svg>New session</button></div></div>
-          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Class</th><th>When</th><th>Dojo and mat</th><th>Effective</th><th>Instructor</th><th>Booked</th><th>Online booking</th><th>Code</th><th></th></tr></thead><tbody id="sesRows"></tbody></table></div>
+          <div class="list-bar"><p class="sub-note" style="max-width:560px">A Session is the weekly plan. A Class is one dated occurrence of it, made for the next 12 weeks. Each session has a mat and a class code. Only HQ classes can be booked online. Saving is blocked when the same instructor or the same mat is used at the same time, or when the time clashes with a grading day.</p><div class="acts-inline"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="sesSearch" type="search" placeholder="Class or instructor" aria-label="Search by class or instructor" autocomplete="off"></label><button class="sbtn dark" id="newSession"><svg class="ic"><use href="#i-plus"/></svg>New session</button></div></div>
+          <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Class</th><th>When</th><th>Dojo and mat</th><th>Instructor</th><th>Next class booked</th><th>Online booking</th><th>Code</th><th></th></tr></thead><tbody id="sesRows"></tbody></table></div>
         </div>
 
         <div id="tabClosures" data-ba hidden style="display:none;gap:14px">
@@ -64,12 +64,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/portal.js"></script>
-<script src="admin-shell.js"></script>
-<script src="admin.js"></script>
-<script src="admin-desk.js"></script>
-<script src="admin-business.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin.js,admin-business.js"></script>
 </body>
 </html>

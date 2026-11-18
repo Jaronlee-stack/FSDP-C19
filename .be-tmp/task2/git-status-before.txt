@@ -1,0 +1,79 @@
+﻿ M .env.example
+ M README.md
+ M app.js
+ M database/README.md
+ M database/db.sql
+ M src/public/admin_portal/admin-business.js
+ M src/public/admin_portal/admin-desk.js
+ M src/public/admin_portal/admin-members.js
+ M src/public/admin_portal/admin-shell.js
+ M src/public/admin_portal/admin.js
+ M src/public/admin_portal/applications.html
+ M src/public/admin_portal/equipment.html
+ M src/public/admin_portal/followups.html
+ M src/public/admin_portal/grading.html
+ M src/public/admin_portal/imports.html
+ M src/public/admin_portal/index.html
+ M src/public/admin_portal/insights.html
+ M src/public/admin_portal/member.html
+ M src/public/admin_portal/members.html
+ M src/public/admin_portal/notify.html
+ M src/public/admin_portal/payments.html
+ M src/public/admin_portal/policies.html
+ M src/public/admin_portal/register.html
+ M src/public/admin_portal/reports.html
+ M src/public/admin_portal/revenue.html
+ M src/public/admin_portal/roster.html
+ M src/public/admin_portal/sessions.html
+ M src/public/admin_portal/signin.html
+ M src/public/admin_portal/staff-login.js
+ M src/public/admin_portal/staff.html
+ M src/public/instructor_portal/grading.html
+ M src/public/instructor_portal/index.html
+ M src/public/instructor_portal/instructor.js
+ M src/public/instructor_portal/profile.html
+ M src/public/js/core.js
+ M src/public/js/data.js
+ M src/public/js/portal.js
+ M src/public/js/store.js
+ M src/public/landingpage/about.html
+ M src/public/landingpage/class.html
+ M src/public/landingpage/classes.html
+ M src/public/landingpage/dojo.html
+ M src/public/landingpage/dojos.html
+ M src/public/landingpage/fees.html
+ M src/public/landingpage/index.html
+ M src/public/landingpage/join.html
+ M src/public/landingpage/js/join.js
+ M src/public/landingpage/js/public.js
+ M src/public/landingpage/js/trial.js
+ M src/public/landingpage/trial.html
+ M src/public/student_portal/book.html
+ M src/public/student_portal/checkin.html
+ M src/public/student_portal/grading.html
+ M src/public/student_portal/index.html
+ M src/public/student_portal/login.html
+ M src/public/student_portal/login.js
+ M src/public/student_portal/packages.html
+ M src/public/student_portal/payments.html
+ M src/public/student_portal/profile.html
+ M src/public/student_portal/student.js
+?? .be-tmp/
+?? .vscode/
+?? package-lock.json
+?? package.json
+?? scripts/
+?? src/config/
+?? src/controllers/
+?? src/middleware/
+?? src/models/
+?? src/public/admin_portal/admin-data-business.js
+?? src/public/admin_portal/admin-data-desk.js
+?? src/public/instructor_portal/instructor-data.js
+?? src/public/js/api.js
+?? src/public/landingpage/js/public-data.js
+?? src/public/student_portal/student-data.js
+?? src/routes/
+?? src/services/
+?? src/utils/
+?? src/validators/

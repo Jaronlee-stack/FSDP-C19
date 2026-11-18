@@ -88,6 +88,15 @@
                 <div class="fld"><label for="r-ecphone">Mobile<span class="req">*</span></label><input id="r-ecphone" type="tel" inputmode="tel" placeholder="9123 4567"><span class="err">Enter an 8-digit number.</span></div>
               </div>
             </div>
+
+            <div class="rgroup">
+              <h3>Create your password</h3>
+              <div class="grid2">
+                <div class="fld"><label for="r-pw">Password<span class="req">*</span></label><div class="pw-wrap"><input id="r-pw" type="password" autocomplete="new-password" maxlength="200" spellcheck="false"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password" aria-pressed="false"><svg class="ic"><use href="#i-eye"/></svg></button></div><span class="err" id="pwErr">Use at least 8 characters with a letter and a number.</span></div>
+                <div class="fld"><label for="r-pw2">Confirm password<span class="req">*</span></label><div class="pw-wrap"><input id="r-pw2" type="password" autocomplete="new-password" maxlength="200" spellcheck="false"><button type="button" class="pw-eye" data-pw-eye aria-label="Show password" aria-pressed="false"><svg class="ic"><use href="#i-eye"/></svg></button></div><span class="err" id="pw2Err">Passwords do not match.</span></div>
+              </div>
+              <span class="hint" style="font-size:12px;color:var(--muted)">At least 8 characters with a letter and a number. You will sign in with your membership number or email and this password.</span>
+            </div>
           </div>
           <div class="rnav"><span></span><button type="button" class="btn btn-dark arrow" data-next>Continue<span class="dot"><svg class="ic"><use href="#i-arrow"/></svg></span></button></div>
         </section>
@@ -279,7 +288,7 @@
               </div>
             </div>
             <div class="done-grid">
-              <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-mail"/></svg></span><b>Welcome email sent</b><p>Your membership number and log-in details went to <span id="doneEmail">your email</span>.</p></div>
+              <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-mail"/></svg></span><b>Welcome email sent</b><p>Your membership number went to <span id="doneEmail">your email</span>. <span id="doneSignIn">Sign in with your membership number or email and the password you chose.</span></p></div>
               <div class="done-item"><span class="ib"><svg class="ic"><use href="#i-receipt"/></svg></span><b>Receipt sent</b><p>Registration, dogi and lesson package. Paid <b id="donePaid">S$0</b>.</p></div>
               <div class="done-item key"><span class="ib"><svg class="ic"><use href="#i-id"/></svg></span><b>Collect your student card</b><p>Pick it up at <b id="doneDojo">your principal dojo</b> on your first lesson.</p></div>
             </div>
@@ -295,9 +304,6 @@
   </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/ben.js"></script>
-<script src="js/join.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,../js/ben.js,js/public-data.js,js/join.js"></script>
 </body>
 </html>

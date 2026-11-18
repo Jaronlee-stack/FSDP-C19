@@ -16,6 +16,10 @@ psql -d ask_dojo -f database/seed.sql   # demo data, one transaction
 
 - Anchor date: **today = 2026-11-06 (Friday)**. All seeded dates and timestamps are between 2025-11-06 and 2027-11-06. The only exceptions are `student_profile.dob` and `student_profile.joined_on` (real historical facts).
 - Every account has the fake password `password123`. The hash in `seed.sql` is a real bcrypt hash (bcryptjs, cost 10). Do not use it outside development.
+- The open registration applications (`APP-01` to `APP-04`, status Submitted / Under review / Needs info) carry the same demo hash in `registration_application.password_hash`, so a member activated from one signs in with `password123`. Approved and Rejected applications have `NULL` there (the hash is cleared on approve and reject).
+- Lervyn Wong (S-001) has `accumulated_hours` 29 and `total_accumulated_hours` 56 (weapon 6): **29 of 36** sessions toward 3rd Kyu, the same as the prototype.
+- No seeded account has `must_change_password` set; `password_changed_at` is `NULL` everywhere.
+- `audit_log` has 17 sample rows between 2026-09-15 and 2026-11-05 (sign-ins, a failed sign-in, a role change and a deactivation, a payment and a void, a refund request and decision, an exception decision, a registration info request, a grading result and a promotion, a policy change, a closure, an attendance correction and a booking override). The actors are seeded staff (`ADM-001`, `ADM-101`, `INS-0042`) and every entity id exists in the seed. IPs and user agents are fake; no row holds a secret.
 - Demo accounts
 
 | Who | id | email | Notes |
@@ -35,6 +39,7 @@ psql -d ask_dojo -f database/seed.sql   # demo data, one transaction
 5. **Classes**: `class_template`, `class_session`, `class_attendance`, `makeup_class`, `class_closure`, `class_feedback`, `instructor_remark`, `check_in`
 6. **Grading**: `grading_session`, `grading_examiner`, `grading_application`, `grading_candidate`, `grading_history`
 7. **Office**: `mc_request`, `followup`, `followup_attempt`, `notification_template`, `sent_log`, `import_issue`, `policy_setting`
+8. **Audit**: `audit_log` (append-only history of staff, auth, finance, grading and policy actions)
 
 ## Decisions
 
@@ -80,6 +85,41 @@ The public site only shows the HQ timetable. Every other dojo says "Ask HQ for t
 | CT-41 | chongpang | Fri | 19:00 | Adults | 14 | Alexander Lee (INS-0036) |
 | CT-42 | chongpang | Wed | 18:00 | Children Juniors | 12 | Tan Kok Hiang (INS-0024) |
 
+## Schema changes for the backend
+
+Added when the Express API was built. All are additive; no column was renamed or dropped, `seed.sql` is unchanged (new columns have defaults).
+
+| Change | Why |
+|---|---|
+| `class_waitlist (lesson_id, user_id, created_at)` | The desk roster has a waitlist for full classes. |
+| `class_attendance.booked_via` (`online`, `desk`, `walk-in`, `waitlist`; default `online`) | The roster shows how each place was booked. |
+| `grading_candidate.result` also allows `Retake` | The instructor rubric has Pass, Retake and Fail. A Retake keeps `promotion_status = 'n/a'`. |
+| `guest_pass.pass_type` also allows `single`, `month`, `private`; new `guest_pass.amount_paid` | The trial page sells these passes. Guests have no `student_profile`, so there is no `payment` row; the price is kept on the pass. |
+| `class_feedback_prompt (lesson_id, user_id, state, created_at)` | Remembers that a student answered or skipped the rating pop-up. `class_feedback` itself stays anonymous (no student column). |
+| `payment.note` (nullable) | The desk ledger shows the discount applied, or why a payment was voided or adjusted. |
+| `exception_request.decision_note`, `mc_request.decision_note` (nullable) | The Business Admin's or front desk's reason when a request is declined. |
+| `followup.kind` also allows `newcomer` | The Follow-ups page has a "Newcomers not returned" list. |
+| `class_session.closure_id` (nullable, FK to `class_closure`, `ON DELETE SET NULL`) | A closure cancels the lessons in its range. Deleting the closure reopens exactly the lessons it cancelled; a single cancelled class has no closure and stays cancelled. |
+| `import_issue.matched_user_id` (nullable, FK to `student_profile`) | The member an import row was matched to when a Business Admin fixed it. |
+| `instructor_profile.status` (`active` / `inactive`, default `active`) | The Staff page can deactivate an instructor account, like office staff. |
+| `policy_setting.value_text` is `TEXT` (was `VARCHAR(255)`) | The Insights "interventions" list is kept as one JSON value under the key `interventions` (there is no table for it). |
+
+### Round 2: member passwords, forced change, audit log
+
+Also additive (`db.sql` still drops and recreates everything, so the file can be re-run; `seed.sql` was updated for the new columns).
+
+| Change | Why |
+|---|---|
+| `users.must_change_password BOOLEAN NOT NULL DEFAULT FALSE` | Set for staff accounts created by a Business Admin, after a password reset, and for an application activated without a stored hash. While it is true the API answers `403 PASSWORD_CHANGE_REQUIRED` to everything except `/auth/me`, `/auth/change-password` and `/auth/logout`. |
+| `users.password_changed_at TIMESTAMPTZ` (nullable) | Set by a password change or reset (real clock). A session token issued before it is refused (`401 SESSION_EXPIRED`). |
+| `registration_application.password_hash VARCHAR(255)` (nullable) | The bcrypt hash of the password the member chose at registration, kept only while the application waits. Activation copies it to `users.password_hash`; approve and reject set it to `NULL`. It is never selected for a list or returned by the API. |
+| `audit_log` (`id BIGINT GENERATED ALWAYS AS IDENTITY`, `occurred_at`, `actor_user_id` FK to `users` `ON DELETE SET NULL`, `actor_name`, `actor_role`, `actor_admin_type`, `action` CHECK `group.verb`, `entity_type`, `entity_id`, `summary`, `details JSONB`, `ip`, `user_agent`) with indexes on time, actor, action and entity | One row per audited action, written in the same transaction as the change. The actor's name, role and admin type are copied so a row stays readable later. |
+| Function `audit_log_guard()` and triggers `audit_log_no_change` (`BEFORE UPDATE OR DELETE`, per row) and `audit_log_no_truncate` (`BEFORE TRUNCATE`) | Makes `audit_log` append-only: any UPDATE, DELETE or TRUNCATE raises "audit_log is append-only". The one exception is the FK action `ON DELETE SET NULL` (only `actor_user_id` going to `NULL`, every other column unchanged). |
+
+**Removing old audit rows** is a DBA task outside the application: a superuser or the table owner can `DROP TRIGGER audit_log_no_change ON audit_log;` (and `audit_log_no_truncate`), archive or delete the rows, and create the triggers again from `db.sql`. `DROP TABLE audit_log` also works (db.sql does it on a full reset, which is why loading `db.sql` and `seed.sql` twice still works).
+
 ## Verification
+
+The backend harness (`.be-tmp/verify/run-all.mjs`) loads `db.sql` and `seed.sql` before every suite; `api-audit.mjs` also loads them twice in a row and checks that `v_grading_conflict` returns 0 rows and that UPDATE, DELETE and TRUNCATE on `audit_log` are refused.
 
 `psql` was not installed on the machine that produced this schema, so it was verified with PGlite (real PostgreSQL 18 compiled to WASM). The script is `.db-tmp/verify.mjs`; results are in `.db-tmp/verify.log`. `.db-tmp/agree.mjs` loads `data.js`, `store.js` and `core.js` with a pinned clock (2026-11-06) and compares the prototype data with the seed; results are in `.db-tmp/agree.log`.

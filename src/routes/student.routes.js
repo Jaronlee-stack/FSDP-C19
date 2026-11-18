@@ -1,0 +1,29 @@
+'use strict';
+/* student area: sign-in and the student role are required on every route */
+const router = require('express').Router();
+const ctrl = require('../controllers/studentController');
+const validate = require('../middleware/validate');
+const { authenticate } = require('../middleware/auth');
+const { requireRole } = require('../middleware/roles');
+const v = require('../validators/student');
+
+router.use(authenticate, requireRole('student'));
+router.get('/home', ctrl.home);
+router.get('/profile', ctrl.profile);
+router.patch('/profile', validate({ body: v.profilePatch }), ctrl.updateProfile);
+router.get('/packages', ctrl.packages);
+router.post('/packages', validate({ body: v.buyPackage }), ctrl.buyPackage);
+router.post('/packages/:id/extension-requests', validate({ params: v.idParam, body: v.extension }), ctrl.requestExtension);
+router.delete('/extension-requests/:id', validate({ params: v.idParam }), ctrl.withdrawExtension);
+router.get('/timetable', validate({ query: v.timetableQuery }), ctrl.timetable);
+router.get('/bookings', ctrl.bookings);
+router.post('/bookings', validate({ body: v.book }), ctrl.book);
+router.delete('/bookings/:lessonId', validate({ params: v.lessonParam }), ctrl.cancel);
+router.get('/attendance', validate({ query: v.attendanceQuery }), ctrl.attendance);
+router.get('/payments', ctrl.payments);
+router.get('/payments/:id', validate({ params: v.idParam }), ctrl.payment);
+router.get('/grading', ctrl.grading);
+router.post('/grading/applications', validate({ body: v.applyGrading }), ctrl.applyGrading);
+router.delete('/grading/applications/:id', validate({ params: v.idParam }), ctrl.withdrawGrading);
+router.post('/feedback', validate({ body: v.feedback }), ctrl.feedback);
+module.exports = router;

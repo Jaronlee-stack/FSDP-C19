@@ -1,0 +1,50 @@
+'use strict';
+/* Environment parsing. Secrets only come from the environment (.env in development). Nothing here logs a secret. */
+const path = require('node:path');
+require('dotenv').config({ path: path.join(__dirname, '..', '..', '.env'), quiet: true });
+
+const env = process.env;
+const NODE_ENV = env.NODE_ENV || 'development';
+const isProd = NODE_ENV === 'production';
+const warnings = [];
+
+const int = (v, d) => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : d; };
+
+/* JWT secret: required in production, a clearly-warned throwaway value in development */
+let jwtSecret = env.JWT_SECRET;
+if (!jwtSecret) {
+  if (isProd) throw new Error('JWT_SECRET is required when NODE_ENV=production');
+  jwtSecret = 'dev-only-insecure-secret-' + require('node:crypto').randomBytes(16).toString('hex');
+  warnings.push('JWT_SECRET is not set: using a random development secret (sessions reset on every restart). Set JWT_SECRET in .env.');
+}
+
+/* APP_FAKE_TODAY pins the server date for development (the seed is anchored on 2026-11-06). Ignored in production. */
+let fakeToday = null;
+if (env.APP_FAKE_TODAY) {
+  if (isProd) warnings.push('APP_FAKE_TODAY is ignored in production.');
+  else if (/^\d{4}-\d{2}-\d{2}$/.test(env.APP_FAKE_TODAY) && !Number.isNaN(Date.parse(env.APP_FAKE_TODAY + 'T00:00:00Z'))) fakeToday = env.APP_FAKE_TODAY;
+  else warnings.push('APP_FAKE_TODAY must look like YYYY-MM-DD: ignored.');
+}
+
+module.exports = {
+  NODE_ENV,
+  isProd,
+  PORT: int(env.PORT, 3000),
+  API_PREFIX: '/api/v1',
+  APP_TZ: env.APP_TZ || 'Asia/Singapore',
+  FAKE_TODAY: fakeToday,
+  db: {
+    host: env.DB_HOST || 'localhost',
+    port: int(env.DB_PORT, 5432),
+    database: env.DB_NAME || 'ask_dojo',
+    user: env.DB_USER || 'postgres',
+    password: env.DB_PASSWORD,
+    max: int(env.DB_POOL_MAX, 10),
+    ssl: env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+  },
+  jwt: { secret: jwtSecret, expiresIn: env.JWT_EXPIRES_IN || '8h' },
+  loginRate: { windowMs: int(env.LOGIN_RATE_WINDOW_MS, 15 * 60 * 1000), max: int(env.LOGIN_RATE_MAX, 10) },
+  changePwRate: { windowMs: int(env.CHANGE_PW_RATE_WINDOW_MS, 15 * 60 * 1000), max: int(env.CHANGE_PW_RATE_MAX, 5) },
+  trustProxy: env.TRUST_PROXY ? (/^\d+$/.test(env.TRUST_PROXY) ? Number(env.TRUST_PROXY) : env.TRUST_PROXY) : false,
+  warnings
+};

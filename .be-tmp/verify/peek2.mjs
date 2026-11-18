@@ -1,0 +1,13 @@
+﻿import { pgConnect } from './lib.mjs';
+const c = await pgConnect();
+const q = async (s, p = []) => (await c.query(s, p)).rows;
+console.log(await q(`select status, count(*) from class_session group by 1`));
+console.log(await q(`select session_date, count(*) from class_session where dojo_id='hq' and session_date between '2026-11-02' and '2026-11-09' group by 1 order by 1`));
+console.log(await q(`select s.lesson_id, to_char(s.start_time,'HH24:MI') t, s.class_type, s.status, (select count(*) from class_attendance a where a.lesson_id=s.lesson_id)::int n from class_session s where s.dojo_id='hq' and s.session_date='2026-11-06' order by s.start_time`));
+console.log(await q(`select id, user_id, item, kind, amount, status, channel, paid_at from payment where status<>'Paid' order by id`));
+console.log(await q(`select * from class_closure`));
+console.log(await q(`select setting_key from policy_setting`));
+console.log(await q(`select attendance_status, booked_via, count(*) from class_attendance group by 1,2`));
+console.log(await q(`select count(*)::int c, count(*) filter (where account_status='Active')::int a from membership`));
+console.log(await q(`select user_id, pass_type, used, valid_until from guest_pass`));
+await c.end();

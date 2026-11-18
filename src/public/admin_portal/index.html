@@ -39,7 +39,7 @@
           <div id="baOrg" style="display:grid;gap:14px">
             <div class="g4" id="baStats"></div>
             <div class="g-wide">
-              <div class="card"><div class="card-h"><div><h3>Centres at a glance</h3><span class="sub">Occupancy from the timetable. Trend and sign-in figures are sample data.</span></div></div><div class="rows" id="baCentres"></div></div>
+              <div class="card"><div class="card-h"><div><h3>Centres at a glance</h3><span class="sub">Occupancy over the last 4 weeks, with the change from the 4 weeks before.</span></div></div><div class="rows" id="baCentres"></div></div>
               <div class="card"><div class="card-h"><h3>Waiting on you</h3></div><div class="rows" id="baWaiting"></div></div>
             </div>
             <div><h3 style="margin:4px 0 10px">Questions to answer</h3><div class="g4" id="baQuestions"></div></div>
@@ -50,12 +50,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/portal.js"></script>
-<script src="admin-shell.js"></script>
-<script src="admin.js"></script>
-<script src="admin-desk.js"></script>
-<script src="admin-business.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-business.js"></script>
 </body>
 </html>
