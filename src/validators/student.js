@@ -23,9 +23,11 @@ const extension = z.strictObject({
   kind: z.enum(['MC', 'Compassion']), days: z.number().int().min(1).max(120), documentRef: text(255).optional()
 });
 const book = z.strictObject({ lessonId: id });
+/* the payload printed in a dojo's QR code or written on its NFC tag (dojo.qr_token) */
+const checkIn = z.strictObject({ qr: text(100, 1) });
 const applyGrading = z.strictObject({ sessionId: id, bookFile: text(255, 1), method: METHOD.default('Visa') });
 const feedback = z.strictObject({
   lessonId: id, rating: z.number().int().min(1).max(5).default(3), tags: z.array(text(60, 1)).max(6).default([]), note: text(1000).optional(), skipped: z.boolean().default(false)
 });
 
-module.exports = { idParam, lessonParam, timetableQuery, attendanceQuery, profilePatch, buyPackage, extension, book, applyGrading, feedback };
+module.exports = { idParam, lessonParam, timetableQuery, attendanceQuery, profilePatch, buyPackage, extension, book, checkIn, applyGrading, feedback };

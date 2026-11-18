@@ -31,10 +31,16 @@ ASK.fill = (target, items) => { target.length = 0; target.push(...items); return
 ASK.errToast = e => toast(e && e.message ? e.message : 'Something went wrong. Please try again.', 'bad');
 
 /* ---------- fetch wrapper ---------- */
+/* a QR code or NFC tag opens the check-in page: after signing in, the student comes back to the same scan.
+   Returns '' for every other page, so only a real scan link is remembered. */
+ASK.loginBack = () => {
+  const qr = /checkin\.html$/.test(location.pathname) && new URLSearchParams(location.search).get('qr');
+  return qr ? `?next=${encodeURIComponent('/student_portal/checkin.html' + location.search)}` : '';
+};
 ASK.toLogin = () => {
   const p = document.body.dataset.portal;
   if (!p) return;
-  location.replace(url(p === 'student' ? 'student_portal/login.html' : 'admin_portal/signin.html?expired'));
+  location.replace(url(p === 'student' ? 'student_portal/login.html' : 'admin_portal/signin.html?expired') + (p === 'student' ? ASK.loginBack() : ''));
 };
 
 /* an account that must change its password gets 403 PASSWORD_CHANGE_REQUIRED from every other call: reload, and the boot below shows the locked dialog */

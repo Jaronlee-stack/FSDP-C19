@@ -495,67 +495,20 @@ function openCurriculum() {
 }
 document.addEventListener('click', e => { if (e.target.closest('[data-curriculum]')) openCurriculum(); });
 
-/* ---------- check-in (mockup): the student scans the location QR code ---------- */
-/* the booked class happening today (or still to start), closest to now */
-function todaysBooking() {
-  const now = NOW();
-  return BOOKINGS
-    .filter(u => daysBetween(TODAY, u.date) === 0 && classEnd(u.date, u.c) >= now)
-    .sort((a, b) => classStart(a.date, a.c) - classStart(b.date, b.c))[0] || null;
-}
-
-function scanFail(msg) {
-  const el = $('#ciMsg'); if (!el) { toast(msg, 'bad'); return; }
-  el.hidden = false; el.innerHTML = `<svg class="ic"><use href="#i-info"/></svg><span>${esc(msg)}</span>`;
-}
-
-/* MOCKUP: the real flow is "scan the location QR code posted by the admin at your dojo". Here the picker stands in
-   for that QR, and nothing is read from a camera. Rule (also mocked): only a student with a class booked today at
-   that location can check in. A successful scan counts as present (+1 session), like an instructor marking present. */
-function handleDojoScan(dojoId) {
-  const d = DOJOS.find(x => x.id === dojoId);
-  if (!d) return scanFail('That is not an ASK location QR code.');
-  const b = todaysBooking();
-  if (!b) {
-    const done = (DB.checkIns || []).some(c => daysBetween(TODAY, new Date(c.at)) === 0);
-    return scanFail(done ? 'You are already checked in for today\u2019s class.' : 'No booking found for today. Book a class to check in.');
-  }
-  const at = b.c.dojo || HQ;   // online bookings are HQ classes
-  if (d.id !== at) return scanFail(`That code is for ${d.name}. Your class today is at ${dojoName(at)}.`);
-  recordMyAttendance({ date: b.date, time: b.c.time, type: b.c.type, ins: b.c.ins, status: 'present' });   // also drops the booking, +1 session, level-up card
-  DB.checkIns = DB.checkIns || [];
-  DB.checkIns.unshift({ dojo: d.id, at: NOW(), key: b.key, type: b.c.type, time: b.c.time, ins: b.c.ins, date: b.date });   // mock: kept in memory only, nothing is sent to the server
-  location.href = url('student_portal/checkin.html');
-}
-
+/* ---------- check-in: the QR code or NFC tag at the dojo opens checkin.html?qr=<code> (see runCheckIn at the end of this file) ---------- */
+/* the fallback for a phone that cannot scan: type the code printed under the QR code */
 function openCheckIn() {
-  openModal(`<h3 id="modalTitle">Scan to check in</h3><p class="sub">Scan the location QR code posted at your dojo.</p>
-    <div class="scan-frame" id="ciFrame"><i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i><svg class="ic scan-ic" aria-hidden="true"><use href="#i-scan"/></svg></div>
-    <div class="note warn" id="ciMsg" role="alert" hidden></div>
-    <div class="scan-pick"><b>Demo scanner: pick the location QR you are scanning</b>
-      <div class="fld"><label for="ciLoc">Location QR</label><select id="ciLoc">${DOJOS.map(d => `<option value="${d.id}">${esc(d.short)}</option>`).join('')}</select></div>
-      <div class="acts"><button type="button" class="sbtn dark" id="ciSim">${icon('scan')}Simulate scan</button></div>
-    </div>`);
-  $('#ciSim').addEventListener('click', () => handleDojoScan($('#ciLoc').value));
-}
-/* =====================================================================
-   HOME — one number per idea, plus the gamified path
-   ===================================================================== */
-const VIEW_KEY = 'ask-home-view', SOUND_KEY = 'ask-sound';
-const pref = (k, d) => { try { return localStorage.getItem(k) || d; } catch (_) { return d; } };
-const setPref = (k, v) => { try { localStorage.setItem(k, v); } catch (_) {} };
-const soundOn = () => pref(SOUND_KEY, 'on') === 'on';
-const gameView = () => pref(VIEW_KEY, 'game') === 'game';
-const MILESTONE = 6;   // a reward chest every 6 sessions
-
-/* membership card (shown on Profile, and when the belt badge on Home is tapped) */
-function memberCardHTML(id = 'memberCard') {
-  return `<div class="pcard" id="${id}"><div class="pcard-body"><div class="pcard-tile"><span class="pcard-holo"></span>
-    <div class="pcard-top"><span class="pcard-org"><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI</span><span class="pcard-kanji">合気道</span></div>
-    <div class="pcard-mid"><span class="pcard-av">${initials(ME.name)}</span><div><div class="pcard-name">${esc(ME.name)}</div><div class="pcard-rank" style="--belt:${beltOf(ME.grade)}"><i></i>${esc(ME.grade)}</div></div></div>
-    <div class="pcard-bot"><span>MEMBER NO.<b>${esc(ME.no)}</b></span><span style="text-align:right">PRINCIPAL DOJO<b>${esc(DOJOS.find(d => d.id === ME.dojo).short)}</b></span></div>
-    <span class="pcard-glare"></span></div>
-    <div class="pcard-foot"><span class="st">${esc(ME.status || 'Active')}${ME.expiry ? ` · Expires ${MON[ME.expiry.getMonth()]} ${ME.expiry.getFullYear()}` : ''}</span><button type="button" data-qr>${icon('scan')}Scan to check in</button></div></div></div>`;
+  openModal(`<h3 id="modalTitle">Check in</h3><p class="sub">Scan the QR code or tap the NFC tag at your dojo. If your phone can't scan, type the code printed under the QR code.</p>
+    <form id="ciForm" novalidate>
+      <div class="fld"><label for="ciCode">Code</label><input id="ciCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ASK-QR-HQ-7F3A"><span class="err">Enter the code from the poster.</span></div>
+      <div class="acts"><button type="submit" class="sbtn dark">${icon('scan')}Check in</button></div>
+    </form>`);
+  $('#ciForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const code = $('#ciCode').value.trim();
+    fldOf($('#ciCode')).classList.toggle('invalid', !code);
+    if (code) location.href = url('student_portal/checkin.html') + '?qr=' + encodeURIComponent(code);
+  });
 }
 document.addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
 
@@ -1038,56 +991,43 @@ runPage({
     if (location.hash === '#terms') { const d = $('#terms details'); if (d) { d.open = true; $('#terms').scrollIntoView(); } }
     $('#pwBtn').addEventListener('click', () => ASK.openChangePassword());
   }),
-  checkin: stuPage(() => renderCheckIn())
+  checkin: stuPage(() => runCheckIn())
 });
 
-/* which class the member just checked in to:
-   a booked class on the mat right now (or next up today), else the next eligible
-   HQ class today — so the confirmation always names a real session. */
-function checkInClass() {
-  const now = NOW();
-  const windowOpen = (date, c) => classStart(date, c).getTime() - 30 * 60000; // doors 30 min before
-  // 1) a booked class happening today, closest to now
-  const bookedToday = todaysBooking();
-  if (bookedToday) return { c: bookedToday.c, date: bookedToday.date, booked: true };
-  // 2) next eligible HQ class on the mat now or later today
-  const day = (TODAY.getDay() + 6) % 7;
-  const next = CLASSES
-    .filter(c => c.day === day && !whyNot(c) && classEnd(TODAY, c) >= now)
-    .sort((a, b) => a.time.localeCompare(b.time))
-    .find(c => now >= windowOpen(TODAY, c)) || CLASSES.filter(c => c.day === day && !whyNot(c)).sort((a, b) => a.time.localeCompare(b.time))[0];
-  return next ? { c: next, date: TODAY, booked: false } : null;
+/* ---------- the page a QR code or NFC tag opens: checkin.html?qr=<code> ----------
+   The server decides (POST /student/check-in). It marks the student present only when the code belongs to their principal dojo and
+   they have a class booked there within 15 minutes of its start. Anything else records nothing and they land on the home page. */
+async function runCheckIn() {
+  const home = () => location.replace(url('student_portal/index.html'));
+  const qr = new URLSearchParams(location.search).get('qr');
+  if (!qr) { home(); return; }                                    // nothing was scanned
+  let r;
+  try { r = await ASK.post('/student/check-in', { qr }); }
+  catch (e) { ASK.errToast(e); setTimeout(home, 1800); return; }
+  if (r.status === 'none') { home(); return; }
+  history.replaceState(null, '', location.pathname);              // a refresh must not scan again
+  renderCheckedIn(r);
 }
 
-function renderCheckIn() {
-  const now = NOW();
-  const fmtTime = d => { let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'), ap = h < 12 ? 'AM' : 'PM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; };
+function renderCheckedIn(r) {
+  const l = r.lesson, d = ASK.d(l.date), at = r.at ? ASK.ts(r.at) : null;
+  const fmtTime = x => `${x.getHours() % 12 || 12}:${String(x.getMinutes()).padStart(2, '0')} ${x.getHours() < 12 ? 'AM' : 'PM'}`;
   $('#ciMember').textContent = ME.name;
   $('#ciNo').textContent = ME.no;
-  $('#ciTime').textContent = `${fmtTime(now)} · ${fmtDate(now)}`;
-
-  const scan = (DB.checkIns || [])[0], recent = scan && NOW() - new Date(scan.at) < 10 * 60000 ? scan : null;
-  const where = recent ? dojoName(recent.dojo) : 'HQ Dojo · Thomson V One';
-  const info = recent && recent.type ? { c: { type: recent.type, time: recent.time, ins: recent.ins }, date: new Date(recent.date), booked: true } : checkInClass();
-  if (info) {
-    const { c, date, booked } = info;
-    $('#ciSub').textContent = booked
-      ? 'Your booked class is confirmed. Attendance recorded — enjoy the mat.'
-      : 'Attendance recorded. Enjoy your class on the mat.';
-    $('#ciDetail').innerHTML = `
-      <div class="ci-class">
-        <span class="ci-date"><span>${DAY[date.getDay()]}</span><b>${date.getDate()}</b></span>
-        <div class="ci-class-body">
-          <div class="ci-class-name">${esc(c.type)}${booked ? '' : ' <span class="ci-tag">Drop-in</span>'}</div>
-          <div class="ci-class-row">${icon('clock')}<span>${timeLabel(c.time)} – ${timeLabel(String(+c.time.slice(0, 2) + 1).padStart(2, '0') + ':00')}</span></div>
-          <div class="ci-class-row">${icon('user')}<span>${esc(c.ins)}</span></div>
-          <div class="ci-class-row">${icon('pin')}<span>${esc(where)}</span></div>
-        </div>
-        <span class="ci-ok" aria-label="Checked in">${icon('check')}</span>
-      </div>`;
-  } else {
-    $('#ciDetail').innerHTML = `<div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Attendance recorded at ${esc(where)}. No class is scheduled right now — show this to your instructor if asked.</span></div>`;
-  }
+  $('#ciTime').textContent = at ? `${fmtTime(at)} · ${fmtDate(at)}` : 'Already recorded';
+  $('#ciSub').textContent = r.status === 'already' ? 'You were already checked in for this class.' : 'Your booked class is confirmed. Attendance recorded. Enjoy the mat.';
+  $('#ciDetail').innerHTML = `
+    <div class="ci-class">
+      <span class="ci-date"><span>${DAY[d.getDay()]}</span><b>${d.getDate()}</b></span>
+      <div class="ci-class-body">
+        <div class="ci-class-name">${esc(l.type)}</div>
+        <div class="ci-class-row">${icon('clock')}<span>${timeLabel(l.start)} – ${timeLabel(l.end)}</span></div>
+        <div class="ci-class-row">${icon('user')}<span>${esc(l.instructor)}</span></div>
+        <div class="ci-class-row">${icon('pin')}<span>${esc(l.venue)}</span></div>
+      </div>
+      <span class="ci-ok" aria-label="Checked in">${icon('check')}</span>
+    </div>`;
+  $('#ciWrap').style.display = '';
 }
 
 /* on every student page: refresh the lesson widgets, and ask about any attended class that is not rated yet */

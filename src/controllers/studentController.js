@@ -5,6 +5,7 @@ const studentService = require('../services/studentService');
 const packageService = require('../services/packageService');
 const bookingService = require('../services/bookingService');
 const gradingService = require('../services/gradingService');
+const checkinService = require('../services/checkinService');
 
 const h = fn => asyncHandler(async (req, res) => res.json(await fn(req)));
 const created = fn => asyncHandler(async (req, res) => res.status(201).json(await fn(req)));
@@ -22,6 +23,7 @@ module.exports = {
   book: created(req => bookingService.book(u(req), req.valid.body.lessonId)),
   cancel: h(req => bookingService.cancel(u(req), req.valid.params.lessonId)),
   bookings: h(req => studentService.upcoming(u(req))),
+  checkIn: h(req => checkinService.scan(u(req), req.valid.body.qr)),
   attendance: h(req => studentService.attendance(u(req), req.valid.query.limit)),
   payments: h(req => studentService.payments(u(req))),
   payment: h(req => studentService.payment(u(req), req.valid.params.id)),

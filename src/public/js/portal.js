@@ -67,7 +67,7 @@ const ADM_BLOCKED = ALLOWED && PORTAL === 'admin' && !isBA() && ADMIN_PAGES.some
 const GATED = (ALLOWED && PORTAL === 'instructor' && PAGE === 'grading' && !examinerShift()) || ADM_BLOCKED;
 
 /* ---------- guard: wrong or no account → that portal's sign-in ---------- */
-if (!ALLOWED) location.replace(url(PORTAL === 'admin' && AUTH.role && AUTH.role !== 'admin' ? 'admin_portal/signin.html?denied' : P.login));
+if (!ALLOWED) location.replace(url(PORTAL === 'admin' && AUTH.role && AUTH.role !== 'admin' ? 'admin_portal/signin.html?denied' : P.login + (PORTAL === 'student' ? ASK.loginBack() : '')));
 else if (ADM_BLOCKED) location.replace(url(P.dir + 'index.html?baonly'));
 else if (GATED) location.replace(url(P.dir + 'index.html?nograding'));
 else document.body.classList.add('ok');

@@ -18,6 +18,7 @@ router.delete('/extension-requests/:id', validate({ params: v.idParam }), ctrl.w
 router.get('/timetable', validate({ query: v.timetableQuery }), ctrl.timetable);
 router.get('/bookings', ctrl.bookings);
 router.post('/bookings', validate({ body: v.book }), ctrl.book);
+router.post('/check-in', validate({ body: v.checkIn }), ctrl.checkIn);
 router.delete('/bookings/:lessonId', validate({ params: v.lessonParam }), ctrl.cancel);
 router.get('/attendance', validate({ query: v.attendanceQuery }), ctrl.attendance);
 router.get('/payments', ctrl.payments);

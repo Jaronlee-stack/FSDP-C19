@@ -1,7 +1,12 @@
 'use strict';
 /* AIKIDO SHINJU-KAI — login.js  (member log in; students only). The server checks the password and sets the session cookie. */
 
-const toPortal = () => { location.href = url('student_portal/index.html'); };
+/* a scan that sent a signed-out student here carries ?next=<the check-in link>; only a student-portal page is followed, nothing else */
+const nextPage = () => {
+  const n = new URLSearchParams(location.search).get('next') || '';
+  return /^\/student_portal\/[A-Za-z0-9_.-]+\.html(\?[A-Za-z0-9_=%&.-]*)?$/.test(n) ? n.slice(1) : 'student_portal/index.html';
+};
+const toPortal = () => { location.href = url(nextPage()); };
 const ID_RE = /^(ASK|EXT)-\d{4}-\d{4}$/i, EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 $('#l-id').addEventListener('input', e => { const p = e.target.selectionStart; e.target.value = e.target.value.toUpperCase(); e.target.setSelectionRange(p, p); fldOf(e.target).classList.remove('invalid'); });

@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node app.js",
     "dev": "node --watch app.js",
-    "test": "node scripts/placeholder-test.js"
+    "test": "node scripts/placeholder-test.js",
+    "test:checkin": "node --test tests/checkinRules.test.js tests/checkinService.test.js"
   },
   "license": "UNLICENSED",
   "dependencies": {
