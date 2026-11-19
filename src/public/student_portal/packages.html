@@ -17,7 +17,6 @@
     <main class="main">
       <section class="page on" data-page="packages">
         <div class="page-h"><div><h1>Packages</h1><p>Your lessons, when they expire, top-ups and extensions. Paid securely with Stripe.</p></div></div>
-        <div class="credit-banner ac" id="creditBanner"></div>
 
         <div class="card white ac">
           <div class="card-h"><div><h3>Your packages</h3><span class="sub" id="passCapNote">You can hold up to 2 packages at a time</span></div></div>
@@ -27,23 +26,12 @@
         <div class="card-h" style="margin:8px 4px 0"><h3 id="pkgShopH">Adult packages</h3><span class="sub">Unlimited stops your lesson packs being used while it runs</span></div>
         <div class="pkgs" id="pkgShop"></div>
 
-        <!-- discounts + package rules, from the official fee terms -->
-        <div class="pk-info">
-          <div class="card white pk-disc">
-            <div class="card-h"><div><h3>Discounts</h3><span class="sub">Bring proof to the HQ office and we'll apply it to your account</span></div></div>
-            <div class="disc-row"><span class="disc-amt">40%<small>off</small></span><div><b>Seniors</b><span>Aged 65 and above</span></div></div>
-            <div class="disc-row"><span class="disc-amt">50%<small>off</small></span><div><b>Full-time students &amp; NSF</b><span>Students aged 17 to 25, and full-time national servicemen</span></div></div>
-          </div>
-          <div class="card white">
-            <div class="card-h"><h3>Package rules</h3></div>
-            <ul class="pk-rules">
-              <li><svg class="ic"><use href="#i-box"/></svg><span>Hold up to <b>2 packages</b> at a time, in any combination.</span></li>
-              <li><svg class="ic"><use href="#i-pin"/></svg><span>Training packages are valid at the <b>HQ Dojo</b> only.</span></li>
-              <li><svg class="ic"><use href="#i-clock"/></svg><span>Children's 1-month pass: up to <b>2 weeks' extension</b>, no questions asked (Compassion Guaranteed).</span></li>
-              <li><svg class="ic"><use href="#i-doc"/></svg><span>Any other extension past the stated validity needs a <b>valid medical certificate</b>.</span></li>
-              <li><svg class="ic"><use href="#i-receipt"/></svg><span>Training fees are <b>non-refundable</b> and non-transferable.</span></li>
-            </ul>
-          </div>
+        <!-- discounts (package rules and terms now live on the Profile page) -->
+        <div class="card white pk-disc">
+          <div class="card-h"><div><h3>Discounts</h3><span class="sub">Bring proof to the HQ office and we'll apply it to your account</span></div></div>
+          <div class="disc-row"><span class="disc-amt">40%<small>off</small></span><div><b>Seniors</b><span>Aged 65 and above</span></div></div>
+          <div class="disc-row"><span class="disc-amt">50%<small>off</small></span><div><b>Full-time students &amp; NSF</b><span>Students aged 17 to 25, and full-time national servicemen</span></div></div>
+          <p class="pk-termslink"><a href="profile.html#terms">Package rules &amp; terms</a> are on your Profile page.</p>
         </div>
 
         <!-- MC / compassion extension requests -->
@@ -74,10 +62,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/ben.js"></script>
-<script src="../js/portal.js"></script>
-<script src="student.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,../js/ben.js,../js/portal.js,student-data.js,student.js"></script>
 </body>
 </html>

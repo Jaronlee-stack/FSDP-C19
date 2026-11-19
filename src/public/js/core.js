@@ -25,7 +25,10 @@ const startOfDay = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); return 
 const mondayOf = d => { const x = startOfDay(d); const k = (x.getDay() + 6) % 7; return addDays(x, -k); };
 const daysBetween = (a, b) => Math.round((startOfDay(b) - startOfDay(a)) / 864e5);
 const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
-const TODAY = startOfDay(new Date());
+/* the server's date (set by api.js from /reference); the browser clock is only the fallback before that arrives */
+let TODAY = startOfDay(new Date());
+/* the current time on the server's clock: use this, not new Date(), for anything the business rules care about */
+const NOW = () => new Date(Date.now() + (typeof ASK !== 'undefined' ? ASK.skewMs : 0));
 
 function toast(msg, type = 'ok') {
   const t = document.createElement('div');
@@ -139,11 +142,18 @@ const SPRITE = `<svg width="0" height="0" style="position:absolute" aria-hidden=
     <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m14 6 4 4"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
     <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2z"/><path d="M9 4v14M15 6v14"/></symbol>
-    <symbol id="i-nfc" viewBox="0 0 24 24"><path d="M6 8.5a5 5 0 0 1 0 7M9.5 6a9 9 0 0 1 0 12M13 4a13 13 0 0 1 0 16"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1.1.9-1.1 1.7M12 17h.01"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></symbol>
+    <symbol id="i-tree" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><path d="M12 7v5M12 12H6v5M12 12h6v5"/></symbol>
+    <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M7 12h10"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6z"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2h-2zM18 18h2v2h-2zM14 20h2M20 14v2"/></symbol>
     <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12 20 4l-6 16-3-7z"/><path d="m11 13 9-9"/></symbol>
     <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h3"/></symbol>
     <symbol id="i-id" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M6 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h3"/></symbol>
     <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M3 3l18 18"/><path d="M10.6 6a10 10 0 0 1 1.4-.1c6.4 0 10 6.1 10 6.1a17 17 0 0 1-3.2 3.9M6.6 7.2A17 17 0 0 0 2 12s3.6 6.5 10 6.5c1.7 0 3.2-.4 4.5-1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
     <symbol id="i-sign" viewBox="0 0 24 24"><path d="M3 17c3 0 4-6 6-6s1 5 3 5 2-3 4-3 2 2 5 2"/><path d="M3 21h18"/></symbol>
     <symbol id="i-pen" viewBox="0 0 24 24"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></symbol>
     <symbol id="i-redo" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></symbol>
@@ -208,17 +218,21 @@ document.addEventListener('click', e => {
 
 /* ---------- 4. MODAL / DRAWER ---------- */
 let lastFocus = null;
-function openModal(html, wide = false) {
+let modalLocked = false;   // a locked dialog (forced password change) ignores Escape, the overlay, the close button and swipes
+function openModal(html, wide = false, opts = {}) {
   lastFocus = document.activeElement;
+  modalLocked = !!opts.locked;
   $('#modalBody').innerHTML = html;
   enhance($('#modalBody'));
   $('#modal .modal').classList.toggle('wide', wide);
+  $('#modal .modal').classList.toggle('locked', modalLocked);
   $('#modal').classList.add('open');
   $('#modal').setAttribute('aria-hidden', 'false');
   setTimeout(() => ($('#modalBody [autofocus]') || $('#modal .modal-x')).focus({ preventScroll: true }), 50);
 }
+function unlockModal() { modalLocked = false; $('#modal .modal').classList.remove('locked'); }
 function closeModal() {
-  if (!$('#modal').classList.contains('open')) return;
+  if (modalLocked || !$('#modal').classList.contains('open')) return;
   $('#modal').classList.remove('open');
   $('#modal').setAttribute('aria-hidden', 'true');
   $$('#modalBody iframe').forEach(f => f.remove()); // stop any playing video
@@ -415,7 +429,9 @@ function openSM() {
   $('#sm').classList.toggle('nav-mode', nav);
   $('#smList').innerHTML = SM_LINKS.map(([l, h, ic, on], i) => h
     ? `<li><a href="${h}" style="--i:${i}"${on ? ' class="on" aria-current="page"' : ''}>${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></a></li>`
-    : `<li><button type="button" data-logout style="--i:${i}">${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></button></li>`).join('');
+    : on === 'account'
+      ? `<li><button type="button" data-account style="--i:${i}">${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></button></li>`
+      : `<li><button type="button" data-logout style="--i:${i}">${nav && ic ? icon(ic) : ''}<span>${esc(l)}</span></button></li>`).join('');
   $('#smFoot').hidden = nav;
   smReturn = document.activeElement;
   $('#sm').classList.add('open'); $('#sm').setAttribute('aria-hidden', 'false');
@@ -660,6 +676,17 @@ function signaturePad(root, opts = {}) {
 /* ---------- FORM HELPERS ---------- */
 const val = id => ($('#' + id).value || '').trim();
 
+/* show/hide eye on a password field: <div class="pw-wrap"><input type="password">${pwEye()}</div> */
+const pwEye = () => `<button type="button" class="pw-eye" data-pw-eye aria-label="Show password" aria-pressed="false">${icon('eye')}</button>`;
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-pw-eye]'); if (!b) return;
+  const inp = $('input', b.parentElement); if (!inp) return;
+  const show = inp.type === 'password';
+  inp.type = show ? 'text' : 'password';
+  b.setAttribute('aria-pressed', String(show)); b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  b.innerHTML = icon(show ? 'eyeoff' : 'eye');
+});
+
 const radio = name => { const r = $(`input[name="${name}"]:checked`); return r ? r.value : ''; };
 
 const phoneOk = v => /^[689]\d{7}$/.test(v.replace(/\s/g, ''));
@@ -744,8 +771,63 @@ document.addEventListener('click', e => {
   startDictation(btn, ta);
 });
 
+/* ---------- CLASS CHECK-IN QR ----------
+   Every session has a code (e.g. HQ-MON7-5958). The instructor flashes it as a QR code
+   and students scan it from the Scan tab in the student portal. The QR holds a link to
+   the check-in page, so a phone's own camera app opens the right page too.
+   Needs js/vendor/qrcode.js on the page that draws it. */
+const checkinLink = code => new URL(url('student_portal/checkin.html'), location.href).href.split('?')[0] + '?s=' + encodeURIComponent(code);
+function sessionQR(code, size = 220) {
+  if (typeof qrcode !== 'function') return '';
+  const q = qrcode(0, 'M'); q.addData(checkinLink(code)); q.make();
+  const n = q.getModuleCount(), m = 4; let d = '';
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.isDark(y, x)) d += `M${x} ${y}h1v1h-1z`;
+  return `<svg class="qr-svg" viewBox="${-m} ${-m} ${n + m * 2} ${n + m * 2}" width="${size}" height="${size}" shape-rendering="crispEdges" role="img" aria-label="Check-in QR code for session ${esc(code)}"><rect x="${-m}" y="${-m}" width="${n + m * 2}" height="${n + m * 2}" fill="#fff"/><path d="${d}" fill="#16213B"/></svg>`;
+}
+/* what a scanner read → session code (accepts the check-in link or a bare code) */
+function codeFromScan(text) {
+  text = String(text || '').trim();
+  try { const s = new URL(text).searchParams.get('s'); if (s) return s.trim().toUpperCase(); } catch (_) {}
+  return text.toUpperCase();
+}
+const findSession = code => SESSIONS.find(s => s.code === String(code || '').trim().toUpperCase());
+/* full-screen QR for the instructor to flash at the class. Tap anywhere, Esc or the X to close. */
+function showSessionQR(s) {
+  if (!s) return;
+  closeSessionQR();
+  const el = document.createElement('div');
+  el.className = 'qr-full'; el.id = 'qrFull';
+  el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', `Check-in QR for ${s.type} ${timeLabel(s.time)}`);
+  el.innerHTML = `<button type="button" class="qr-full-x" aria-label="Close">${icon('x')}</button>
+    <div class="qr-full-in">
+      <span class="qr-full-eb">Scan to check in</span>
+      <h2>${esc(s.type)} · ${timeLabel(s.time)}</h2>
+      <div class="qr-full-code">${sessionQR(s.code, 600)}</div>
+      <div class="qr-full-lbl">Session code <b>${esc(s.code)}</b></div>
+      <p>Open the student portal, tap <b>Scan</b> and point your camera here.</p>
+    </div>`;
+  document.body.appendChild(el);
+  document.documentElement.classList.add('qr-open');
+  const fs = el.requestFullscreen || el.webkitRequestFullscreen;   // real full screen where the browser allows it (not on iPhone; the overlay still fills the screen)
+  if (fs) { try { const p = fs.call(el); if (p && p.catch) p.catch(() => {}); } catch (_) {} }
+  el.addEventListener('click', closeSessionQR);
+  document.addEventListener('keydown', qrKey);
+  document.addEventListener('fullscreenchange', qrFsChange);
+  el.querySelector('.qr-full-x').focus({ preventScroll: true });
+}
+function qrKey(e) { if (e.key === 'Escape') closeSessionQR(); }
+function qrFsChange() { if (!document.fullscreenElement && $('#qrFull')) closeSessionQR(); }   // left full screen with the browser's own Esc
+function closeSessionQR() {
+  const el = $('#qrFull'); if (!el) return;
+  document.removeEventListener('keydown', qrKey);
+  document.removeEventListener('fullscreenchange', qrFsChange);
+  if (document.fullscreenElement === el && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  el.remove();
+  document.documentElement.classList.remove('qr-open');
+}
+
 function qrSVG(seed0 = 1834, size = 200) {
-  // decorative check-in code (not a real QR)
+  // decorative ticket code for the trial booking page (not a real QR)
   let cells = ''; let seed = seed0;
   for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) {
     seed = (seed * 9301 + 49297) % 233280;
@@ -1052,9 +1134,22 @@ function datePicker(input, { min, max, start, first }) {
 }
 
 
-/* after the page's own scripts have run: upgrade selects / dates, label tables, animate in */
-document.addEventListener('DOMContentLoaded', () => {
+/* after the page's own scripts have run: upgrade selects / dates, label tables, animate in.
+   The page scripts load after the API data arrives (see api.js), so api.js calls this once they have all run. */
+function coreReady() {
   enhance(document);
   autoLabelTables();
   animateIn(document.body);
-});
+  $$('img[data-fallback]').forEach(imgFallback);   // images that failed before this script was running
+}
+
+/* a photo that cannot load falls back to what is behind it (the initials). Written as data-fallback on the <img> because the
+   Content-Security-Policy does not allow inline onerror handlers. data-fallback="remove" drops the image, "hide" makes it transparent. */
+function imgFallback(img) {
+  if (!img.complete || img.naturalWidth > 0) return;
+  if (img.dataset.fallback === 'remove') img.remove(); else img.style.opacity = 0;
+}
+document.addEventListener('error', e => {
+  const img = e.target;
+  if (img && img.tagName === 'IMG' && img.dataset.fallback) { if (img.dataset.fallback === 'remove') img.remove(); else img.style.opacity = 0; }
+}, true);

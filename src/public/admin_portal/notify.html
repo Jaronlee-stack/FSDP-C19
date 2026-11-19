@@ -16,22 +16,27 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="notify">
-        <div class="page-h"><div><h1>Notifications</h1><p>Send to everyone, one dojo, a grade, or a single student.</p></div></div>
+        <div class="page-h"><div><h1>Notifications</h1><p id="nSub">Send an approved template to an HQ class or one student.</p></div></div>
         <div class="g-side">
           <form class="card white composer" id="notifyForm" novalidate>
             <div class="fld"><span class="lbl">Send to</span><div class="seg" id="audSeg">
-              <input type="radio" name="aud" id="a1" value="All members" checked><label for="a1">All members</label>
-              <input type="radio" name="aud" id="a2" value="One dojo"><label for="a2">One dojo</label>
-              <input type="radio" name="aud" id="a3" value="By grade"><label for="a3">By grade</label>
-              <input type="radio" name="aud" id="a4" value="One student"><label for="a4">One student</label></div></div>
-            <div class="fld" id="audExtra" hidden><label for="n-target" id="audLabel">Dojo</label><select id="n-target" data-search="Type a name or member no."></select></div>
-            <div class="fld"><label for="n-title">Title</label><input id="n-title" maxlength="60" placeholder="e.g. HQ closed on Deepavali"></div>
-            <div class="fld"><label for="n-body">Message</label><textarea id="n-body" maxlength="240" placeholder="Keep it short. It shows as a push notification and in the portal."></textarea><span class="hint"><span id="nCount">0</span>/240</span></div>
+              <input type="radio" name="aud" id="a2" value="HQ class" checked><label for="a2">HQ class</label>
+              <input type="radio" name="aud" id="a4" value="One student"><label for="a4">One student</label>
+              <input type="radio" name="aud" id="a1" value="All members" data-ba><label for="a1" data-ba>All members</label>
+              <input type="radio" name="aud" id="a5" value="One dojo" data-ba><label for="a5" data-ba>One dojo</label>
+              <input type="radio" name="aud" id="a3" value="By grade" data-ba><label for="a3" data-ba>By grade</label></div></div>
+            <div class="fld" id="audExtra"><label for="n-target" id="audLabel">Class</label><select id="n-target" data-search="Type a name or member no."></select></div>
+            <div class="fld"><label for="n-tpl" id="tplLabel">Approved template</label><select id="n-tpl"><option value="">Choose a template</option><option value="own" data-ba>Write my own message</option></select><span class="hint" id="tplHint">Templates are approved by a Business Admin.</span></div>
+            <div class="fld"><label for="n-title">Title</label><input id="n-title" maxlength="60" placeholder="Filled in from the template" readonly></div>
+            <div class="fld"><label for="n-body">Message</label><textarea id="n-body" maxlength="240" placeholder="Filled in from the template" readonly></textarea><span class="hint"><span id="nCount">0</span>/240</span></div>
             <label class="check"><input type="checkbox" id="n-email" checked><span>Also send by email</span></label>
             <button class="btn btn-red arrow" type="submit" style="justify-self:start">Send notification<span class="dot"><svg class="ic"><use href="#i-send"/></svg></span></button>
           </form>
-          <div class="card"><div class="card-h"><h3>Preview</h3><span class="sub" id="audPreview">All members · 1,248</span></div>
-            <div class="preview-phone"><div class="push"><small><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI · now</small><b id="pvTitle">Your title</b><span id="pvBody" style="color:rgba(255,255,255,.75)">Your message appears here.</span></div></div>
+          <div style="display:grid;gap:14px">
+            <div class="card"><div class="card-h"><h3>Preview</h3><span class="sub" id="audPreview">HQ class</span></div>
+              <div class="preview-phone"><div class="push"><small><img src="https://aikidoshinjukai.com.sg/images/logo.png" alt="">SHINJU-KAI · now</small><b id="pvTitle">Your title</b><span id="pvBody" style="color:rgba(255,255,255,.75)">Your message appears here.</span></div></div>
+            </div>
+            <div class="card"><div class="card-h"><h3>Sent history</h3></div><div class="rows" id="sentRows"></div></div>
           </div>
         </div>
       </section>
@@ -39,9 +44,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/portal.js"></script>
-<script src="admin.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-business.js"></script>
 </body>
 </html>

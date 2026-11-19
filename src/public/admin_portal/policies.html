@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="policies" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="policies">
+        <div class="page-h"><div><h1>Policies</h1><p>Rules the front desk and the booking system follow. Each save shows its impact first.</p></div></div>
+        <div class="list-bar"><div class="filters" id="polTabs">
+          <button class="fpill on" data-pt="prices">Packages &amp; prices</button>
+          <button class="fpill" data-pt="booking">Booking rules</button>
+          <button class="fpill" data-pt="activation">Auto-activation rules</button>
+          <button class="fpill" data-pt="methods">Approved payment methods</button>
+          <button class="fpill" data-pt="templates">Notification templates</button>
+          <button class="fpill" data-pt="triggers">Follow-up triggers</button>
+        </div></div>
+        <div class="card white" id="polBody"></div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-business.js"></script>
+</body>
+</html>

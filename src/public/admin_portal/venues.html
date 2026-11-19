@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Venues · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="venues" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="venues">
+        <div class="page-h"><div><h1>Venues</h1><p>External venues run their own weekly classes. Set how each venue's Excel roster is laid out, then upload it to enrol its students. Attendance comes from QR scans.</p></div></div>
+
+        <div class="g-side">
+          <div style="display:grid;gap:14px">
+            <div class="card white">
+              <div class="card-h"><h3>Roster file layout</h3><span class="sub">Saved per venue. Type the exact column headings from the venue's Excel file.</span></div>
+              <div class="fld"><label for="vnDojo">Venue</label><select id="vnDojo"></select></div>
+              <div class="fld"><label for="vnMemberNo">Member number column</label><input id="vnMemberNo" maxlength="100" placeholder="e.g. Member No"></div>
+              <div class="fld"><label for="vnName">Name column</label><input id="vnName" maxlength="100" placeholder="e.g. Full Name"></div>
+              <div class="fld"><label for="vnClass">Weekly class column</label><input id="vnClass" maxlength="100" placeholder="e.g. Weekly Class"><span class="hint">Holds the class code, such as BEDOK-SAT10-8561.</span></div>
+              <button class="btn" type="button" id="vnMapSave" style="justify-self:start">Save layout</button>
+            </div>
+
+            <div class="card white">
+              <div class="card-h"><h3>Upload roster</h3><span class="sub">Adds enrolments only. Nothing is removed.</span></div>
+              <div class="fld"><label for="vnFile">Excel file (.xlsx)</label><input id="vnFile" type="file" accept=".xlsx"><span class="hint">The first sheet is read. The first row must be the headings. Up to about 70 KB and 1,000 rows.</span></div>
+              <button class="btn btn-red" type="button" id="vnUpload" style="justify-self:start">Upload roster</button>
+              <div id="vnResult" hidden></div>
+            </div>
+          </div>
+
+          <div class="card white">
+            <div class="card-h"><h3>Venue attendance export</h3><span class="sub">CSV, one row per attendance</span></div>
+            <div class="fld"><label for="vnExportCentre">Venue</label><select id="vnExportCentre"></select></div>
+            <div class="fld"><label for="vnFrom">First day</label><input id="vnFrom" type="date"></div>
+            <div class="fld"><label for="vnTo">Last day</label><input id="vnTo" type="date"></div>
+            <button class="btn" type="button" id="vnExport" style="justify-self:start">Download CSV</button>
+          </div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-venues.js,admin-business.js"></script>
+</body>
+</html>

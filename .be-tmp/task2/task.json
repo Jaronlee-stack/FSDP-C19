@@ -1,0 +1,7 @@
+{
+  "task_id": "task-ask-round2-accounts-audit",
+  "task_description": "ASK backend round 2: members create their own password at registration (public + desk), must_change_password forced-change flow, change-password for every role, append-only audit log with a Business-Admin-only Audit log page, Lervyn 29/36 seed fix, grading notes hidden from students. Full plan: c:/Users/CedrikHwang/FSDP-C19/.be-tmp/task2/plan2.md",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004"],
+  "blocked_reason": null
+}

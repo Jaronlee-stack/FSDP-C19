@@ -19,21 +19,30 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="dashboard">
-        <div class="page-h"><div><h1>Overview</h1><p>All dojos · Mon 3 Nov 2026</p></div></div>
-        <div class="g4 ac" data-stagger>
-          <div class="stat"><span class="l">Active members</span><span class="v"><span data-count="1248" data-sep>0</span></span><span class="h up">+14 this month</span></div>
-          <div class="stat alert"><span class="l">Need approval</span><span class="v"><span data-count="4" id="statPending">0</span></span><span class="h">Membership applications</span></div>
-          <div class="stat"><span class="l">Lapsed</span><span class="v"><span data-count="7">0</span></span><span class="h dn">Dues unpaid past 365 days</span></div>
-          <div class="stat dark"><span class="l">Grading applications</span><span class="v"><span data-count="23">0</span></span><span class="h">For 13 Dec</span></div>
+        <!-- Front desk home: drawn by admin-desk.js renderToday(). For a Business Admin it moves into the Overview (Today at HQ). -->
+        <div id="fdHome" class="page-body" style="display:grid;gap:14px">
+          <div class="page-h"><div><h1>Today</h1><p id="fdDate">HQ Dojo</p></div>
+            <div class="acts wrap"><a class="sbtn" href="register.html">New registration</a><button class="sbtn" id="fdPay">Take payment</button><button class="sbtn" id="fdFind">Find student</button><button class="sbtn dark" id="fdWalk">Walk-in guest</button></div></div>
+          <div class="g4" id="fdStats"></div>
+          <div class="g-wide">
+            <div class="card"><div class="card-h"><div><h3>Today's sessions</h3><span class="sub">HQ Dojo classes</span></div></div><div class="ag-list" id="fdSessions"></div></div>
+            <div class="card"><div class="card-h"><h3>Waiting on you</h3></div><div class="rows" id="fdWaiting"></div></div>
+          </div>
         </div>
-        <div class="g-wide">
-          <div class="card ac"><div class="card-h"><div><h3>Most booked HQ sessions</h3><span class="sub">This week, by bookings</span></div></div><div class="bars" id="trendBars"></div></div>
-          <div class="card ac"><div class="card-h"><h3>Waiting on you</h3></div>
-            <div class="rows">
-              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-inbox"/></svg></span><div class="grow"><div class="t">Membership applications</div><div class="d">Paid, waiting for approval</div></div><button class="sbtn" data-page-link="applications">Review</button></div>
-              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-award"/></svg></span><div class="grow"><div class="t">Promotion proposals</div><div class="d">Signed by instructors</div></div><button class="sbtn" data-page-link="grading">Review</button></div>
-              <div class="row"><span class="av navy"><svg class="ic"><use href="#i-flag"/></svg></span><div class="grow"><div class="t">Low attendance flags</div><div class="d">5 students not seen in 14+ days</div></div><button class="sbtn" data-page-link="members">View</button></div>
+        <!-- Business Admin Overview: drawn by admin-business.js -->
+        <div id="baHome" data-ba style="display:grid;gap:14px">
+          <div class="page-h"><div><h1>Overview</h1><p id="baSub">All centres</p></div>
+            <div class="acts wrap">
+              <div class="fld" style="min-width:170px"><select id="baPeriod" aria-label="Period"><option value="month">This month</option><option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option></select></div>
+              <div class="view-toggle" id="baView"><button class="on" data-bv="org">Organisation</button><button data-bv="today">Today at HQ</button></div>
+            </div></div>
+          <div id="baOrg" style="display:grid;gap:14px">
+            <div class="g4" id="baStats"></div>
+            <div class="g-wide">
+              <div class="card"><div class="card-h"><div><h3>Centres at a glance</h3><span class="sub">Occupancy over the last 4 weeks, with the change from the 4 weeks before.</span></div></div><div class="rows" id="baCentres"></div></div>
+              <div class="card"><div class="card-h"><h3>Waiting on you</h3></div><div class="rows" id="baWaiting"></div></div>
             </div>
+            <div><h3 style="margin:4px 0 10px">Questions to answer</h3><div class="g4" id="baQuestions"></div></div>
           </div>
         </div>
       </section>
@@ -41,9 +50,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/portal.js"></script>
-<script src="admin.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-business.js"></script>
 </body>
 </html>

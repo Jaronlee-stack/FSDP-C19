@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="staff" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="staff">
+        <div class="page-h"><div><h1>Staff</h1><p>Instructor, Admin and Business Admin accounts. Staff sign in with the ID shown here.</p></div><div class="acts wrap"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="stfSearch" type="search" placeholder="Search name or ID" aria-label="Search staff" autocomplete="off"></label><button class="sbtn dark" id="stfNew"><svg class="ic"><use href="#i-plus"/></svg>Create account</button></div></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Name</th><th>ID</th><th>Role</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead><tbody id="stfRows"></tbody></table></div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-business.js"></script>
+</body>
+</html>

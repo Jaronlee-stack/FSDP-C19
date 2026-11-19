@@ -2,7 +2,18 @@
 /* AIKIDO SHINJU-KAI — student.js  (member portal pages) */
 
 
-const stu = { week: 0, slots: [], agDay: null };
+const stu = { week: 0, slots: [], agDay: null, tt: null };
+
+/* every student page first loads the student's home data (passes, bookings, attendance, grade, notes) from the API */
+const stuReady = ALLOWED && !GATED ? ASK.load.home() : Promise.resolve();
+const stuPage = fn => async () => { try { await stuReady; await fn(); } catch (e) { ASK.errToast(e); } };
+
+/* "?" buttons: [data-help="panelId"] shows or hides that panel and keeps aria-expanded in sync */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-help]'); if (!b) return;
+  const p = document.getElementById(b.dataset.help); if (!p) return;
+  const open = p.hidden; p.hidden = !open; b.setAttribute('aria-expanded', String(open));
+});
 
 /* credits: lessons are taken from the active pack that expires first */
 const activePasses = () => MY_PASSES.filter(p => p.left > 0 && p.expires >= TODAY).sort((a, b) => a.expires - b.expires);
@@ -21,21 +32,6 @@ function classStart(date, c) { const s = new Date(date); s.setHours(+c.time.slic
 
 function classEnd(date, c) { const s = classStart(date, c); s.setHours(s.getHours() + 1); return s; }
 
-/* first visit: two classes already booked in the coming days */
-function seedBookings() {
-  if (DB.seeded) return;
-  const pick = off => {
-    for (let k = off; k < off + 4; k++) {
-      const d = addDays(TODAY, k), day = (d.getDay() + 6) % 7;
-      const c = CLASSES.find(x => x.day === day && x.type === 'Adults' && !whyNot(x)) || CLASSES.find(x => x.day === day && !whyNot(x));
-      if (c && !isBooked(bookKey(d, c))) return { c, date: d, key: bookKey(d, c), passId: MY_PASSES[0] && MY_PASSES[0].id };
-    }
-    return null;
-  };
-  [pick(2), pick(5)].filter(Boolean).forEach(b => BOOKINGS.push(b));
-  DB.seeded = true; save();
-}
-
 /* ---------- lesson packages + expiry ---------- */
 function passRow(p, first) {
   const days = daysBetween(TODAY, p.expires), soon = days <= 30;
@@ -49,7 +45,7 @@ function passRow(p, first) {
 
 /* fills whichever lesson/expiry widgets exist on this page */
 function renderPassViews() {
-  const act = activePasses(), tot = totalCredits(), first = act[0], unl = unlimitedOn(), U = DB.unlimited;
+  const act = activePasses(), tot = totalCredits(), unl = unlimitedOn(), U = DB.unlimited;
   const set = (sel, fn) => { const el = $(sel); if (el) fn(el); };
   set('#hsLessons', el => el.textContent = unl ? '∞' : tot.toLocaleString('en-SG'));
   set('#hsLessonsL', el => el.textContent = unl ? 'Unlimited' : tot === 1 ? 'lesson left' : tot ? 'lessons left' : 'Top up');
@@ -58,12 +54,6 @@ function renderPassViews() {
     (act.length ? act.map(p => { const d = daysBetween(TODAY, p.expires); return `<div class="row"><span class="av">${icon('box')}</span><div class="grow"><div class="t">${plural(p.left, 'lesson')} · ${esc(p.name)}</div><div class="d">Expire ${fmtDate(p.expires)}</div></div><span class="pill ${d <= 30 ? 'warn' : 'plain'}">${plural(d, 'day')}</span></div>`; }).join('')
       : (unl ? '' : '<p style="color:var(--muted);font-size:14px;padding:8px 0">No lessons left. Top up to keep booking.</p>')));
 
-  const soon = first && daysBetween(TODAY, first.expires) <= 30;
-  set('#creditBanner', el => el.innerHTML = unl
-    ? `<div class="big num">∞<small>Unlimited</small></div><div><b>Unlimited until ${fmtDate(U.until)}</b><p style="color:var(--muted);font-size:14px;margin-top:4px">Renews every 2 weeks. While it runs, your ${plural(tot, 'lesson')} in packs ${tot === 1 ? 'is' : 'are'} not used.</p></div><span class="pill ok">Active</span>`
-    : first
-      ? `<div class="big num">${tot}<small>lessons left</small></div><div><b>Next expiry: ${fmtDate(first.expires)}</b><p style="color:var(--muted);font-size:14px;margin-top:4px">${plural(first.left, 'lesson')} in your ${esc(first.name)} ${first.left === 1 ? 'expires' : 'expire'} in ${plural(daysBetween(TODAY, first.expires), 'day')}. Lessons are always used from the pack that expires first.</p></div><span class="pill ${soon ? 'warn' : 'ok'}">${soon ? 'Expiring soon' : 'Active'}</span>`
-      : `<div class="big num">0<small>lessons left</small></div><div><b>No active package</b><p style="color:var(--muted);font-size:14px;margin-top:4px">Buy a package below to start booking HQ classes.</p></div><span class="pill bad">Top up</span>`);
   set('#myPasses', el => el.innerHTML = (unl ? `<div class="passrow"><div class="pr-top"><div><b>Unlimited</b><span class="d">Started ${fmtDate(U.since)}</span></div><div class="pr-left"><b>∞</b><span>classes</span></div></div><div class="pr-exp">${icon('clock')}<span>Renews on <b>${fmtDate(U.until)}</b> · 3-month minimum</span><span class="pill ok">Active</span></div></div>` : '') +
     (act.map((p, i) => passRow(p, i === 0 && act.length > 1)).join('') || (unl ? '' : '<p style="color:var(--muted);font-size:14px">You have no active packages.</p>')));
   set('#passCapNote', el => el.textContent = `${activeCount()} of ${MAX_PACKAGES} packages held · you can hold up to ${MAX_PACKAGES} at a time`);
@@ -86,33 +76,48 @@ function renderUpcoming() {
 document.addEventListener('click', e => { const b = e.target.closest('[data-cancel]'); if (b) confirmCancel(b.dataset.cancel); });
 
 function confirmCancel(key) {
-  const i = BOOKINGS.findIndex(b => b.key === key), u = BOOKINGS[i]; if (!u) return;
-  const hrs = (classStart(u.date, u.c) - Date.now()) / 36e5, refund = hrs >= 4;
+  const u = BOOKINGS.find(b => b.key === key); if (!u) return;
+  const hrs = (classStart(u.date, u.c) - NOW()) / 36e5, refund = hrs >= DB.policies.booking.cancelHours;
   openModal(`<h3 id="modalTitle">Cancel this class?</h3><p class="sub">${u.c.type} · ${dayName(u.date)} ${fmtDate(u.date)} · ${timeLabel(u.c.time)}</p><div class="note${refund ? '' : ' warn'}" style="margin-top:18px"><svg class="ic"><use href="#i-info"/></svg><span>${u.unlimited ? 'This class is on your Unlimited plan, so nothing is deducted.' : refund ? 'You\'re cancelling more than 4 hours before class, so the lesson goes back to its package with the same expiry date.' : 'This class starts in less than 4 hours, so the lesson won\'t be returned.'}</span></div><div class="acts"><button class="sbtn red" id="doCancel">Cancel class</button><button class="sbtn" data-close>Keep it</button></div>`);
-  $('#doCancel').addEventListener('click', () => {
-    BOOKINGS.splice(i, 1);
-    const p = MY_PASSES.find(x => x.id === u.passId);
-    if (p && refund) p.left++;
-    save(); renderPassViews(); renderUpcoming(); renderBook(); if ($('#nextClass')) renderNextClass(); closeModal();
-    toast(refund && p ? 'Class cancelled. 1 lesson returned.' : 'Class cancelled.');
+  $('#doCancel').addEventListener('click', async () => {
+    try {
+      const r = await ASK.act.cancel(u.lessonId);
+      closeModal();
+      await refreshAfterBooking();
+      toast(r.refunded ? 'Class cancelled. 1 lesson returned.' : 'Class cancelled.');
+    } catch (e) { closeModal(); ASK.errToast(e); }
   });
 }
 
-function slotInfo(c, dt) {
-  const key = bookKey(dt, c), booked = isBooked(key);
-  const left = c.cap - c.booked, why = whyNot(c);
-  const minDate = addDays(TODAY, 1), maxDate = addDays(TODAY, 30);
-  const idx = stu.slots.push({ c, dt, key }) - 1;
+/* re-load what a booking or cancellation changes: passes and bookings (home data) and the week on screen */
+async function refreshAfterBooking() {
+  stu.tt = null;
+  await ASK.load.home();
+  if ($('#bookGrid')) await loadWeek();
+  renderPassViews(); renderUpcoming();
+  if ($('#nextClass')) renderNextClass();
+  if ($('#bookGrid')) renderBook();
+}
+
+/* the lessons of the week on screen come from the server, which also says whether each one can be booked and why not */
+async function loadWeek() {
+  stu.tt = await ASK.load.timetable(isoDate(classDate(stu.week, 0)));
+}
+
+function slotInfo(s) {
+  const idx = stu.slots.push({ s }) - 1;
   const cls = [];
   let sub;
-  if (c.kids) cls.push('kids');
-  if (booked) { cls.push('booked'); sub = 'Booked'; }
-  else if (why) { cls.push('full', 'nope'); sub = why; }
-  else if (dt < minDate) { cls.push('full'); sub = 'Closed for booking'; }
-  else if (dt > maxDate) { cls.push('full'); sub = 'Opens later'; }
-  else if (left <= 0) { cls.push('full'); sub = 'Full'; }
-  else sub = `${left} spot${left > 1 ? 's' : ''} left`;
-  return { idx, cls: cls.join(' '), sub, booked };
+  if (s.kids) cls.push('kids');
+  if (s.state === 'booked') { cls.push('booked'); sub = 'Booked'; }
+  else if (s.state === 'blocked') { cls.push('full', 'nope'); sub = s.whyNot; }
+  else if (s.state === 'closed') { cls.push('full', 'nope'); sub = 'HQ closed'; }
+  else if (s.state === 'cancelled') { cls.push('full', 'nope'); sub = 'Cancelled'; }
+  else if (s.state === 'tooSoon') { cls.push('full'); sub = 'Closed for booking'; }
+  else if (s.state === 'tooLate') { cls.push('full'); sub = 'Opens later'; }
+  else if (s.state === 'full') { cls.push('full'); sub = 'Full'; }
+  else sub = `${s.left} spot${s.left > 1 ? 's' : ''} left`;
+  return { idx, cls: cls.join(' '), sub, booked: s.state === 'booked' };
 }
 
 function renderBook() {
@@ -121,16 +126,19 @@ function renderBook() {
   $('#wkLabel').textContent = `${mon.getDate()} ${MON[mon.getMonth()]} – ${sun.getDate()} ${MON[sun.getMonth()]}`;
   $('#wkPrev').disabled = stu.week === 0; $('#wkNext').disabled = stu.week === 4;
   stu.slots = [];
+  const sessions = stu.tt ? stu.tt.sessions : [];
+  const on = (dt, t) => sessions.filter(s => s.date === isoDate(dt) && s.time === t);
+  const times = [...new Set([...TIMES, ...sessions.map(s => s.time)])].sort();
 
   // desktop: week grid
   let html = '<div class="hd"></div>';
   for (let d = 0; d < 7; d++) { const dt = addDays(mon, d); html += `<div class="hd${+dt === +TODAY ? ' today' : ''}">${DAY[dt.getDay()]}<b>${dt.getDate()}</b></div>`; }
-  TIMES.forEach(t => {
+  times.forEach(t => {
     html += `<div class="tm">${timeLabel(t)}</div>`;
     for (let d = 0; d < 7; d++) {
       const dt = addDays(mon, d);
-      html += '<div class="cell">' + CLASSES.filter(c => c.day === d && c.time === t).map(c => {
-        const s = slotInfo(c, dt);
+      html += '<div class="cell">' + on(dt, t).map(c => {
+        const s = slotInfo(c);
         return `<button class="slotb ${s.cls}" data-i="${s.idx}"><b>${c.type}</b><span>${s.booked ? c.ins.replace(' Sensei', '') : s.sub}</span></button>`;
       }).join('') + '</div>';
     }
@@ -147,24 +155,25 @@ function renderBook() {
     return `<button type="button" class="ag-day${d === stu.agDay ? ' on' : ''}${+dt === +TODAY ? ' today' : ''}" data-ag="${d}" aria-pressed="${d === stu.agDay}"><span>${DAY[dt.getDay()]}</span><b>${dt.getDate()}</b></button>`;
   }).join('');
   const dt = addDays(mon, stu.agDay);
-  const items = CLASSES.filter(c => c.day === stu.agDay).sort((a, b) => a.time.localeCompare(b.time)).map(c => {
-    const s = slotInfo(c, dt);
+  const items = sessions.filter(c => c.date === isoDate(dt)).sort((a, b) => a.time.localeCompare(b.time)).map(c => {
+    const s = slotInfo(c);
     return `<button type="button" class="ag-item ${s.cls}" data-i="${s.idx}"><span class="ag-time">${timeLabel(c.time)}<small>60 min</small></span><span class="ag-main"><b>${c.type}</b><span>${c.ins}</span></span><span class="ag-st">${s.sub}</span></button>`;
   }).join('');
   $('#bookAgenda').innerHTML = `<div class="ag-days">${chips}</div><div class="ag-head">${dayName(dt)} ${fmtDate(dt)} · HQ Dojo</div><div class="ag-list">${items || '<p class="ag-empty">No classes at HQ this day.</p>'}</div>`;
 }
 
 function openBooking(i) {
-  const s = stu.slots[+i]; if (!s) return;
-  const { c, dt, key } = s;
-  if (isBooked(key)) { confirmCancel(key); return; }
-  const why = whyNot(c);
-  if (why) { toast(`${c.type} is for ${why.toLowerCase()}.`, 'info'); return; }
-  const left = c.cap - c.booked;
+  const slot = stu.slots[+i]; if (!slot) return;
+  const c = slot.s, dt = ASK.d(c.date), key = stuKey(dt, c.time);
+  if (c.state === 'booked') { confirmCancel(key); return; }
+  if (c.state === 'blocked') { toast(`${c.type} is for ${c.whyNot.toLowerCase()}.`, 'info'); return; }
+  const notes = { closed: 'HQ is closed on that day.', cancelled: 'That class is cancelled.', tooSoon: 'Booking for this class has closed.', tooLate: 'This class opens for booking later.', full: 'This class is full.' };
+  if (notes[c.state]) { toast(notes[c.state], 'info'); return; }
+  const left = c.left;
   const unl = unlimitedOn(dt), pass = unl ? null : passFor(dt);
   const after = unl ? 'Unlimited' : pass ? `${pass.left - 1} left in ${esc(pass.name)}` : '—';
-  openModal(`<h3 id="modalTitle">${c.type}</h3><p class="sub">${dayName(dt)} ${fmtDate(dt)} · ${timeLabel(c.time)} – ${timeLabel(String(+c.time.slice(0, 2) + 1).padStart(2, '0') + ':00')}</p>
-    <div class="kv"><div><span>Dojo</span><span>HQ Dojo · Thomson V One</span></div><div><span>Instructor</span><span>${c.ins}</span></div><div><span>Spots left</span><span>${left} of ${c.cap}</span></div>
+  openModal(`<h3 id="modalTitle">${c.type}</h3><p class="sub">${dayName(dt)} ${fmtDate(dt)} · ${timeLabel(c.time)} – ${timeLabel(c.end)}</p>
+    <div class="kv"><div><span>Dojo</span><span>HQ Dojo · Thomson V One</span></div><div><span>Instructor</span><span>${esc(c.ins)}</span></div><div><span>Spots left</span><span>${left} of ${c.cap}</span></div>
     <div><span>Paid with</span><span>${unl ? `Unlimited (until ${fmtShort(DB.unlimited.until)})` : pass ? `1 lesson · ${esc(pass.name)}` : 'No valid lessons'}</span></div>
     ${pass ? `<div><span>Lesson expires</span><span>${fmtDate(pass.expires)}</span></div>` : ''}
     <div><span>Balance after</span><span>${after}</span></div></div>
@@ -177,11 +186,14 @@ function openBooking(i) {
     </ul>` : ''}
     <div class="acts">${!unl && !pass ? `<a class="btn btn-dark arrow" href="packages.html">Top up<span class="dot">${icon('arrow')}</span></a>` : `<button class="btn btn-dark arrow" id="doBook" autofocus>Confirm booking<span class="dot">${icon('arrow')}</span></button>`}</div>`);
   const btn = $('#doBook'); if (!btn) return;
-  btn.addEventListener('click', () => {
-    BOOKINGS.push({ c, date: dt, key, passId: pass ? pass.id : null, unlimited: unl });
-    if (pass) pass.left--;
-    save(); renderPassViews(); renderBook(); closeModal();
-    toast('Booked. Confirmation sent to your email.');
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    try {
+      await ASK.act.book(c.lessonId);
+      closeModal();
+      await refreshAfterBooking();
+      toast('Booked. Confirmation sent to your email.');
+    } catch (e) { closeModal(); ASK.errToast(e); await refreshAfterBooking().catch(() => {}); }
   });
 }
 
@@ -201,12 +213,13 @@ function openBuy(id) {
       : `<div><span>Lessons expire</span><span>${fmtDate(exp)}</span></div><div><span>New balance</span><span>${totalCredits() + p.lessons} lessons</span></div>`}
     <div><span>Pay with</span><span>Visa •••• 4242</span></div></div>
     <div class="slide" id="buySlide"><div class="fill"></div><div class="lbl"><em>Slide to pay ${money(p.amt)}</em></div><div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${icon('arrow')}</div></div>`);
-  slideCommit($('#buySlide'), () => {
-    if (p.lessons === Infinity) DB.unlimited = { since: new Date(TODAY), until: exp };
-    else MY_PASSES.push({ id: 'P-' + String(Date.now()).slice(-6), name: p.name, total: p.lessons, left: p.lessons, bought: new Date(TODAY), expires: exp });
-    PAYS.unshift({ item: p.lessons === Infinity ? 'Unlimited · 2 weeks' : p.t, date: fmtDate(new Date()), method: 'Visa •••• 4242', amt: p.amt, st: 'Paid', inv: newInv() });
-    save(); renderPays(); renderPassViews(); renderBook();
-    setTimeout(() => { closeModal(); toast(`${p.t} added. Receipt sent by email.`); }, 500);
+  slideCommit($('#buySlide'), async () => {
+    try {
+      await ASK.act.buy(p.id, 'Visa');
+      await ASK.load.packages();
+      renderPassViews();
+      setTimeout(() => { closeModal(); toast(`${p.t} added. Receipt sent by email.`); }, 500);
+    } catch (e) { closeModal(); ASK.errToast(e); await ASK.load.packages().then(renderPassViews).catch(() => {}); }
   });
 }
 
@@ -243,7 +256,7 @@ function renderMCList() {
   $('#mcCount').hidden = !pending; $('#mcCount').textContent = `${pending} waiting`;
   $('#mcList').innerHTML = list.map(r => {
     const [cls, lbl] = mcStatus[r.status];
-    const when = r.kind === 'mc' ? `MC ${fmtShort(new Date(r.from))} – ${fmtShort(new Date(r.to))}` : 'Compassion Guaranteed';
+    const when = r.kind === 'mc' ? 'Medical certificate' : 'Compassion Guaranteed';
     return `<div class="row"><span class="av${r.status === 'approved' ? ' navy' : ''}">${icon(r.kind === 'mc' ? 'doc' : 'gift')}</span><div class="grow"><div class="t">+${plural(r.days, 'day')} · ${esc(r.passName)}</div><div class="d">${when} · sent ${fmtShort(new Date(r.date))}${r.status === 'approved' && r.newExp ? ` · now expires ${fmtDate(new Date(r.newExp))}` : ''}${r.status === 'rejected' && r.reason ? ` · ${esc(r.reason)}` : ''}</div></div><div class="acts"><span class="pill ${cls}">${lbl}</span>${r.status === 'pending' ? `<button type="button" class="sbtn ghost" data-mc-withdraw="${esc(r.id)}">Withdraw</button>` : ''}</div></div>`;
   }).join('');
 }
@@ -254,7 +267,7 @@ function initMC() {
   if (!act.length) { $('#mcSubmit').disabled = true; $('#mcSum').innerHTML = `<div class="note warn">${icon('info')}<span>You have no active lesson package to extend. Unlimited plans renew every 2 weeks and don't need extending.</span></div>`; }
   $('#mcForm').addEventListener('change', renderMCForm);
   $('#mcForm').addEventListener('input', renderMCForm);
-  $('#mcForm').addEventListener('submit', e => {
+  $('#mcForm').addEventListener('submit', async e => {
     e.preventDefault();
     const st = mcState();
     if (!st.pass) { toast('Choose a package to extend.', 'bad'); return; }
@@ -272,21 +285,18 @@ function initMC() {
       if (!ok) { toast('Check the highlighted fields.', 'bad'); return; }
     }
     const f = $('#mc-file').files[0];
-    MC_REQS.unshift({
-      id: 'MC-' + String(Date.now()).slice(-6), n: ME.name, no: ME.no, passId: st.pass.id, passName: st.pass.name,
-      kind: st.kind, from: st.from, to: st.to, days: st.days, oldExp: st.pass.expires,
-      file: st.kind === 'mc' && f ? `mc-uploads/${ME.no}/${Date.now()}-${f.name.replace(/\s+/g, '-')}` : null, fileName: f && st.kind === 'mc' ? f.name : null,
-      note: $('#mc-note').value.trim(), date: new Date(), status: 'pending'
-    });
-    save();
+    try {
+      /* file uploads are not built yet: only the file name is sent as the document reference */
+      await ASK.act.extension(st.pass.id, st.kind === 'mc' ? { kind: 'MC', days: st.days, documentRef: f.name } : { kind: 'Compassion', days: st.days });
+      await ASK.load.packages();
+    } catch (err) { ASK.errToast(err); return; }
     $('#mcForm').reset(); $$('#mcForm input[data-dp]').forEach(i => i.dpSet && i.dpSet(null)); $$('#mcForm .fld').forEach(x => x.classList.remove('invalid'));
     renderMCForm(); renderMCList();
     toast('Request sent. HQ usually replies within 2 working days.');
   });
-  document.addEventListener('click', e => {
+  document.addEventListener('click', async e => {
     const w = e.target.closest('[data-mc-withdraw]'); if (!w) return;
-    const i = MC_REQS.findIndex(r => r.id === w.dataset.mcWithdraw); if (i < 0) return;
-    MC_REQS.splice(i, 1); save(); renderMCList(); toast('Request withdrawn.', 'info');
+    try { await ASK.act.withdrawExtension(w.dataset.mcWithdraw); await ASK.load.packages(); renderMCList(); toast('Request withdrawn.', 'info'); } catch (err) { ASK.errToast(err); }
   });
   renderMCForm(); renderMCList();
   if (location.hash === '#mc') setTimeout(() => $('#mc').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 300);
@@ -295,47 +305,20 @@ function initMC() {
 /* ---------- class rating: a pop-up once a class has ended ---------- */
 const RATE_TAGS = ['Clear explanations', 'Good pace', 'Felt safe', 'Learned something new', 'Fun partner work'];
 function agoText(end) {
-  const m = Math.round((Date.now() - end) / 60000);
+  const m = Math.round((NOW() - end) / 60000);
   if (m < 60) return `ended ${Math.max(1, m)} min ago`;
   const h = Math.round(m / 60); if (h < 24) return `ended ${plural(h, 'hour')} ago`;
   return `ended ${plural(Math.round(h / 24), 'day')} ago`;
 }
-/* latest class the student could have attended that has already finished (stands in for attendance data) */
-function lastEndedClass() {
-  const now = new Date();
-  for (let k = 0; k < 8; k++) {
-    const d = addDays(TODAY, -k), day = (d.getDay() + 6) % 7;
-    const list = CLASSES.filter(c => c.day === day && !whyNot(c)).sort((a, b) => b.time.localeCompare(a.time));
-    for (const c of list) { const end = classEnd(d, c); if (end < now) return { c, date: d, end, key: `${isoDate(d)}|${c.time}` }; }
-  }
-  return null;
-}
-
-/* any booked class that has finished moves to the rating queue */
-function checkEnded() {
-  const now = new Date();
-  for (let i = BOOKINGS.length - 1; i >= 0; i--) {
-    const u = BOOKINGS[i];
-    if (classEnd(u.date, u.c) < now) {
-      BOOKINGS.splice(i, 1);
-      // until the instructor ends the class, the outcome is unknown: no +1 yet, and the lesson stays used either way
-      if (!ATTENDANCE.some(a => `${isoDate(a.date)}|${a.time}` === u.key)) ATTENDANCE.unshift({ date: u.date, time: u.c.time, type: u.c.type, ins: u.c.ins, status: 'pending' });
-      queueRating({ c: u.c, date: u.date, end: classEnd(u.date, u.c), key: u.key });
-    }
-  }
-}
-function queueRating(r) {
-  if (!r || DB.rated.includes(r.key) || DB.rateQueue.some(x => x.key === r.key)) return;
-  DB.rateQueue.push(r);
-}
-/* pop up the first rating the student hasn't been asked about yet */
+/* The rating queue (attended classes not rated yet) comes from the server with the home data.
+   pop up the first rating the student hasn't been asked about in this visit */
 function promptRating() {
-  checkEnded(); save(); syncNotifDot(); renderUpcoming();
+  syncNotifDot(); renderUpcoming();
   if ($('#attList')) { renderNextClass(); renderAttendance(); }
   const i = DB.rateQueue.findIndex(r => !DB.prompted.includes(r.key));
   if (i < 0 || $('#modal').classList.contains('open')) return;
   if ($('#levelCards') && gameView() && DB.levelUps.length) return;   // don't cover the level-up moment; ask on a later visit
-  DB.prompted.push(DB.rateQueue[i].key); save();
+  DB.prompted.push(DB.rateQueue[i].key);
   openRating(i);
 }
 function openRating(i) {
@@ -352,9 +335,13 @@ function openRating(i) {
   let rating = 0;
   peekRating($('#rsPeek'), v => { rating = v; $('#rsSend').disabled = !v; });
   $('#rsTags').addEventListener('click', e => { const b = e.target.closest('.rtag'); if (b) b.setAttribute('aria-pressed', b.classList.toggle('on')); });
-  $('#rsSend').addEventListener('click', () => {
-    FEEDBACK.push({ ins: r.c.ins, type: r.c.type, date: r.date, rating, tags: $$('#rsTags .rtag.on').map(b => b.textContent), note: $('#rsNote').value.trim() });
-    DB.rated.push(r.key); DB.rateQueue.splice(i, 1); save(); syncNotifDot(); closeModal();
+  $('#rsSend').addEventListener('click', async () => {
+    const note = $('#rsNote').value.trim();
+    try {
+      await ASK.act.rate({ lessonId: r.lessonId, rating, tags: $$('#rsTags .rtag.on').map(b => b.textContent), ...(note ? { note } : {}) });
+    } catch (e) { closeModal(); ASK.errToast(e); return; }
+    const at = DB.rateQueue.indexOf(r); if (at > -1) DB.rateQueue.splice(at, 1);
+    syncNotifDot(); closeModal();
     toast(`Thanks. Your feedback went to ${r.c.ins}.`);
   });
   $('#rsLater').addEventListener('click', () => { closeModal(); toast('Saved for later. Find it under notifications.', 'info'); });
@@ -396,15 +383,16 @@ const gradeChecks = () => [
   ['Member for at least 3 months', `${GRADE.memberMonths} months`, GRADE.memberMonths >= 3],
   [`${GRADE.needMonths} months at current grade`, `${GRADE.monthsInRank} months`, GRADE.monthsInRank >= GRADE.needMonths],
   [`${GRADE.needSessions} sessions at current grade`, `${GRADE.sessions} / ${GRADE.needSessions}`, GRADE.sessions >= GRADE.needSessions],
-  ['No outstanding membership fees', GRADE.feesPaid ? 'Paid' : 'Overdue', GRADE.feesPaid],
-  ['Instructor marks you Qualified', GRADE.qualified ? 'Qualified' : 'Pending', GRADE.qualified]
+  ['No outstanding membership fees', GRADE.feesPaid ? 'Paid' : 'Overdue', GRADE.feesPaid]
 ];
 
 const gradeEligible = () => gradeChecks().every(c => c[2]);
 
+/* the fee comes from the server (grading fee of the target rank, plus the late fee after the close date) */
 function gradeFee() {
-  const lines = [[`Grading fee · ${GRADE.target}`, `Adult grading · ${fmtDate(GRADE.date)}`, GRADING_FEE[GRADE.target] || 50]];
-  if (TODAY > GRADE.close) lines.push(['Late submission charge', `Applications closed ${fmtDate(GRADE.close)}`, LATE_FEE]);
+  const f = GRADE.fee || { base: 0, late: 0 };
+  const lines = [[`Grading fee · ${GRADE.target}`, GRADE.date ? `Adult grading · ${fmtDate(GRADE.date)}` : 'No grading is scheduled yet', f.base]];
+  if (f.late) lines.push(['Late submission charge', `Applications closed ${fmtDate(GRADE.close)}`, f.late]);
   return { lines, total: lines.reduce((a, l) => a + l[2], 0) };
 }
 
@@ -423,18 +411,14 @@ function renderStuGrading() {
   $('#ga-book').disabled = !ok || !!sub;
   $('#gaSubmit').disabled = !ok || !!sub;
   $('#gaFees').innerHTML = feeHTML(gradeFee());
-  $('#gaDemoWrap').hidden = ok || !!sub;
+  $('#gaTitle').textContent = `Checklist · ${GRADE.target}`;
+  $('#gaWhen').textContent = GRADE.date ? `Adult grading · ${fmtDate(GRADE.date)}` : 'No grading is scheduled yet';
+  $('#ga-cur').value = `${GRADE.currentRank || ME.grade}${GRADE.passedOn ? ' · ' + fmtDate(GRADE.passedOn) : ''}`;
+  $('#ga-target').innerHTML = `<option>${esc(GRADE.targetLabel)}</option>`;
 }
 
 function initGradingApp() {
   $('#ga-book').addEventListener('change', () => fldOf($('#ga-book')).classList.remove('invalid'));
-  $('#gaDemo').addEventListener('click', () => {
-    GRADE.sessions = GRADE.needSessions; GRADE.qualified = true;
-    const s = STUDENTS.find(x => x.n === ME.name); if (s) { s.s = Math.max(s.s, s.need); s.st = 'Qualified'; }
-    save();
-    renderStuGrading();
-    toast('Prototype: requirements marked as met', 'info');
-  });
   $('#gradeForm').addEventListener('submit', e => {
     e.preventDefault();
     if (!gradeEligible() || GRADE.submitted) return;
@@ -448,14 +432,13 @@ function initGradingApp() {
       <div class="kv"><div><span>Principal dojo</span><span>${esc(dojoName(ME.dojo))}</span></div><div><span>Membership book</span><span>${esc(f.name)}</span></div><div><span>Pay with</span><span>Visa •••• 4242</span></div></div>
       <div class="fees" style="margin-bottom:18px">${feeHTML(fee)}</div>
       <div class="slide" id="gaSlide"><div class="fill"></div><div class="lbl"><em>Slide to pay ${money(fee.total)}</em></div><div class="knob" role="slider" tabindex="0" aria-label="Slide to pay" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">${icon('arrow')}</div></div>`);
-    slideCommit($('#gaSlide'), () => {
-      const date = fmtDate(new Date());
-      GRADE.submitted = { ref: 'GRD-' + String(Date.now()).slice(-6), total: fee.total, date, file: `grading-uploads/${ME.no}/${Date.now()}-${f.name.replace(/\s+/g, '-')}` };
-      GRAD_APPS.unshift({ n: ME.name, from: ME.grade, to: GRADE.target, dojo: ME.dojo, sub: fmtShort(TODAY), note: 'Membership book uploaded · fee paid', sched: null });
-      PAYS.unshift({ item: `Grading fee · ${GRADE.target}`, date, method: 'Visa •••• 4242', amt: fee.total, st: 'Paid', inv: newInv() });
-      renderPays(); renderStuGrading();
-      save();
-      setTimeout(() => { closeModal(); toast('Grading application submitted. Confirmation sent by email.'); }, 500);
+    slideCommit($('#gaSlide'), async () => {
+      try {
+        /* the membership book photo is not uploaded yet: only its file name is sent */
+        await ASK.act.applyGrading({ sessionId: GRADE.sessionId, bookFile: f.name, method: 'Visa' });
+        await ASK.load.grading(); renderStuGrading();
+        setTimeout(() => { closeModal(); toast('Grading application submitted. Confirmation sent by email.'); }, 500);
+      } catch (e) { closeModal(); ASK.errToast(e); await ASK.load.grading().then(renderStuGrading).catch(() => {}); }
     });
   });
   renderStuGrading();
@@ -500,16 +483,36 @@ function openTechnique(path) {
     <div class="ct-video">${vid
       ? `<iframe src="https://www.youtube-nocookie.com/embed/${vid}?rel=0" title="${esc(title)} demonstration" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe>`
       : `<div class="ct-novid">${icon('play')}<b>Demonstration coming soon</b><span>HQ is recording this technique for the syllabus library.</span></div>`}</div>
-    ${vid ? '' : `<div class="acts"><a class="sbtn" href="https://www.youtube.com/results?search_query=${encodeURIComponent('aikido ' + title)}" target="_blank" rel="noopener">${icon('ur')}Find demonstrations</a></div>`}`, true);
+    <div class="acts"><button type="button" class="sbtn" data-curriculum>${icon('left')}Back to curriculum</button>${vid ? '' : `<a class="sbtn" href="https://www.youtube.com/results?search_query=${encodeURIComponent('aikido ' + title)}" target="_blank" rel="noopener">${icon('ur')}Find demonstrations</a>`}</div>`, true);
 }
 
-function openCheckIn() {
-  openModal(`<h3 id="modalTitle">Check in</h3><p class="sub">Tap your phone on the NFC tag at the dojo door, or show this code to your instructor.</p>
-    <div style="display:grid;place-items:center;margin:22px 0">${qrSVG()}</div>
-    <div class="kv"><div><span>Member</span><span>${ME.name}</span></div><div><span>Member no.</span><span class="num">${ME.no}</span></div></div>
-    <div class="acts"><button class="sbtn dark" id="ciGo">${icon('nfc')}Complete check-in</button></div>`);
-  $('#ciGo').addEventListener('click', () => { location.href = url('student_portal/checkin.html'); });
+/* the curriculum tree opens from the progression tree buttons on Home (Next belt card, path card) */
+function openCurriculum() {
+  openModal(`<h3 id="modalTitle">Curriculum · ${esc(CURRICULUM.rank)}</h3><p class="sub">Techniques for your next grading. Tap one to watch the demonstration.</p>
+    <div class="acts" style="margin-top:12px"><button type="button" class="sbtn" id="ctToggle">Expand all</button></div>
+    <div class="ctree" id="ctree" style="margin-top:12px"></div>`, true);
+  initCurriculum();
 }
+document.addEventListener('click', e => { if (e.target.closest('[data-curriculum]')) openCurriculum(); });
+
+/* ---------- check-in: the QR code or NFC tag at the dojo opens checkin.html?qr=<code> (see runCheckIn at the end of this file) ---------- */
+/* the fallback for a phone that cannot scan: type the code printed under the QR code */
+function openCheckIn() {
+  openModal(`<h3 id="modalTitle">Check in</h3><p class="sub">Scan the QR code or tap the NFC tag at your dojo. If your phone can't scan, type the code printed under the QR code.</p>
+    <form id="ciForm" novalidate>
+      <div class="fld"><label for="ciCode">Code</label><input id="ciCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ASK-QR-HQ-7F3A"><span class="err">Enter the code from the poster.</span></div>
+      <div class="acts"><button type="submit" class="sbtn dark">${icon('scan')}Check in</button></div>
+    </form>`);
+  $('#ciForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const code = $('#ciCode').value.trim();
+    fldOf($('#ciCode')).classList.toggle('invalid', !code);
+    if (code) location.href = url('student_portal/checkin.html') + '?qr=' + encodeURIComponent(code);
+  });
+}
+
+/* check in = open the camera and scan the QR code the instructor is showing */
+const openScanner = () => { location.href = url('student_portal/scan.html'); };
 
 /* =====================================================================
    HOME — one number per idea, plus the gamified path
@@ -528,9 +531,9 @@ function memberCardHTML(id = 'memberCard') {
     <div class="pcard-mid"><span class="pcard-av">${initials(ME.name)}</span><div><div class="pcard-name">${esc(ME.name)}</div><div class="pcard-rank" style="--belt:${beltOf(ME.grade)}"><i></i>${esc(ME.grade)}</div></div></div>
     <div class="pcard-bot"><span>MEMBER NO.<b>${esc(ME.no)}</b></span><span style="text-align:right">PRINCIPAL DOJO<b>${esc(DOJOS.find(d => d.id === ME.dojo).short)}</b></span></div>
     <span class="pcard-glare"></span></div>
-    <div class="pcard-foot"><span class="st">Active · Expires Jan 2027</span><button type="button" data-qr>${icon('nfc')}Check in</button></div></div></div>`;
+    <div class="pcard-foot"><span class="st">${esc(ME.status || 'Active')}${ME.expiry ? ` · Expires ${MON[ME.expiry.getMonth()]} ${ME.expiry.getFullYear()}` : ''}</span><button type="button" data-qr>${icon('scan')}Scan to check in</button></div></div></div>`;
 }
-document.addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
+document.addEventListener('click', e => { if (e.target.closest('[data-scan]')) openScanner(); });
 
 /* weeks in a row (this week or last, backwards) with at least one class attended */
 function streakWeeks() {
@@ -594,7 +597,7 @@ const home = { shown: 0 };   // sessions currently drawn on the path (gamified v
 const pendingSessions = () => DB.levelUps.filter(l => l.kind === 'session').length;
 
 function renderHomeTop() {
-  const h = new Date().getHours();
+  const h = NOW().getHours();
   $('#greet').textContent = `Good ${h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'}, ${ME.name.split(' ')[0]}`;
   const n = streakWeeks();
   $('#hsStreakN').textContent = n;
@@ -617,9 +620,10 @@ function renderNextBelt(count) {
       <span class="nb-belt" style="--belt:${beltOf(GRADE.target)}" aria-hidden="true"></span>
       <div class="nb-title"><span>Next belt</span><h2>${esc(GRADE.targetLabel)}</h2></div>
       <div class="nb-count"><b class="num" id="nbCount">${count}</b><span>/ ${need} sessions</span></div>
+      <button type="button" class="icon-btn nb-tree" data-curriculum aria-label="View ${esc(GRADE.targetLabel)} curriculum" title="Curriculum">${icon('tree')}</button>
     </div>
     <div class="pbar" role="progressbar" aria-label="Sessions toward ${esc(GRADE.target)}" aria-valuemin="0" aria-valuemax="${need}" aria-valuenow="${count}"><i id="nbFill" style="transform:scaleX(${pct})"></i></div>
-    <p class="nb-sub" id="nbSub">${left ? `<b>${plural(left, 'more session')}</b> to be ready for grading.` : `<b>Sessions done.</b> Your instructor can now mark you Qualified.`} Next grading ${fmtShort(GRADE.date)}, apply by ${fmtShort(GRADE.close)}.</p>
+    <p class="nb-sub" id="nbSub">${left ? `<b>${plural(left, 'more session')}</b> to be ready for grading.` : `<b>Sessions done.</b> You're ready to apply.`} ${GRADE.date ? `Next grading ${fmtShort(GRADE.date)}, apply by ${fmtShort(GRADE.close)}.` : 'No grading is scheduled yet.'}</p>
     <p class="nb-months ${monthsMet ? 'ok' : ''}">${icon(monthsMet ? 'check' : 'clock')}<span>${GRADE.monthsInRank} of ${GRADE.needMonths} months at ${esc(ME.grade)}${monthsMet ? ' · met' : ''}</span></p>`;
 }
 
@@ -774,6 +778,7 @@ function renderPath(count, anim) {
         <span class="gp-when">${done ? `Ask your instructor about ${esc(GRADE.target)} grading` : nxt ? `${dayName(nxt.date)} ${fmtShort(nxt.date)} · ${timeLabel(nxt.c.time)} ${esc(nxt.c.type)}` : 'No class booked yet'}</span>
         <span class="gp-bar"><i style="width:${pct}%"></i><em>${count}/${need}</em></span>
         ${tease}
+        <button type="button" class="more-link" data-curriculum>${icon('tree')}See curriculum</button>
         ${!done && !nxt ? '<button type="button" class="sbtn dark gp-book" data-page-link="book">Book a class</button>' : ''}
       </div>`;
   }
@@ -817,7 +822,7 @@ document.addEventListener('click', e => {
   const n = e.target.closest('[data-gp]'); if (!n) return;
   const k = n.dataset.gp, num = +n.dataset.n, need = GRADE.needSessions, cnt = GP.count;
   if (k === 'chest') { const r = rewardFor(num); toast(num <= cnt ? `${r.name} (${r.d.toLowerCase()}) unlocked at session ${num}.` : `Attend ${plural(num - cnt, 'more class', )} to unlock the ${r.name} (${r.d.toLowerCase()}).`, 'info'); return; }
-  if (k === 'trophy') { toast(cnt >= need ? `All ${need} sessions done. Your instructor can now mark you Qualified for ${GRADE.target}.` : `${plural(need - cnt, 'more session')} until you're ready for ${GRADE.target} grading.`, 'info'); return; }
+  if (k === 'trophy') { toast(cnt >= need ? `All ${need} sessions done. You're ready to apply for ${GRADE.target} grading.` : `${plural(need - cnt, 'more session')} until you're ready for ${GRADE.target} grading.`, 'info'); return; }
   if (k === 'done') toast(`Session ${num} · completed`, 'info');
   else if (k === 'locked') toast(`Session ${num} unlocks after ${plural(num - cnt - 1, 'more class')}.`, 'info');
   else if (k === 'now') toast('Attend your next class and get marked present to step forward.', 'info');
@@ -856,6 +861,28 @@ function renderAttendance() {
   }).join('') : `<div class="empty-mini">${icon('clock')}<p><b>No classes yet</b><span>Classes you attend show here, each with +1 toward your next grade.</span></p></div>`;
 }
 
+/* on phones/tablets the three stats sit inside the "Your path" card (gamified view);
+   on desktop, or in Standard view, they go back to the side column under the card */
+const narrowMQ = window.matchMedia('(max-width: 1100px)');
+function placeStats() {
+  const st = $('#hStats'), path = $('#pathCard'), hc = $('#homeCard');
+  if (!st || !path || !hc) return;
+  if (narrowMQ.matches && gameView()) { const h = path.querySelector('.card-h'); if (h.nextElementSibling !== st) h.after(st); }
+  else if (hc.nextElementSibling !== st) hc.after(st);
+}
+if (narrowMQ.addEventListener) narrowMQ.addEventListener('change', placeStats); else narrowMQ.addListener(placeStats);
+
+/* notes from instructors: the three newest on the home page, the full history in a drawer */
+const NOTE_KIND = { class: ['Class note', 'k-class'], student: ['For you', 'k-student'] };   // grading notes are for instructors and examiners only
+const noteRow = r => `<article class="note-row"><div class="note-top"><span class="note-kind ${NOTE_KIND[r.kind][1]}">${NOTE_KIND[r.kind][0]}</span><span>${esc(r.label)}</span><span>${esc(r.by)}</span></div><p>${esc(r.text)}</p></article>`;
+function renderNotes() {
+  const list = $('#notesList'); if (!list) return;
+  const all = remarksForStudent(ME.name);
+  list.innerHTML = all.length ? all.slice(0, 3).map(noteRow).join('')
+    : `<div class="empty-mini">${icon('doc')}<p><b>No notes yet</b><span>After a class, your instructor can leave a note here about what you learnt and what to work on.</span></p></div>`;
+  $('#notesAll').hidden = all.length <= 3;
+}
+
 function renderHome(anim) {
   const game = gameView();
   const hc = $('#homeCard');
@@ -867,19 +894,19 @@ function renderHome(anim) {
   renderHomeTop(); renderPassViews();
   renderNextBelt(home.shown);
   if (game) { renderLevelCards(); renderPath(home.shown, anim); } else { const promo = DB.levelUps.find(l => l.kind === 'promotion'); $('#levelCards').hidden = !promo; $('#levelCards').innerHTML = promo ? `<div class="note"><svg class="ic"><use href="#i-award"/></svg><span><b>Promoted to ${esc(promo.to)}.</b> Congratulations.</span><button class="sbtn ghost" data-claim="promotion">Dismiss</button></div>` : ''; }
-  renderNextClass(); renderAttendance();
-  save();
+  renderNextClass(); renderAttendance(); renderNotes();
+  placeStats();
 }
 
 /* the level-up moment: one tap = one counted session joins the path */
 function claim(kind, btn) {
   if (kind === 'promotion') {
-    DB.levelUps = DB.levelUps.filter(l => l.kind !== 'promotion'); save();
+    DB.levelUps = DB.levelUps.filter(l => l.kind !== 'promotion');
     if (gameView()) { chime(true); confetti(); toast('Congratulations on your new grade.'); }
     renderHome(false); return;
   }
   const i = DB.levelUps.findIndex(l => l.kind === 'session'); if (i < 0) return;
-  DB.levelUps.splice(i, 1); save();
+  DB.levelUps.splice(i, 1);
   const before = home.shown, after = before + 1, need = GRADE.needSessions, big = after >= need && before < need;
   chime(big);
   const go = () => {
@@ -893,7 +920,7 @@ function claim(kind, btn) {
     renderPath(after, true);
     const now = $('#gpath .gp-av') || $('#gpath .gp-node.trophy');
     if (now) now.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-    if (big) { confetti(); setTimeout(() => toast(`${after} of ${need} sessions. You're ready for ${GRADE.target} grading once your instructor marks you Qualified.`), 400); }
+    if (big) { confetti(); setTimeout(() => toast(`${after} of ${need} sessions. You're ready to apply for ${GRADE.target} grading.`), 400); }
     else toast(`+1 session · ${after} of ${need}`);
     setTimeout(() => renderNextBelt(after), 700);
   };
@@ -906,43 +933,32 @@ function openMemberCard() {
   profileCard($('#modalMemberCard'));
 }
 
-/* prototype: stand in for the instructor marking your next class */
-function simulateNext(status) {
-  const b = BOOKINGS.slice().sort((x, y) => x.date - y.date)[0];
-  let rec;
-  if (b) rec = { date: b.date, time: b.c.time, type: b.c.type, ins: b.c.ins, status };
-  else {
-    const p = activePasses()[0]; if (p) p.left--;   // as if it had been booked: the lesson is used either way
-    rec = { date: addDays(TODAY, -1), time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', status };
-  }
-  recordMyAttendance(rec);
-  save(); renderHome(false);
-  toast(status === 'present' ? 'Marked present. Your +1 is waiting on Home.' : 'No-show recorded. Lesson used, no refund, not counted.', status === 'present' ? 'ok' : 'info');
-}
-
 /* grading feedback the student sees (instructor writes it in the grading form) */
 function renderFeedback() {
   const el = $('#fbList'); if (!el) return;
   el.innerHTML = GRADE_FB.length ? GRADE_FB.map(f => {
     const pass = /^Pass/.test(f.result), d = new Date(f.date);
-    return `<article class="fb-item">
-      <div class="fb-head">
-        <div class="fb-rank"><span class="belt" style="--belt:${beltOf(f.from)}"><i></i>${esc(f.from)}</span>${icon('arrow')}<span class="belt" style="--belt:${beltOf(f.to)}"><i></i>${esc(f.to)}</span></div>
+    return `<details class="fb-fold">
+      <summary>
+        <span class="fb-sum-date">${fmtDate(d)}</span>
+        <span class="fb-rank"><span class="belt" style="--belt:${beltOf(f.from)}"><i></i>${esc(f.from)}</span>${icon('arrow')}<span class="belt" style="--belt:${beltOf(f.to)}"><i></i>${esc(f.to)}</span></span>
         <span class="pill ${pass ? 'ok' : f.result === 'Fail' ? 'bad' : 'warn'}">${esc(f.result)}${f.status ? ` · ${esc(f.status)}` : ''}</span>
+        <svg class="ic chev" aria-hidden="true"><use href="#i-chev"/></svg>
+      </summary>
+      <div class="fb-body">
+        <p class="fb-meta">Examiner ${esc(f.by)}</p>
+        <div class="fb-notes">
+          <div class="fb-note well"><h4>${icon('check')}What went well</h4><p>${esc(f.well)}</p></div>
+          <div class="fb-note next"><h4>${icon('arrow')}What to work on next</h4><p>${esc(f.next)}</p></div>
+        </div>
       </div>
-      <p class="fb-meta">${fmtDate(d)} · Examiner ${esc(f.by)}</p>
-      <div class="fb-notes">
-        <div class="fb-note well"><h4>${icon('check')}What went well</h4><p>${esc(f.well)}</p></div>
-        <div class="fb-note next"><h4>${icon('arrow')}What to work on next</h4><p>${esc(f.next)}</p></div>
-      </div>
-    </article>`;
+    </details>`;
   }).join('') : `<div class="empty-mini">${icon('award')}<p><b>No feedback yet</b><span>After your first grading, your examiner's notes on what went well and what to work on next will appear here.</span></p></div>`;
 }
 
 /* ---------- pages ---------- */
 runPage({
-  home() {
-    seedBookings();
+  home: stuPage(() => {
     renderHome(false);
     $('#homeView').addEventListener('click', e => {
       const b = e.target.closest('[data-v]'); if (!b || (b.dataset.v === 'game') === gameView()) return;
@@ -950,27 +966,36 @@ runPage({
     });
     $('#soundBtn').addEventListener('click', () => { setPref(SOUND_KEY, soundOn() ? 'off' : 'on'); renderHomeTop(); if (soundOn()) chime(false); });
     $('#beltBadge').addEventListener('click', openMemberCard);
+    $('#notesAll').addEventListener('click', () => openDrawer('Notes from your instructors', `<div class="notes-list">${remarksForStudent(ME.name).map(noteRow).join('')}</div>`));
     $('.page').addEventListener('click', e => {
-      const c = e.target.closest('[data-claim]'); if (c) { claim(c.dataset.claim, c.closest('.lvl-card')); return; }
-      const sim = e.target.closest('[data-sim]'); if (sim) simulateNext(sim.dataset.sim);
+      const c = e.target.closest('[data-claim]'); if (c) claim(c.dataset.claim, c.closest('.lvl-card'));
     });
-  },
-  book() {
-    $('#wkPrev').addEventListener('click', () => { stu.week = Math.max(0, stu.week - 1); stu.agDay = null; renderBook(); });
-    $('#wkNext').addEventListener('click', () => { stu.week = Math.min(4, stu.week + 1); stu.agDay = null; renderBook(); });
+  }),
+  book: stuPage(async () => {
+    const go = async step => {
+      const week = Math.max(0, Math.min(4, stu.week + step));
+      try { stu.week = week; stu.agDay = null; await loadWeek(); } catch (e) { ASK.errToast(e); }
+      renderBook();
+    };
+    $('#wkPrev').addEventListener('click', () => go(-1));
+    $('#wkNext').addEventListener('click', () => go(1));
     $('.page').addEventListener('click', e => {
       const d = e.target.closest('[data-ag]'); if (d) { stu.agDay = +d.dataset.ag; renderBook(); return; }
       const b = e.target.closest('[data-i]'); if (b) openBooking(b.dataset.i);
     });
+    await loadWeek();
     renderBook();
-  },
-  packages() {
+  }),
+  packages: stuPage(async () => {
+    await ASK.load.packages();
+    renderPassViews();
     document.addEventListener('click', e => { const b = e.target.closest('[data-buy]'); if (b) openBuy(b.dataset.buy); });
     renderShop();
     initMC();
-  },
-  grading() { initGradingApp(); initCurriculum(); renderFeedback(); },
-  payments() {
+  }),
+  grading: stuPage(async () => { await ASK.load.grading(); initGradingApp(); renderFeedback(); }),
+  payments: stuPage(async () => {
+    await ASK.load.payments();
     renderPays();
     $('#payRows').addEventListener('click', e => {
       const b = e.target.closest('[data-rcpt]'); if (!b) return;
@@ -978,74 +1003,192 @@ runPage({
       openModal(`<h3 id="modalTitle">Receipt</h3><p class="sub">${esc(p.item)}</p><div class="kv"><div><span>Receipt no.</span><span class="num">${p.inv}</span></div><div><span>Date</span><span>${p.date}</span></div><div><span>Member</span><span>${ME.name} · ${ME.no}</span></div><div><span>Paid by</span><span>${p.method}</span></div><div><span>Amount</span><span>${money(p.amt)}</span></div></div><div class="acts"><button class="sbtn dark" data-pdf="${i}" data-close>${icon('download')}Save PDF</button></div>`);
     });
     document.addEventListener('click', e => { const b = e.target.closest('[data-pdf]'); if (b) downloadReceipt(+b.dataset.pdf); });
-  },
-  profile() {
+  }),
+  profile: stuPage(async () => {
+    const pf = await ASK.load.profile();
     $('#profileCard').innerHTML = memberCardHTML(); profileCard($('#memberCard'));
-    $('#profileForm').addEventListener('submit', e => { e.preventDefault(); toast('Profile saved'); });
-    $('#pwBtn').addEventListener('click', () => openModal(`<h3 id="modalTitle">Change password</h3><p class="sub">Use at least 8 characters.</p><form id="pwForm" style="display:grid;gap:14px;margin-top:18px" novalidate><div class="fld"><label for="pw1">Current password</label><input id="pw1" type="password" autofocus></div><div class="fld"><label for="pw2">New password</label><input id="pw2" type="password"><span class="err">At least 8 characters.</span></div><button class="sbtn dark" type="submit" style="justify-self:start">Update password</button></form>`));
-    document.addEventListener('submit', e => {
-      if (e.target.id !== 'pwForm') return; e.preventDefault();
-      if ($('#pw2').value.length < 8) { fldOf($('#pw2')).classList.add('invalid'); return; }
-      closeModal(); toast('Password updated');
+    const fill = p => {
+      $('#p-name').value = p.name; $('#p-email').value = p.email; $('#p-phone').value = p.contactNo; $('#p-ec').value = p.emergencyContact;
+      $('#pfJoined').textContent = fmtDate(ASK.d(p.joinedOn));
+      $('#pfDues').textContent = p.lastRenewedAt ? `Paid ${fmtDate(ASK.d(p.lastRenewedAt))}` : 'Not paid yet';
+      $('#pfStatus').textContent = p.status; $('#pfStatus').className = 'pill ' + (p.status === 'Active' ? 'ok' : 'warn');
+    };
+    fill(pf);
+    $('#profileForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = $('#p-email').value.trim(), phone = $('#p-phone').value.trim();
+      if (!emailOk(email) || !phoneOk(phone)) { toast('Check your email and mobile number.', 'bad'); return; }
+      try {
+        fill(await ASK.act.updateProfile({ email, contactNo: phone, emergencyContact: $('#p-ec').value.trim() }));
+        toast('Profile saved');
+      } catch (err) { ASK.errToast(err); }
     });
-  },
-  checkin() { renderCheckIn(); }
+    if (location.hash === '#terms') { const d = $('#terms details'); if (d) { d.open = true; $('#terms').scrollIntoView(); } }
+    $('#pwBtn').addEventListener('click', () => ASK.openChangePassword());
+  }),
+  checkin: stuPage(() => runCheckIn()),
+  scan: stuPage(() => startScanner())
 });
 
-/* which class the member just checked in to:
-   a booked class on the mat right now (or next up today), else the next eligible
-   HQ class today — so the confirmation always names a real session. */
-function checkInClass() {
-  const now = new Date();
-  const windowOpen = (date, c) => classStart(date, c).getTime() - 30 * 60000; // doors 30 min before
-  // 1) a booked class happening today, closest to now
-  const bookedToday = BOOKINGS
-    .filter(u => daysBetween(TODAY, u.date) === 0 && classEnd(u.date, u.c) >= now)
-    .sort((a, b) => classStart(a.date, a.c) - classStart(b.date, b.c))[0];
-  if (bookedToday) return { c: bookedToday.c, date: bookedToday.date, booked: true };
-  // 2) next eligible HQ class on the mat now or later today
-  const day = (TODAY.getDay() + 6) % 7;
-  const next = CLASSES
-    .filter(c => c.day === day && !whyNot(c) && classEnd(TODAY, c) >= now)
-    .sort((a, b) => a.time.localeCompare(b.time))
-    .find(c => now >= windowOpen(TODAY, c)) || CLASSES.filter(c => c.day === day && !whyNot(c)).sort((a, b) => a.time.localeCompare(b.time))[0];
-  return next ? { c: next, date: TODAY, booked: false } : null;
+/* ---------- the page a QR code or NFC tag opens: checkin.html?qr=<code> ----------
+   The server decides (POST /student/check-in). It marks the student present only when the code belongs to their principal dojo and
+   they have a class booked there within 15 minutes of its start. Anything else records nothing and they land on the home page. */
+async function runCheckIn() {
+  const home = () => location.replace(url('student_portal/index.html'));
+  const qr = new URLSearchParams(location.search).get('qr');
+  if (!qr) { home(); return; }                                    // nothing was scanned
+  let r;
+  try { r = await ASK.post('/student/check-in', { qr }); }
+  catch (e) { ASK.errToast(e); setTimeout(home, 1800); return; }
+  if (r.status === 'none') { home(); return; }
+  history.replaceState(null, '', location.pathname);              // a refresh must not scan again
+  renderCheckedIn(r);
 }
 
-function renderCheckIn() {
-  const now = new Date();
-  const fmtTime = d => { let h = d.getHours(); const m = String(d.getMinutes()).padStart(2, '0'), ap = h < 12 ? 'AM' : 'PM'; h = h % 12 || 12; return `${h}:${m} ${ap}`; };
+function renderCheckedIn(r) {
+  const l = r.lesson, d = ASK.d(l.date), at = r.at ? ASK.ts(r.at) : null;
+  const fmtTime = x => `${x.getHours() % 12 || 12}:${String(x.getMinutes()).padStart(2, '0')} ${x.getHours() < 12 ? 'AM' : 'PM'}`;
   $('#ciMember').textContent = ME.name;
   $('#ciNo').textContent = ME.no;
-  $('#ciTime').textContent = `${fmtTime(now)} · ${fmtDate(now)}`;
+  $('#ciTime').textContent = at ? `${fmtTime(at)} · ${fmtDate(at)}` : 'Already recorded';
+  $('#ciSub').textContent = r.status === 'already' ? 'You were already checked in for this class.' : 'Your booked class is confirmed. Attendance recorded. Enjoy the mat.';
+  $('#ciDetail').innerHTML = `
+    <div class="ci-class">
+      <span class="ci-date"><span>${DAY[d.getDay()]}</span><b>${d.getDate()}</b></span>
+      <div class="ci-class-body">
+        <div class="ci-class-name">${esc(l.type)}</div>
+        <div class="ci-class-row">${icon('clock')}<span>${timeLabel(l.start)} – ${timeLabel(l.end)}</span></div>
+        <div class="ci-class-row">${icon('user')}<span>${esc(l.instructor)}</span></div>
+        <div class="ci-class-row">${icon('pin')}<span>${esc(l.venue)}</span></div>
+      </div>
+      <span class="ci-ok" aria-label="Checked in">${icon('check')}</span>
+    </div>`;
+  $('#ciWrap').style.display = '';
+}
 
-  const info = checkInClass();
-  if (info) {
-    const { c, date, booked } = info;
-    $('#ciSub').textContent = booked
-      ? 'Your booked class is confirmed. Attendance recorded — enjoy the mat.'
-      : 'Attendance recorded. Enjoy your class on the mat.';
-    $('#ciDetail').innerHTML = `
-      <div class="ci-class">
-        <span class="ci-date"><span>${DAY[date.getDay()]}</span><b>${date.getDate()}</b></span>
-        <div class="ci-class-body">
-          <div class="ci-class-name">${esc(c.type)}${booked ? '' : ' <span class="ci-tag">Drop-in</span>'}</div>
-          <div class="ci-class-row">${icon('clock')}<span>${timeLabel(c.time)} – ${timeLabel(String(+c.time.slice(0, 2) + 1).padStart(2, '0') + ':00')}</span></div>
-          <div class="ci-class-row">${icon('user')}<span>${esc(c.ins)}</span></div>
-          <div class="ci-class-row">${icon('pin')}<span>HQ Dojo · Thomson V One</span></div>
-        </div>
-        <span class="ci-ok" aria-label="Checked in">${icon('check')}</span>
-      </div>`;
-  } else {
-    $('#ciDetail').innerHTML = `<div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Attendance recorded at HQ Dojo. No class is scheduled right now — show this to your instructor if asked.</span></div>`;
+/* on every student page: refresh the lesson widgets, and ask about any attended class that is not rated yet */
+if (ALLOWED && !GATED) {
+  stuReady.then(() => { renderPassViews(); syncNotifDot(); if (PAGE !== 'scan') setTimeout(promptRating, 1200); }).catch(() => {});
+}
+
+/* ---------- the camera scanner on scan.html (the Scan tab): reads the instructor's QR code, then opens checkin.html?qr=<code> ---------- */
+function goCheckIn(code) { location.href = url('student_portal/checkin.html') + '?qr=' + encodeURIComponent(code); }
+
+function startScanner() {
+  const video = $('#scanVideo'), hint = $('#scanHint'), frame = $('#scanFrame'), torchBtn = $('#scanTorch');
+  const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d', { willReadFrequently: true });
+  let stream = null, detector = null, raf = 0, last = 0, busy = false, done = false, lastBad = 0, torch = false;
+
+  if (new URLSearchParams(location.search).has('bad')) toast("That code isn't a Shinju-Kai class. Try scanning again.", 'bad');
+
+  const stop = () => { cancelAnimationFrame(raf); if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; video.srcObject = null; };
+  const showMsg = (t, p, retry) => {
+    stop();
+    $('#scanMid').hidden = true; $('#scanMsg').hidden = false;
+    $('#scanMsgT').textContent = t; $('#scanMsgP').textContent = p; $('#scanRetry').hidden = !retry;
+    torchBtn.hidden = true;
+  };
+  const hideMsg = () => { $('#scanMid').hidden = false; $('#scanMsg').hidden = true; };
+
+  // something was read: is it one of our session codes?
+  const found = text => {
+    if (done) return;
+    const code = codeFromScan(text);
+    if (!findSession(code)) {
+      if (Date.now() - lastBad > 2500) { lastBad = Date.now(); toast("That QR code isn't a Shinju-Kai class. Scan the one your instructor is showing.", 'bad'); }
+      return;
+    }
+    done = true;
+    frame.classList.add('ok'); hint.textContent = 'Got it. Checking you in…';
+    if (navigator.vibrate) navigator.vibrate(60);
+    setTimeout(() => { stop(); goCheckIn(code); }, reduce ? 150 : 550);
+  };
+
+  const tick = async t => {
+    raf = requestAnimationFrame(tick);
+    if (busy || done || t - last < 140 || video.readyState < 2 || !video.videoWidth) return;
+    last = t; busy = true;
+    try {
+      if (detector) {
+        const r = await detector.detect(video);
+        if (r.length) found(r[0].rawValue);
+      } else if (window.jsQR) {
+        const w = video.videoWidth, h = video.videoHeight, sc = Math.min(1, 720 / Math.max(w, h));
+        canvas.width = Math.round(w * sc); canvas.height = Math.round(h * sc);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const r = jsQR(img.data, img.width, img.height, { inversionAttempts: 'attemptBoth' });
+        if (r && r.data) found(r.data);
+      }
+    } catch (_) { /* a frame that couldn't be read; try the next one */ }
+    busy = false;
+  };
+
+  async function start() {
+    hideMsg(); done = false; frame.classList.remove('ok');
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      showMsg('Camera not available', window.isSecureContext
+        ? "This browser can't open the camera. Enter the session code shown under the QR instead."
+        : 'The camera only works on a secure (https://) link. Open the portal over https, or enter the session code shown under the QR instead.', false);
+      return;
+    }
+    hint.textContent = 'Starting camera…';
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } } });
+    } catch (e) {
+      const denied = e && (e.name === 'NotAllowedError' || e.name === 'SecurityError');
+      showMsg(denied ? 'Allow camera access' : 'No camera found', denied
+        ? 'Camera access was blocked. Allow the camera for this site in your browser settings, then tap Try again.'
+        : "We couldn't open a camera on this device. Enter the session code shown under the QR instead.", true);
+      return;
+    }
+    video.srcObject = stream;
+    try { await video.play(); } catch (_) {}
+    hint.textContent = 'Point your camera at the QR code your instructor is showing';
+    const track = stream.getVideoTracks()[0], caps = track && track.getCapabilities ? track.getCapabilities() : {};
+    torchBtn.hidden = !caps.torch; torch = false; torchBtn.setAttribute('aria-pressed', 'false');
+    cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
   }
+
+  torchBtn.addEventListener('click', async () => {
+    const track = stream && stream.getVideoTracks()[0]; if (!track) return;
+    try { torch = !torch; await track.applyConstraints({ advanced: [{ torch }] }); } catch (_) { torch = false; }
+    torchBtn.setAttribute('aria-pressed', String(torch)); torchBtn.setAttribute('aria-label', torch ? 'Turn off flashlight' : 'Turn on flashlight');
+  });
+  $('#scanRetry').addEventListener('click', start);
+  $('#scanClose').addEventListener('click', e => {
+    stop();
+    if (document.referrer && new URL(document.referrer).origin === location.origin && history.length > 1) { e.preventDefault(); history.back(); }
+  });
+
+  // no camera to hand: type the code printed under the QR
+  $('#scanManual').addEventListener('click', () => {
+    openModal(`<h3 id="modalTitle">Enter session code</h3><p class="sub">It's printed under the QR code your instructor is showing.</p>
+      <form id="codeForm" style="display:grid;gap:14px;margin-top:18px" novalidate>
+        <div class="fld"><label for="sessCode">Session code</label><input id="sessCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. HQ-MON7-5958" autofocus><span class="err">We couldn't find that code. Check it with your instructor.</span></div>
+        <button class="sbtn dark" type="submit" style="justify-self:start">${icon('check')}Check in</button>
+      </form>`);
+    $('#sessCode').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); fldOf(e.target).classList.remove('invalid'); });
+    $('#codeForm').addEventListener('submit', e => {
+      e.preventDefault();
+      const code = codeFromScan($('#sessCode').value);
+      if (!findSession(code)) { fldOf($('#sessCode')).classList.add('invalid'); return; }
+      done = true; closeModal(); stop(); goCheckIn(code);
+    });
+  });
+
+  // let the camera go when the page is hidden; start again when it's back
+  document.addEventListener('visibilitychange', () => { if (document.hidden) stop(); else if (!done && !stream && $('#scanMsg').hidden) start(); });
+  window.addEventListener('pagehide', stop);
+  window.addEventListener('pageshow', e => { if (e.persisted && !stream) { done = false; start(); } });   // came back with the Back button
+
+  const go = () => start();
+  if ('BarcodeDetector' in window && BarcodeDetector.getSupportedFormats) {
+    BarcodeDetector.getSupportedFormats()
+      .then(f => { if (f.includes('qr_code')) detector = new BarcodeDetector({ formats: ['qr_code'] }); })
+      .catch(() => {}).finally(go);
+  } else go();
 }
 
-/* on every student page: seed, refresh lesson widgets, and ask about any class that just ended */
-if (ALLOWED) {
-  seedBookings();
-  queueRating(lastEndedClass());
-  renderPassViews();
-  setTimeout(promptRating, 1200);
-  setInterval(promptRating, 60000);
-}
+/* the confirmation page, opened by a scan (?s=<session code>).
+   Without a valid code there's nothing to confirm, so it goes back to the scanner. */

@@ -1,0 +1,45 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="insights" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="insights">
+        <div class="page-h"><div><h1>Insights</h1><p>How classes, centres and members are doing, worked out from the bookings, attendance and payments on record.</p></div></div>
+        <div class="card white"><div id="insFilters" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(150px,100%),1fr));gap:10px">
+          <div class="fld"><label for="f-period">Period</label><select id="f-period"></select></div>
+          <div class="fld"><label for="f-cmp">Compare to</label><select id="f-cmp"></select></div>
+          <div class="fld"><label for="f-centre">Centre</label><select id="f-centre"></select></div>
+          <div class="fld"><label for="f-type">Class type</label><select id="f-type"></select></div>
+          <div class="fld"><label for="f-slot">Time slot</label><select id="f-slot"></select></div>
+          <div class="fld"><label for="f-age">Age group</label><select id="f-age"></select></div>
+          <div class="fld"><label for="f-belt">Belt group</label><select id="f-belt"></select></div>
+        </div></div>
+        <div class="list-bar"><div class="filters" id="insTabs">
+          <button class="fpill on" data-it="centres">Centres &amp; classes</button>
+          <button class="fpill" data-it="capacity">Capacity</button>
+          <button class="fpill" data-it="attention">Needs attention</button>
+          <button class="fpill" data-it="retention">Retention</button>
+          <button class="fpill" data-it="experience">Experience &amp; teaching</button>
+          <button class="fpill" data-it="interventions">Interventions</button>
+        </div></div>
+        <div id="insBody" style="display:grid;grid-template-columns:minmax(0,1fr);gap:14px"></div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,admin-data-business.js,../js/portal.js,admin-shell.js,admin-desk.js,admin.js,admin-business.js"></script>
+</body>
+</html>

@@ -20,22 +20,33 @@
 <div class="shell">
     <main class="main">
       <section class="page on" data-page="today">
-        <div class="page-h"><div><h1>Today · Mon 3 Nov</h1><p>Attendance opens 30 minutes before each class. End the class to lock it.</p></div></div>
-        <div class="g-side g-even">
-          <div class="live-card ac">
-            <span class="tag">Active now</span>
-            <h2>Adults · 7:00 – 8:00 PM</h2>
-            <div class="meta"><span>HQ Dojo, Mat A</span><span><b id="presentCount">0</b> of 14 checked in</span></div>
-            <div class="code"><svg class="ic"><use href="#i-nfc"/></svg>Session code <b>HQ-7PM-4821</b></div>
-            <div><button class="sbtn" id="liveOpen">Open roster</button></div>
-          </div>
-          <div class="card ac">
-            <div class="card-h"><h3>Your day</h3></div>
-            <div class="rows" id="dayList"></div>
-          </div>
+        <div class="page-h"><div><h1 id="dayTitle">Today</h1><p id="daySub"></p></div></div>
+        <div class="sch-bar">
+          <div class="view-toggle" id="schView" role="group" aria-label="Show as"><button type="button" data-view="day" aria-pressed="true">Day</button><button type="button" data-view="week" aria-pressed="false">Week</button><button type="button" data-view="month" aria-pressed="false">Month</button></div>
+          <div class="sch-nav"><button type="button" class="sbtn ghost" id="schPrev" aria-label="Previous">‹</button><button type="button" class="sbtn" id="schToday">Today</button><button type="button" class="sbtn ghost" id="schNext" aria-label="Next">›</button></div>
         </div>
-        <div class="card white ac">
-          <div class="card-h"><div><h3>Roster · Adults 7 PM</h3><span class="sub" id="rosterSub">Tap to mark present. Students tapping the NFC tag are marked automatically.</span></div><div class="card-h-acts"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="rosterSearch" type="search" placeholder="Search roster" aria-label="Search roster" autocomplete="off"></label><button class="sbtn" id="markAll"><svg class="ic"><use href="#i-check"/></svg>Mark all present</button><button class="sbtn red" id="endClass"><svg class="ic"><use href="#i-lock"/></svg>End class</button><span class="pill plain" id="rosterLocked" hidden></span></div></div>
+        <div class="ag-days sch-days" id="dayChips" role="group" aria-label="Day of the week"></div>
+        <div class="card white sched" id="schedCard"><div class="sched-scroll" id="schedScroll" tabindex="0" aria-label="Schedule, one column per hour"><div class="sched-grid" id="schedGrid"></div></div></div>
+        <div class="card white" id="weekCard" hidden><div class="wk-list" id="weekList"></div></div>
+        <div class="card white" id="monthCard" hidden>
+          <div class="mc-dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+          <div class="mc-grid" id="monthGrid"></div>
+        </div>
+        <div class="card white ac" id="rosterCard" hidden>
+          <div class="card-h"><div><h2 id="rosterTitle">Roster</h2><span class="sub" id="rosterWhen"></span><span class="sub roster-sub" id="rosterSub"></span></div><div class="card-h-acts"><label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="rosterSearch" type="search" placeholder="Search roster" aria-label="Search roster" autocomplete="off"></label><button class="sbtn" id="markAll"><svg class="ic"><use href="#i-check"/></svg>Mark all present</button><button class="sbtn red" id="endClass"><svg class="ic"><use href="#i-lock"/></svg>End class</button><span class="pill plain" id="rosterLocked" hidden></span><button class="sbtn ghost" id="rosterClose" aria-label="Close roster"><svg class="ic"><use href="#i-x"/></svg>Close</button></div></div>
+          <details class="remark-box rm-details" id="classRemarkBox">
+            <summary><svg class="ic"><use href="#i-edit"/></svg><span>Class remarks</span><em class="rm-state" id="classRemarkState">Add</em><svg class="ic chev"><use href="#i-chev"/></svg></summary>
+            <div class="rm-body">
+              <div class="fld dict-fld">
+                <div class="dict-lbl"><label for="classRemarkText">What happened in this class?</label><button type="button" class="dict-btn" data-dictate="classRemarkText" aria-pressed="false"><svg class="ic"><use href="#i-mic"/></svg><span>Dictate</span></button></div>
+                <textarea id="classRemarkText" rows="3" placeholder="What did you cover? Anything to follow up? Type, or tap Dictate and speak."></textarea>
+                <span class="dict-msg" role="status" aria-live="polite"></span>
+              </div>
+              <div class="remark-actions"><span class="hint" id="classRemarkNote"></span><button class="sbtn dark" id="saveClassRemark">Save class remarks</button></div>
+              <p class="hint">Everyone in this class will see this in their notes. For one student, tap their name in the roster below.</p>
+            </div>
+          </details>
+          <div class="filters roster-filter" id="rosterFilter" role="group" aria-label="Show students"></div>
           <div class="rows" id="roster"></div>
         </div>
       </section>
@@ -46,6 +57,7 @@
 <script src="../js/data.js"></script>
 <script src="../js/store.js"></script>
 <script src="../js/portal.js"></script>
+<script src="../js/vendor/qrcode.js"></script>
 <script src="instructor.js"></script>
 </body>
 </html>

@@ -1,0 +1,21 @@
+'use strict';
+/* instructor area: sign-in and the instructor role are required on every route */
+const router = require('express').Router();
+const ctrl = require('../controllers/instructorController');
+const validate = require('../middleware/validate');
+const { authenticate } = require('../middleware/auth');
+const { requireRole } = require('../middleware/roles');
+const v = require('../validators/instructor');
+router.use(authenticate, requireRole('instructor'));
+router.get('/profile', ctrl.profile);
+router.get('/schedule', validate({ query: v.scheduleQuery }), ctrl.schedule);
+router.get('/students', ctrl.students);
+router.get('/sessions/:lessonId', validate({ params: v.lessonParam }), ctrl.roster);
+router.put('/sessions/:lessonId/attendance/:userId', validate({ params: v.markParam, body: v.mark }), ctrl.mark);
+router.post('/sessions/:lessonId/end', validate({ params: v.lessonParam, body: v.endClass }), ctrl.endClass);
+router.put('/sessions/:lessonId/remarks', validate({ params: v.lessonParam, body: v.remark }), ctrl.remark);
+router.put('/students/:userId/grading-note', validate({ params: v.userParam, body: v.gradingNote }), ctrl.gradingNote);
+router.get('/grading', ctrl.grading);
+router.get('/grading/sessions/:id/candidates', validate({ params: v.sessionParam }), ctrl.candidates);
+router.post('/grading/sessions/:id/candidates/:userId/result', validate({ params: v.candidateParam, body: v.result }), ctrl.submitResult);
+module.exports = router;

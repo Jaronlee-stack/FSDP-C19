@@ -1,0 +1,168 @@
+PGlite verification, 2026-11-17T13:36:33.875Z (machine clock; seed anchor is 2026-11-06)
+PostgreSQL: PostgreSQL 18.6 (PGlite 0.5.16) on wasm32-unknown-emscripten, compiled by emcc (Emscripten gcc/clang-like replacement + linker emulating GNU ld) 6.0.13 (e13ee988ce3d87a738dd8f3661d02223308c412a), 32-bit
+PASS  db.sql runs with zero errors
+PASS  seed.sql runs with zero errors (transaction commits)
+PASS  db.sql re-run twice is idempotent (drops and recreates)
+PASS  after re-run all tables are empty again
+PASS  seed.sql loads again after re-running db.sql
+
+Tables: 38
+  application_checklist      25
+  auto_activation_rule       5
+  belt_rank                  7
+  check_in                   6
+  class_attendance           247
+  class_closure              6
+  class_feedback             12
+  class_session              530
+  class_template             42
+  dojo                       12
+  equipment_order            4
+  exception_request          4
+  followup                   3
+  followup_attempt           4
+  grading_application        13
+  grading_candidate          11
+  grading_examiner           12
+  grading_history            8
+  grading_session            4
+  guest_pass                 4
+  guest_profile              4
+  import_issue               3
+  instructor_profile         18
+  instructor_remark          6
+  makeup_class               3
+  mc_request                 3
+  membership                 29
+  notification_template      3
+  package_def                7
+  payment                    33
+  policy_setting             16
+  refund_request             3
+  registration_application   6
+  sent_log                   3
+  staff_profile              3
+  student_package            24
+  student_profile            29
+  users                      54
+PASS  every table has >= 1 seed row  -> none empty
+PASS  old tables are gone (class_booking, admin_profile, frontdesk_profile)
+PASS  no orphan rows across 78 foreign keys  -> 0 orphans
+PASS  every foreign key has a supporting index (78 FKs; the 4 (user_id,role) guard FKs use the PK index)  -> all covered
+
+Date/time column ranges (Singapore date):
+  check_in.checked_in_at                           2026-11-02 .. 2026-11-05
+  class_attendance.booked_at                       2026-09-14 .. 2026-11-05
+  class_attendance.marked_at                       2026-09-21 .. 2026-11-05
+  class_closure.from_date                          2025-12-14 .. 2026-12-13
+  class_closure.to_date                            2025-12-14 .. 2026-12-13
+  class_feedback.created_at                        2026-09-30 .. 2026-11-04
+  class_session.ended_at                           2026-09-21 .. 2026-11-05
+  class_session.session_date                       2026-09-21 .. 2026-12-20
+  equipment_order.handed_over_at                   2026-10-09 .. 2026-10-09
+  equipment_order.requested_at                     2026-10-07 .. 2026-11-05
+  exception_request.decided_at                     2026-10-30 .. 2026-10-30
+  exception_request.requested_at                   2026-10-29 .. 2026-11-05
+  followup.due_date                                2026-11-06 .. 2026-11-09
+  followup_attempt.attempted_at                    2026-10-25 .. 2026-11-03
+  grading_application.decided_at                   2025-11-30 .. 2026-11-04
+  grading_application.submitted_at                 2025-11-28 .. 2026-11-05
+  grading_candidate.promotion_decided_at           2025-12-15 .. 2026-03-16
+  grading_history.grading_date                     2025-12-14 .. 2026-09-27
+  grading_session.application_close_date           2025-11-30 .. 2026-11-29
+  grading_session.session_date                     2025-12-14 .. 2026-12-13
+  guest_pass.issued_at                             2026-10-28 .. 2026-11-06
+  guest_pass.valid_until                           2026-11-06 .. 2026-11-11
+  instructor_remark.created_at                     2026-10-30 .. 2026-11-02
+  makeup_class.created_at                          2026-11-03 .. 2026-11-03
+  makeup_class.expires_at                          2026-12-03 .. 2026-12-03
+  mc_request.decided_at                            2026-10-20 .. 2026-10-30
+  mc_request.requested_at                          2026-10-20 .. 2026-11-04
+  membership.last_renewed_at                       2025-12-01 .. 2026-11-05
+  membership.membership_expiry                     2026-09-07 .. 2027-11-05
+  payment.created_at                               2025-11-20 .. 2026-11-06
+  payment.paid_at                                  2025-11-20 .. 2026-11-06
+  refund_request.decided_at                        2026-10-04 .. 2026-11-01
+  refund_request.requested_at                      2026-10-03 .. 2026-11-05
+  registration_application.reviewed_at             2026-09-23 .. 2026-11-05
+  registration_application.submitted_at            2026-09-22 .. 2026-11-01
+  sent_log.sent_at                                 2026-11-03 .. 2026-11-05
+  student_package.expires_at                       2026-02-05 .. 2027-05-03
+  student_package.purchased_at                     2025-11-20 .. 2026-11-06
+  student_profile.last_grading_date                2025-12-14 .. 2026-09-27
+  student_profile.last_passed_grading_date         2025-12-14 .. 2026-09-27
+  users.created_at                                 2025-11-07 .. 2026-11-06
+  users.last_login_at                              2026-08-15 .. 2026-11-06
+PASS  all 42 populated date/timestamp columns (except student_profile.dob and joined_on) within 2025-11-06..2027-11-06  -> none outside
+PASS  no examiner has a weekly class_template overlapping a grading session  -> []
+PASS  no examiner has a dated class_session overlapping a grading session
+PASS  no normal HQ class (template, unless closed that day) overlaps a grading session  -> []
+PASS  no HQ class_session overlaps a grading session
+PASS  grading lead examiner is also listed as an examiner
+PASS  negative test: Robin Tan on Sunday 11:00 Weapons is detected (13 Dec and, as examiner, 27 Sep 2026)  -> [{"gs":"GR-20260927","instructor_id":"INS-0057","tpl":"CT-19","class_type":"Weapons","start_time":"11:00:00","end_time":"12:00:00"},{"gs":"GR-20261213","instructor_id":"INS-0057","tpl":"CT-19","class_type":"Weapons","start_time":"11:00:00","end_time":"12:00:00"}]
+PASS  after rollback the overlap check is clean again
+PASS  negative test: without closure CL-GR-20261213 the HQ Sunday classes overlap 13 Dec grading (3 templates)  -> [{"gs":"GR-20261213","tpl":"CT-19"},{"gs":"GR-20261213","tpl":"CT-18"},{"gs":"GR-20261213","tpl":"CT-17"}]
+PASS  negative test: without that closure v_grading_conflict is not empty (3 hq_template_open rows)  -> [{"conflict":"hq_template_open","grading_id":"GR-20261213","session_date":"2026-12-13T00:00:00.000Z","ref_id":"CT-17","instructor_id":"INS-0024"},{"conflict":"hq_template_open","grading_id":"GR-20261213","session_date":"2026-12-13T00:00:00.000Z","ref_id":"CT-18","instructor_id":"INS-0063"},{"conflict":"hq_template_open","grading_id":"GR-20261213","session_date":"2026-12-13T00:00:00.000Z","ref_id":"CT-19","instructor_id":"INS-0052"}]
+PASS  every grading_session is at hq
+PASS  INSERT grading_session at bedok is rejected  -> new row for relation "grading_session" violates check constraint "grading_only_at_hq"
+PASS  bad users.role rejected  -> new row for relation "users" violates check constraint "users_role_check"
+PASS  bad payment.status rejected  -> new row for relation "payment" violates check constraint "payment_status_check"
+PASS  bad class_attendance.attendance_status rejected  -> new row for relation "class_attendance" violates check constraint "class_attendance_attendance_status_check"
+PASS  bad staff admin_type rejected  -> new row for relation "staff_profile" violates check constraint "staff_profile_admin_type_check"
+PASS  student_profile on an instructor user is rejected (composite role FK)  -> insert or update on table "student_profile" violates foreign key constraint "student_profile_user_id_role_fkey"
+PASS  weapon_hours > accumulated_hours rejected  -> new row for relation "student_profile" violates check constraint "student_hours_order"
+PASS  class_feedback with a student column impossible: rating 6 rejected  -> new row for relation "class_feedback" violates check constraint "class_feedback_rating_check"
+PASS  no student has more than 2 Active student_package rows
+PASS  lessons_left <= lessons_total everywhere
+PASS  hours order weapon <= accumulated <= total everywhere
+PASS  member_no unique and in expected format
+PASS  no class has more non-cancelled bookings than capacity
+PASS  Attended/No-Show only on past sessions; Booked only today or later
+PASS  every check_in has a non-cancelled booking for that class
+PASS  no student booked into two overlapping classes
+PASS  booking rules: children only in kids classes; Ladies women only; Intermediate>=4th Kyu; Advanced>=1st Kyu
+PASS  no mat used by two classes at the same HQ time slot
+PASS  demo accounts: Lervyn Wong ASK-2025-1834 4th Kyu HQ; Bob Tan Sensei INS-0042; ADM-001 business; ADM-101 frontdesk; ADM-102 inactive  -> {"lervyn":1,"bob":1,"adm001":1,"adm101":1,"adm102":1,"dojos":12,"instructors":18}
+PASS  12 dojos and 18 instructors
+PASS  Lervyn has packages, bookings/attendance, payments and grading history  -> {"pk":3,"att":11,"pay":7,"gh":2}
+PASS  attendance has all 4 statuses  -> Attended,Booked,Cancelled,No-Show
+PASS  payments cover all 6 statuses  -> Failed,Outstanding,Paid,Processing,Refunded,Voided
+PASS  memberships cover Active/Inactive/Deactivated/Lapsed  -> Active,Deactivated,Inactive,Lapsed
+PASS  registrations in every state  -> Approved,Needs info,Rejected,Submitted,Under review
+PASS  class_feedback has no student/user column
+PASS  upcoming grading GR-20261213 is 2026-12-13 09:00-12:30 at hq with 3 examiners
+PASS  one past completed grading session exists
+PASS  guest_profile has trial statuses
+PASS  weekly timetable: 19 HQ group + 3 private + 20 sample non-HQ templates  -> {"g":19,"p":3,"o":20}
+INFO  class_session: {"n":530,"mn":"2026-09-21","mx":"2026-12-20"}
+PASS  v_grading_conflict returns 0 rows  -> []
+PASS  every grading date overlapping an HQ template has a class_closure row
+PASS  closures CL-GR-* exist for all 4 grading dates and CL-03..CL-06 are gone
+PASS  no HQ class_session on closure dates (2026-12-13, 2026-11-26, 2026-10-10/11, 2026-09-27)
+PASS  negative test: a new Sunday grading 2027-03-14 without closure makes v_grading_conflict non-empty  -> [{"conflict":"hq_template_open"},{"conflict":"hq_template_open"},{"conflict":"hq_template_open"}]
+PASS  negative test: a Bob Tan class_session on 13 Dec 11:00 is flagged (examiner_session + hq_session)  -> [{"conflict":"examiner_session"},{"conflict":"hq_session"}]
+PASS  after rollbacks the view is empty again
+PASS  no instructor has two overlapping class_template rows (all dojos)  -> []
+PASS  no instructor has two overlapping non-cancelled class_session rows (all dojos)  -> []
+PASS  negative test: Chew Eng Lam given a second Tue 19:00 class is detected (CT-23 vs new)  -> [{"a":"CT-23","b":"CT-X"}]
+PASS  every open non-HQ dojo has >= 1 class_template (10 dojos, 2 each)  -> [{"id":"bedok","n":2},{"id":"bishan","n":2},{"id":"chongpang","n":2},{"id":"jurong","n":2},{"id":"kovan","n":2},{"id":"sengkang","n":2},{"id":"tampines","n":2},{"id":"toapayoh","n":2},{"id":"westcoast","n":2},{"id":"woodlands","n":2}]
+PASS  tampineswest (temporarily closed) has no class_template
+PASS  no class_attendance rows exist for non-HQ sessions
+PASS  non-HQ sessions exist for every non-HQ template
+PASS  no non-HQ class_template is online_bookable
+PASS  CHECK online_bookable_hq_only rejects an online-bookable class at bedok  -> new row for relation "class_template" violates check constraint "online_bookable_hq_only"
+PASS  the constraint online_bookable_hq_only exists
+PASS  student_profile.joined_on is NOT NULL
+PASS  joined_on year equals the year in member_no for all 29 students
+PASS  joined_on is not after users.created_at date
+PASS  joined_on is not after any payment, package or booking date of that student
+PASS  a student's Registration payment date equals joined_on
+PASS  joined_on is in the past (<= 2026-11-06) and Marcus joined 2026-09-14
+PASS  joined_on column is excluded from the window only because of the exemption (some joined_on before 2025-11-06)
+PASS  class_session range is 2026-09-21..2026-12-20  -> {"mn":"2026-09-21","mx":"2026-12-20"}
+PASS  Tue 3 Nov 19:00 Adults is the only Cancelled class_session
+PASS  feedback lesson_ids are real Bob Tan sessions that Ended
+PASS  sent_log SL-01 is dated 2026-11-03 17:00 (before the cancelled class)
+INFO  class_attendance rows for LS-20261103-1900-HQ-A (prototype closure C-03 students/lessons): 5
+
+RESULT: ALL CHECKS PASSED

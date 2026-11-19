@@ -26,7 +26,7 @@ const BEN = [
   [/fee|price|cost|pay|package|lesson/i, 'Adults: 10 lessons S$270, 25 lessons S$600, 50 lessons S$980, or Unlimited at S$48 a week (billed S$96 every 2 weeks). Children: 1-month pass S$150, 6-month pass S$139/month, 50 lessons S$1,200. Full list on the Fees page.'],
   [/dogi|uniform|size/i, 'Dogi: Cotton S$30, Heavyweight S$45, Competition S$60. Sizes run 000 (about 100 cm tall) to 7 (190 cm and up).'],
   [/card/i, 'Your membership number arrives by email right after you register. Collect your physical student card at your principal dojo on your first lesson.'],
-  [/grad|belt|kyu|dan|promot/i, 'To apply for grading you need 3+ months of membership, no outstanding fees, enough sessions at your grade, and your instructor marking you Qualified. Next grading: 13 Dec, applications close 29 Nov.'],
+  [/grad|belt|kyu|dan|promot/i, 'To apply for grading you need 3+ months of membership, no outstanding fees, and enough sessions at your grade. Next grading: 13 Dec, applications close 29 Nov.'],
   [/book|class|schedule|time/i, 'Online booking covers HQ Dojo classes. Book up to 1 month ahead and at least 1 day before. Community club dojos run term courses you register for through the club.'],
   [/where|dojo|location|address|hq/i, 'HQ Dojo is at Thomson V One, 9 Sin Ming Road #B1-02, near Bright Hill MRT. We also train at 60+ community dojos in Singapore and overseas.'],
   [/cancel|refund/i, 'Cancel at least 4 hours before class to get the lesson back. Inside 4 hours, or if you don\'t turn up, the lesson stays used and the class doesn\'t count toward grading.'],

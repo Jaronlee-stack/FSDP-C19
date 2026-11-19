@@ -1,0 +1,36 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Database side: joined_on, derived grading closures + v_grading_conflict view, HQ-only online-booking CHECK, 20 sample non-HQ weekly templates and dated sessions (2026-09-21..2026-12-20), feedback/closure/sent_log alignment with FEAT-001, README, verify.mjs updates, new agree.mjs (prototype vs seed), and .db-tmp/report2.md. Depends on FEAT-001 (prototype values are the reference).",
+  "status": "completed",
+  "steps": [
+    "Read .db-tmp/plan2.md, .db-tmp/task-db-round2/features/FEAT-001.json findings and .db-tmp/feedback-map.json, then database/db.sql (top DROP list, student_profile, class_template, grading tables), database/seed.sql and .db-tmp/verify.mjs.",
+    "db.sql: add student_profile.joined_on DATE NOT NULL (COMMENT: exempt from the 2-year window, with dob); add CONSTRAINT online_bookable_hq_only CHECK (dojo_id = 'hq' OR NOT online_bookable) on class_template; add view v_grading_conflict (rows when an examiner has an overlapping class_template or non-cancelled class_session, or an HQ class_template without a covering class_closure / HQ class_session overlaps a grading_session); make sure the DROP list drops the view so db.sql stays re-runnable.",
+    "seed.sql header: update notes (joined dates stored and exempt, Robin synced with data.js, derived grading closures, sample non-HQ timetables, session range). student_profile INSERT: add joined_on for all 29 students using the plan2.md D3 dates. users S-006 created_at 2026-09-14 15:00+08.",
+    "seed.sql grading/closures: move the grading_session and grading_examiner INSERTs above the class section; keep CL-01 and CL-02; delete CL-03..CL-06; add INSERT INTO class_closure SELECT 'CL-' || g.id, g.dojo_id, g.session_date, g.session_date, 'Grading day: Sunday classes paused' FROM grading_session g WHERE EXISTS (an HQ class_template overlapping g on that weekday). Update the CT-19 comment.",
+    "seed.sql templates: add CT-23..CT-42 (plan2.md D5 table: id = CT-(i+4), code = sessionCode formula with the dojo short name upper-cased without spaces, mat 'Mat A', kids_only for Children types, online_bookable FALSE, is_private FALSE). Mark them as SAMPLE data in a comment.",
+    "seed.sql sessions: generate class_session for 2026-09-21..2026-12-20 (same statement; closures already excluded). Status rule stays (past Ended with ended_at, today and later Scheduled). Keep the Tue 3 Nov Adults cancellation UPDATE. Random bookings: add AND ct.online_bookable AND cs.session_date <= DATE '2026-12-06'. Check capacity, package-coverage and 'Attended only in the past' rules still hold (run verify).",
+    "seed.sql alignment: sent_log SL-01 sent_at 2026-11-03 17:00+08; re-point class_feedback.lesson_id for FB-01..FB-12 using .db-tmp/feedback-map.json; confirm the count of class_attendance rows for LS-20261103-1900-HQ-A and tell FEAT-001's closure C-03 values (edit data.js students/lessons to that number if FEAT-001 used a placeholder).",
+    "README.md: rewrite the joining-dates and Robin bullets; document joined_on and the window exemption, derived closures and v_grading_conflict, HQ-only online booking CHECK, session range, and a table of the non-HQ sample timetable with the source statement (public site and Info from website.docx give no non-HQ times, so all are sample).",
+    "verify.mjs: implement every check listed in plan2.md step 10 (window exemption for dob and joined_on, view empty, closure coverage, instructor double-booking across all dojos for templates and sessions plus negative test, non-HQ coverage, no non-HQ bookings, CHECK negative test, joined_on rules, session range and no HQ sessions on closure dates, new negative tests with rollback, updated counts). Keep all previous checks.",
+    "Write .db-tmp/agree.mjs per plan2.md step 11 (vm context with chainable Proxy stubs, fixed Date 2026-11-06, TZ Asia/Singapore, PGlite from %TEMP%\\askdb, allowlist with reasons for seed-only rows) and save .db-tmp/agree.log. Fix every mismatch on the prototype side (FEAT-001 files) or the seed side per plan2.md D4f until the list is empty or fully allowlisted.",
+    "Run node .db-tmp/verify.mjs and $env:TZ='Asia/Singapore'; node .db-tmp/agree.mjs until both pass; if data.js/store.js changed during mismatch fixing, re-run node .db-tmp/browser-check.mjs (FEAT-001) and refresh screenshots.",
+    "Write .db-tmp/report2.md: what changed per numbered decision (1-6), every data.js/store.js/other src change, schema changes (joined_on etc.), non-HQ timetable sources (real: none found; sample: all 20 rows), verification evidence (verify.log, agree.log, browser check, screenshots), decisions to confirm (plan2.md section 3), Deferred (plan2.md section 4). Do not commit."
+  ],
+  "acceptance_criteria": [
+    "node .db-tmp/verify.mjs ends with ALL CHECKS PASSED including the new checks and negative tests.",
+    "db.sql then seed.sql run with zero errors; db.sql re-run twice is idempotent and seed loads again; every table has >= 1 row; 0 FK orphans.",
+    "Date-window check passes with only student_profile.dob and joined_on excluded; joined_on matches the member_no year for all 29 students.",
+    "v_grading_conflict returns 0 rows; every grading date that overlaps an HQ template has a class_closure row; no HQ class_session exists on 2026-12-13.",
+    "No instructor has overlapping class_template or class_session rows across all dojos; every open non-HQ dojo has templates; tampineswest has none; no class_attendance rows exist for non-HQ sessions.",
+    "node .db-tmp/agree.mjs prints an empty unexplained-mismatch list and every allowlisted seed-only row carries a reason.",
+    ".db-tmp/report2.md exists and covers all sections listed in the step."
+  ],
+  "verification": [
+    "node .db-tmp/verify.mjs",
+    "$env:TZ='Asia/Singapore'; node .db-tmp/agree.mjs",
+    "Confirm .db-tmp/verify.log ends with ALL CHECKS PASSED and .db-tmp/agree.log shows 0 unexplained mismatches"
+  ],
+  "blocked_reason": null,
+  "findings": "db.sql: joined_on, CHECK online_bookable_hq_only, view v_grading_conflict (dropped at top). seed.sql: joined_on for 29 students, S-006 created_at 2026-09-14, grading inserts moved before classes, closures CL-03..06 replaced by derived CL-GR-*, CT-23..CT-42 sample templates, sessions 2026-09-21..2026-12-20, bookings limited to online_bookable and <= 2026-12-06, feedback re-pointed, SL-01 2026-11-03 17:00, GH-07 remark. README rewritten. verify.mjs: 78 checks, ALL CHECKS PASSED. agree.mjs (new): 1479 values compared, 0 unexplained mismatches, 4 allowed (test panel, private codes, two external member statuses). Small src edits found by agree: data.js pays item names, students[].dojo for 5 members; store.js Yuki joinedAgo 86. C-03 count 5 confirmed. browser-check re-run: 39 pages x 2 widths, 0 errors. Report: .db-tmp/report2.md. Nothing committed."
+}

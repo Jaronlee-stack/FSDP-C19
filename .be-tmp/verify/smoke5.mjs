@@ -1,0 +1,15 @@
+import { serverBase, login, ACCOUNTS } from './lib.mjs';
+const base = serverBase();
+const BA = await login(base, ...ACCOUNTS.business);
+const show = async (label, p, n = 1500) => { const r = await BA.get(p); console.log('\n##', label, r.status, r.text.slice(0, n)); };
+await show('overview', '/admin/overview?period=month');
+await show('insights', '/admin/insights', 2500);
+await show('revenue', '/admin/revenue');
+await show('reports', '/admin/reports');
+await show('policies', '/admin/policies?declineDays=21');
+await show('timetable', '/admin/timetable?dojo=bishan');
+await show('closures', '/admin/closures');
+await show('imports', '/admin/imports');
+await show('grading', '/admin/grading', 3000);
+await show('staff', '/admin/staff');
+const csv = await BA.get('/admin/reports/payments.csv'); console.log('\n## csv', csv.status, csv.headers.get('content-type'), csv.text.slice(0, 300));

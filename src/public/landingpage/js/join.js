@@ -93,7 +93,7 @@ function updateAge() {
   const v = $('#r-dob').dataset.iso;
   if (!v) { reg.age = null; $('#r-age').value = ''; updateClasses(); return; }
   const [yy, mm, dd] = v.split('-').map(Number);
-  const d = new Date(yy, mm - 1, dd), now = new Date();
+  const d = new Date(yy, mm - 1, dd), now = NOW();
   let age = now.getFullYear() - d.getFullYear();
   if (now.getMonth() < d.getMonth() || (now.getMonth() === d.getMonth() && now.getDate() < d.getDate())) age--;
   reg.age = age;
@@ -122,6 +122,14 @@ function renderPackages() {
   $('#pkgChoices').innerHTML = list.map(p => `<div class="choice"><input type="radio" name="pkg" id="pk-${p.id}" value="${p.id}"${p.id === cur ? ' checked' : ''}><label for="pk-${p.id}"><span class="top"><span class="t">${p.t}${p.best ? ' <span class="pill navy plain" style="margin-left:6px;height:20px;font-size:11px">Popular</span>' : ''}</span><span class="tick">${icon('check')}</span></span><span class="d">${p.d}</span><span class="price num">${money(p.amt)}<small style="font-size:13px;font-weight:500;color:var(--muted)"> ${p.unit || ''}</small></span><span class="d">${p.per} · ${p.lessons === Infinity ? p.valid : 'expires ' + fmtDate(expiryFor(p))}</span></label></div>`).join('');
 }
 
+/* the password rules the server enforces too: 8+ characters with a letter and a number, at most 72 bytes, not the email */
+function passwordProblem(pw) {
+  if (pw.length < 8 || !/[A-Za-z]/.test(pw) || !/\d/.test(pw)) return 'Use at least 8 characters with a letter and a number.';
+  if (new TextEncoder().encode(pw).length > 72) return 'That password is too long. Use 72 bytes or fewer.';
+  if (pw.toLowerCase() === val('r-email').toLowerCase()) return 'Choose a password that is different from your email.';
+  return '';
+}
+
 function validateStep(n) {
   const bad = [];
   const need = (cond, el) => { mark(el, !cond); if (!cond) bad.push(el); };
@@ -138,6 +146,11 @@ function validateStep(n) {
     need(!!val('r-ecname'), fldOf($('#r-ecname')));
     need(!!val('r-ecrel'), fldOf($('#r-ecrel')));
     need(phoneOk(val('r-ecphone')), fldOf($('#r-ecphone')));
+    const pw = $('#r-pw').value, pwBad = passwordProblem(pw);
+    $('#pwErr').textContent = pwBad || 'Use at least 8 characters with a letter and a number.';
+    need(!pwBad, fldOf($('#r-pw')));
+    need(!!$('#r-pw2').value && $('#r-pw2').value === pw, fldOf($('#r-pw2')));
+    $('#pw2Err').textContent = $('#r-pw2').value ? 'Passwords do not match.' : 'Confirm your password.';
   }
   if (n === 2) {
     // a certificate on its own isn't enough: say which martial art it is for
@@ -186,7 +199,7 @@ function syncSigner() {
   $('#sigWho').textContent = minor
     ? `Applicants under 21 must have a parent or guardian sign. They accept the terms on ${val('r-name').split(' ')[0] || 'the applicant'}'s behalf.`
     : 'Sign with your finger, stylus or mouse. Your signature confirms the declaration above.';
-  $('#regSigMeta').textContent = `Signed digitally on ${fmtDate(new Date())}. A copy is attached to the welcome email.`;
+  $('#regSigMeta').textContent = `Signed digitally on ${fmtDate(NOW())}. A copy is attached to the welcome email.`;
 }
 
 function regData() {
@@ -203,13 +216,20 @@ function regData() {
     pkg, mkt: $('#mkt').checked
   };
 }
-const FEE_REG = 12, FEE_DUES = 48;
+/* What the page shows as the fee. The server works the real amounts out again from the same policy values when you pay. */
+function discountPct(age) {
+  const dc = DB.policies.discounts, out = [];
+  if (age >= dc.senior.age) out.push(dc.senior.pct);
+  if (age >= dc.student.from && age <= dc.student.to) out.push(dc.student.pct);
+  return out.length ? Math.max(...out) : 0;
+}
 function feeLines(d) {
+  const pct = discountPct(d.age), amt = Math.round(d.pkg.amt * (100 - pct)) / 100;
   return [
-    ['Registration', 'Student handbook and membership book', FEE_REG],
-    ['Annual dues · Year 1', 'Renews 12 months from today', FEE_DUES],
+    ['Registration', 'Student handbook and membership book', DB.policies.registration],
+    ['Annual dues · Year 1', 'Renews 12 months from today', DB.policies.annualDues],
     [`Dogi · ${d.dogi}`, `Size ${d.size}`, d.dogiPrice],
-    [`Lessons · ${d.pkg.t}`, d.pkg.lessons === Infinity ? `First payment, then ${d.pkg.unit.replace('/', 'every').trim()}` : `${d.pkg.per} · expires ${fmtDate(expiryFor(d.pkg))}`, d.pkg.amt]
+    [`Lessons · ${d.pkg.t}`, (d.pkg.lessons === Infinity ? `First payment, then ${d.pkg.unit.replace('/', 'every').trim()}` : `${d.pkg.per} · expires ${fmtDate(expiryFor(d.pkg))}`) + (pct ? ` · ${pct}% discount` : ''), amt]
   ];
 }
 
@@ -235,23 +255,38 @@ function updatePayLock() {
   $('#payHint').textContent = ok ? 'All set. Drag the button to the right to pay.' : `To unlock payment: ${need.join(', ')}.`;
 }
 
-function completeRegistration() {
+async function completeRegistration() {
   const d = regData();
-  const no = `ASK-${new Date().getFullYear()}-${String(Math.floor(2000 + Math.random() * 7000))}`;
-  const joined = fmtDate(new Date());
   const signer = regMinor() ? `${val('r-gname')} (parent/guardian)` : d.name;
-  reg.done = { ...d, no, joined, inv: 'INV-' + Date.now().toString().slice(-7), signer };
+  let out;
+  try {
+    out = await ASK.act.register({
+      name: d.name, dojoId: d.dojo, age: d.age, ...($('#r-dob').dataset.iso ? { dob: $('#r-dob').dataset.iso } : {}), gender: d.gender, nationality: d.nat,
+      phone: d.phone, email: d.email, emergencyContact: d.ec, priorExperience: d.exp === 'None' ? null : d.exp, previousMember: radio('prev') === 'Yes',
+      medical: radio('med') === 'Yes' ? val('r-med') : null, dogi: { type: d.dogi, size: d.size }, packageId: d.pkg.id, signer, signatureProvided: !!reg.sig.value(),
+      password: $('#r-pw').value, confirmPassword: $('#r-pw2').value
+    });
+  } catch (e) {
+    ASK.errToast(e);
+    $('#regSlide').reset();
+    return;
+  }
+  /* the password is not kept anywhere on the page once it has been sent */
+  ['r-pw', 'r-pw2'].forEach(id => { const el = $('#' + id); el.value = ''; el.type = 'password'; });
+  reg.total = out.total;
+  const no = out.memberNo || 'Awaiting activation', joined = fmtDate(TODAY);
+  reg.done = { ...d, no, joined, inv: out.applicationId, signer, activated: !!out.activated };
+  $('#doneSignIn').textContent = out.activated
+    ? 'Sign in with your membership number or email and the password you chose.'
+    : 'Once HQ approves your registration, sign in with your membership number or email and the password you chose.';
   $('#memNo').textContent = no;
   $('#joinedOn').textContent = joined;
   $('#doneEmail').textContent = d.email;
   $('#donePaid').textContent = money(reg.total);
   $('#doneDojo').textContent = dojoName(d.dojo);
-  try { sessionStorage.setItem('ask-last-id', no); } catch (_) {} // ready for the first log-in
   renderMail('welcome');
-  APPS.unshift({ n: d.name, dojo: d.dojo, date: joined, paid: reg.total, group: reg.group === 'kids' ? 'Child' : 'Adult', age: d.age, gender: d.gender, nat: d.nat, phone: d.phone, email: d.email, ec: d.ec, exp: d.exp, exps: d.exps, prev: d.prev, med: d.med, dogi: `${d.dogi}, size ${d.size}`, pkg: d.pkg.t, isNew: true, no, sig: reg.sig.value(), signer });
-  save();
   setStep(6);
-  toast('Payment received. Welcome to Shinju-Kai.');
+  toast(out.activated ? 'Payment received. Welcome to Shinju-Kai.' : 'Payment received. HQ will activate your membership shortly.');
 }
 
 function renderMail(kind) {
@@ -261,10 +296,10 @@ function renderMail(kind) {
     $('#mailView').innerHTML = `<div class="mail-h"><b>Welcome to Aikido Shinju-Kai, ${esc(first)}</b><span>From: hq@aikidoshinjukai.com.sg · To: ${esc(d.email)}</span></div>
       <div class="mail-b">
         <p>Hi ${esc(first)},</p>
-        <p>Thank you for joining Aikido Shinju-Kai. Your membership is active and your lessons are ready to book.</p>
+        <p>${d.activated ? 'Thank you for joining Aikido Shinju-Kai. Your membership is active and your lessons are ready to book.' : 'Thank you for joining Aikido Shinju-Kai. HQ will activate your membership shortly and your lessons will be ready to book.'}</p>
         <div class="kv" style="margin:4px 0"><div><span>Membership no.</span><span class="num">${d.no}</span></div><div><span>Date joined</span><span>${d.joined}</span></div><div><span>Principal dojo</span><span>${esc(dojoName(d.dojo))}</span></div><div><span>Class</span><span>${esc(d.cls)}</span></div><div><span>Lessons</span><span>${esc(d.pkg.t)}${d.pkg.lessons === Infinity ? '' : ' · expire ' + fmtDate(expiryFor(d.pkg))}</span></div><div><span>Signed by</span><span>${esc(d.signer)}</span></div></div>
         <div class="note"><svg class="ic"><use href="#i-id"/></svg><span><b>Collect your student card</b> at ${esc(dojoName(d.dojo))} on your first lesson. Your dogi (size ${esc(d.size)}) will be ready there too.</span></div>
-        <p>Log in to the member portal with your membership number to book HQ classes. Arrive 15 minutes early and bring water.</p>
+        <p>${d.activated ? 'Sign in to the member portal with your membership number or email and the password you chose to book HQ classes.' : 'Once HQ approves your registration, sign in to the member portal with your membership number or email and the password you chose to book HQ classes.'} Arrive 15 minutes early and bring water.</p>
         <p>See you on the mat,<br><b>HQ Office, Aikido Shinju-Kai</b></p>
       </div>`;
   } else {

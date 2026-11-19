@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#16213B">
+<title>Follow-ups · Admin · Aikido Shinju-Kai</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Shippori+Mincho:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+</head>
+<body data-portal="admin" data-page="followups" data-root="../">
+
+<div class="shell">
+    <main class="main">
+      <section class="page on" data-page="followups">
+        <div class="page-h"><div><h1>Follow-ups</h1><p>Students to get in touch with. Log every call, message or visit so the next person knows what was said.</p></div></div>
+        <div class="list-bar">
+          <div class="filters" id="fuTabs"></div>
+          <label class="search list-search"><svg class="ic"><use href="#i-search"/></svg><input id="fuSearch" type="search" placeholder="Search student or phone" aria-label="Search follow-ups" autocomplete="off"></label>
+        </div>
+        <div class="note"><svg class="ic"><use href="#i-info"/></svg><span>Falling attendance is a reason to get in touch with a student. It is not proof that something is wrong with a class or an instructor.</span></div>
+        <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Student</th><th>Reason</th><th>Last seen</th><th>Phone</th><th>Attempts</th><th>Due</th><th></th></tr></thead><tbody id="fuRows"></tbody></table></div>
+        <div class="card white" id="fuBA" data-ba>
+          <div class="card-h"><div><h3>Manage lists</h3><span class="sub">Create a list from a rule, hand people to a staff member, and review how contacts went.</span></div></div>
+          <div class="grid2">
+            <div class="fld"><label for="fu-kind">Who to include</label><select id="fu-kind"><option value="declining">Declining attendance</option><option value="renewal">Renewals coming up</option><option value="newcomer">Newcomers not returned</option></select></div>
+            <div class="fld"><label for="fu-owner">Assign to</label><select id="fu-owner"></select></div>
+            <div class="fld"><label for="fu-due">Contact by</label><input id="fu-due" type="date"></div>
+            <div class="fld"><span class="lbl">&nbsp;</span><button class="sbtn dark" id="fuCreate" type="button">Create list</button></div>
+          </div>
+          <h4 style="margin:18px 0 8px">Outcomes so far</h4>
+          <div class="rows" id="fuOutcomes"></div>
+        </div>
+      </section>
+    </main>
+</div>
+
+<script src="../js/core.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,admin-data-desk.js,../js/portal.js,admin-shell.js,admin-desk.js,admin-members.js"></script>
+</body>
+</html>

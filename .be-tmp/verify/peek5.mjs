@@ -1,0 +1,12 @@
+import { pgConnect } from './lib.mjs';
+const c = await pgConnect();
+const q = async (s, p = []) => (await c.query(s, p)).rows;
+console.log(await q(`select id, code, name from dojo order by id`));
+console.log(await q(`select lesson_id, template_id, status, mat from class_session where dojo_id <> 'hq' limit 4`));
+console.log(await q(`select lesson_id, status from class_session where session_date = '2026-11-25' and dojo_id='hq' limit 4`));
+console.log(await q(`select lesson_id, status from class_session where session_date = '2026-12-13' and dojo_id='hq'`));
+console.log(await q(`select code, id, weekday, to_char(start_time,'HH24:MI') s from class_template where dojo_id <> 'hq' limit 4`));
+console.log(await q(`select definition from pg_views where viewname = 'v_grading_conflict'`));
+console.log(await q(`select count(*) from class_template where is_private`));
+console.log(await q(`select to_char(max(last_login_at),'YYYY-MM-DD') m from users`));
+await c.end();

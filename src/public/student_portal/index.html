@@ -28,8 +28,9 @@
           </div>
         </div>
 
-        <!-- left: next belt + your path (gamified) or next class + attendance (standard).
-             right: membership card, week streak, lessons left, your card. -->
+        <!-- desktop: left = next belt + your path (gamified) or next class + attendance (standard);
+             right = membership card, week streak, lessons left, your card.
+             mobile/tablet: membership card on top, then Your path (with the stats inside it), then Next belt. -->
         <div class="home-grid">
           <div class="home-main">
             <div id="levelCards" class="lvl-stack"></div>
@@ -40,7 +41,6 @@
             <div class="card white path-card game-only" id="pathCard">
               <div class="card-h"><div><h3>Your path</h3><span class="sub" id="pathSub">Every class you attend moves you one step</span></div></div>
               <div class="gpath" id="gpath" aria-label="Sessions toward your next grade"></div>
-              <p class="proto-note">Prototype: mark your next class as <button type="button" data-sim="present">Present</button> or <button type="button" data-sim="noshow">No-show</button></p>
             </div>
 
             <!-- STANDARD: plain lists -->
@@ -52,13 +52,16 @@
               <div class="card-h"><div><h3>Recent attendance</h3><span class="sub">Only classes you attend count toward grading</span></div></div>
               <div class="att-list" id="attList"></div>
               <p class="att-rule"><svg class="ic"><use href="#i-info"/></svg><span>Missed a class? The lesson stays used and isn't counted. Cancel at least 4 hours before to get the lesson back. Sick? Send your MC under Packages to ask for an extension.</span></p>
-              <p class="proto-note">Prototype: mark your next class as <button type="button" data-sim="present">Present</button> or <button type="button" data-sim="noshow">No-show</button></p>
+            </div>
+            <div class="card white notes-card" id="notesCard">
+              <div class="card-h"><div><h3>Notes from your instructors</h3><span class="sub">What to work on and what you learnt. Kept as your history.</span></div><button class="sbtn" id="notesAll" hidden>See all</button></div>
+              <div class="notes-list" id="notesList"></div>
             </div>
           </div>
 
           <aside class="home-side" aria-label="Your membership">
             <div class="home-pcard" id="homeCard"></div>
-            <div class="hstats" role="list">
+            <div class="hstats" id="hStats" role="list">
               <div class="hs" role="listitem" id="hsStreak" title="Weeks in a row with at least one class attended"><span class="hs-ic flame"><svg class="ic"><use href="#i-flame"/></svg></span><span><b class="num" id="hsStreakN">0</b><small>week streak</small></span></div>
               <a class="hs" role="listitem" href="packages.html" id="hsLessonsLink"><span class="hs-ic"><svg class="ic"><use href="#i-box"/></svg></span><span><b class="num" id="hsLessons">0</b><small id="hsLessonsL">lessons left</small></span></a>
               <button type="button" class="hs belt-badge" role="listitem" id="beltBadge" aria-haspopup="dialog" aria-label="Show my membership card"><span class="hs-belt" id="hsBeltSwatch"></span><span><b id="hsBelt">4th Kyu</b><small>Your card</small></span></button>
@@ -70,10 +73,6 @@
 </div>
 
 <script src="../js/core.js"></script>
-<script src="../js/data.js"></script>
-<script src="../js/store.js"></script>
-<script src="../js/ben.js"></script>
-<script src="../js/portal.js"></script>
-<script src="student.js"></script>
+<script src="../js/api.js" data-then="../js/store.js,../js/ben.js,../js/portal.js,student-data.js,student.js"></script>
 </body>
 </html>

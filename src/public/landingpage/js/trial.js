@@ -60,7 +60,7 @@ function initPass() {
 
   slideCommit($('#passSlide'), completePass, validatePass);
   $('#passAgain').addEventListener('click', () => {
-    $$('#v-pass [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '1'));
+    $$('#passForm [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '1'));
     $('#passSlide').reset(); passState.sig.reset(); window.scrollTo(0, 0);
   });
   syncWho();
@@ -74,17 +74,32 @@ function passPreset(page) {
   if (id && $('#gp-' + id)) { $('#gp-' + id).checked = true; refreshPass(); }
 }
 
+/* the HQ classes of a day come from the server (ASK.load.sessions) and are cached per day; the server checks the rules again on booking */
+passState.cache = {};
+async function loadDay(date) {
+  const iso = isoDate(date);
+  if (!passState.cache[iso]) passState.cache[iso] = await ASK.load.sessions(iso);
+  return passState.cache[iso];
+}
+const cachedSession = id => Object.values(passState.cache).flat().find(s => s.lessonId === id);
+
 function sessionsFor(date, p) {
   if (!date || !p) return [];
-  const day = (date.getDay() + 6) % 7, child = radio('gwho') === 'Child';
-  return CLASSES.filter(c => c.dojo === HQ && c.day === day && c.booked < c.cap)
+  const child = radio('gwho') === 'Child';
+  return (passState.cache[isoDate(date)] || []).filter(c => c.left > 0)
     .filter(c => child ? (c.kids || c.type === 'Mixed') : !c.kids && c.type !== 'SG50')
     .filter(c => p.id !== 'trial' || !['Intermediate', 'Advanced', 'Weapons'].includes(c.type));
 }
 
-function refreshPass() {
+let passSeq = 0;
+async function refreshPass() {
   const p = passObj(); if (!p) return;
   const date = passDate();
+  const seq = ++passSeq;
+  if (date && p.need !== 'time') {
+    try { await loadDay(date); } catch (e) { ASK.errToast(e); passState.cache[isoDate(date)] = []; }
+    if (seq !== passSeq) return;
+  }
   $('#sessLbl').innerHTML = (p.need === 'time' ? 'Preferred time' : p.need === 'first' ? 'First class' : 'Class') + '<span class="req">*</span>';
   const cur = radio('gsess');
   let html = '';
@@ -95,10 +110,16 @@ function refreshPass() {
   } else {
     const list = sessionsFor(date, p);
     if (list.length) {
-      html = list.map(c => { const v = `${c.time}|${c.type}`; return `<div class="choice"><input type="radio" name="gsess" id="gs-${c.time}-${c.day}" value="${v}"${cur === v ? ' checked' : ''}><label for="gs-${c.time}-${c.day}"><span class="t">${c.type}</span><span class="d">${timeLabel(c.time)} · ${c.ins.replace(' Sensei', '')} · ${c.cap - c.booked} spots</span></label></div>`; }).join('');
+      html = list.map(c => `<div class="choice"><input type="radio" name="gsess" id="gs-${esc(c.lessonId)}" value="${esc(c.lessonId)}"${cur === c.lessonId ? ' checked' : ''}><label for="gs-${esc(c.lessonId)}"><span class="t">${esc(c.type)}</span><span class="d">${timeLabel(c.time)} · ${esc(c.ins.replace(' Sensei', ''))} · ${c.left} spots</span></label></div>`).join('');
     } else {
       let next = null;
-      for (let k = 1; k <= 30 && !next; k++) { const d = addDays(date, k); if (d <= addDays(TODAY, 30) && sessionsFor(d, p).length) next = d; }
+      for (let k = 1; k <= 7 && !next; k++) {
+        const d = addDays(date, k);
+        if (d > addDays(TODAY, 30)) break;
+        try { await loadDay(d); } catch (_) { break; }
+        if (seq !== passSeq) return;
+        if (sessionsFor(d, p).length) next = d;
+      }
       html = `<p class="sess-empty">No suitable HQ classes on ${dayName(date)}.${next ? ` <button type="button" class="sbtn" style="margin-left:6px" data-jump="${next.getFullYear()}-${next.getMonth() + 1}-${next.getDate()}">Try ${fmtDate(next)}</button>` : ''}</p>`;
     }
   }
@@ -115,7 +136,7 @@ function refreshSummary() {
   const dt = passDate(), sess = radio('gsess');
   const when = ['<b>ASK Headquarters Dojo</b>'];
   if (dt) when.push(`${dayName(dt)} ${fmtDate(dt)}`);
-  if (sess) { const [t, type] = sess.split('|'); when.push(`${type ? type + ' · ' : ''}${timeLabel(t)}`); }
+  if (sess) { const s = cachedSession(sess); when.push(s ? `${s.type} · ${timeLabel(s.time)}` : timeLabel(sess)); }
   $('#psWhen').innerHTML = when.map(w => `<span>${w}</span>`).join('') + (dt ? '' : '<span>Pick a date to see classes.</span>');
   $('#gFees').innerHTML = `<div><span>${esc(p.t)}<small>${esc(p.d)}</small></span><span>${money(p.amt)}</span></div><div class="total"><span>Total due today</span><span>${money(p.amt)}</span></div>`;
   $('#passSlideLbl').textContent = `Slide to pay ${money(p.amt)}`;
@@ -142,17 +163,32 @@ function validatePass() {
   return true;
 }
 
-function completePass() {
+async function completePass() {
   const p = passObj(), dt = passDate();
-  const [t, type] = radio('gsess').split('|');
-  const ref = 'GST-' + String(Date.now()).slice(-6);
+  const pick = radio('gsess'), chosen = p.need === 'time' ? null : cachedSession(pick);
+  const t = chosen ? chosen.time : pick, type = chosen ? chosen.type : '';
   const first = val('g-name').split(' ')[0];
   const signer = radio('gwho') === 'Child' ? `${val('g-guardian')} (parent/guardian)` : val('g-name');
+  let ref;
+  try {
+    /* the server works out the price from the pass id; nothing about the amount is sent */
+    const out = await ASK.act.trial({
+      name: val('g-name'), mobile: val('g-phone'), email: val('g-email'), passId: p.id, overseas: $('#overseas').checked, who: radio('gwho'),
+      date: isoDate(dt), ...(p.need === 'time' ? { time: pick } : { lessonId: pick }), waiverSigner: signer
+    });
+    ref = out.reference;
+  } catch (e) {
+    ASK.errToast(e);
+    $('#passSlide').reset();
+    delete passState.cache[isoDate(dt)];   // the class may have filled up meanwhile
+    refreshPass();
+    return;
+  }
   $('#gDoneTitle').textContent = `See you on the mat, ${first}`;
   $('#gDoneSub').textContent = `Booking, receipt and your signed waiver were sent to ${val('g-email')}.`;
   $('#ticket').innerHTML = `<div class="ticket-main"><span class="ref">Booking ${ref} · paid ${money(p.amt)}</span><h3>${esc(p.t)}</h3>
     <div class="kv" style="margin:0"><div><span>Name</span><span>${esc(val('g-name'))}</span></div><div><span>Dojo</span><span>${esc(dojoName(HQ))}</span></div><div><span>Date</span><span>${dayName(dt)} ${fmtDate(dt)}</span></div><div><span>${p.need === 'time' ? 'Preferred time' : 'Class'}</span><span>${type ? esc(type) + ' · ' : ''}${timeLabel(t)}</span></div><div><span>Waiver signed by</span><span>${esc(signer)}</span></div></div></div>
-    <div class="ticket-side">${qrSVG(+String(Date.now()).slice(-4), 150)}<small>Show this at the front desk</small></div>`;
+    <div class="ticket-side">${qrSVG(+ref.replace(/\D/g, '') + 1000, 150)}<small>Show this at the front desk</small></div>`;
   $$('#v-pass [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '2'));
   window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   toast('Payment received. Booking confirmed.');
