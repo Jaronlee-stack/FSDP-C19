@@ -35,9 +35,6 @@ module.exports = {
   API_PREFIX: '/api/v1',
   APP_TZ: env.APP_TZ || 'Asia/Singapore',
   FAKE_TODAY: fakeToday,
-  /* pglite (default): database inside this process, no server needed. postgres: a PostgreSQL server reached with the DB_* settings below */
-  dbDriver: env.DB_DRIVER === 'postgres' ? 'postgres' : 'pglite',
-  pgliteDataDir: env.PGLITE_DATA_DIR || path.join(__dirname, '..', '..', 'data', 'pglite'),
   db: {
     host: env.DB_HOST || 'localhost',
     port: int(env.DB_PORT, 5432),

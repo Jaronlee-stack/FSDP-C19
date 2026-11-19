@@ -48,7 +48,7 @@ if (require.main === module) {
     setInterval(run, DAY).unref();
   }
   const stop = () => {
-    server.close(() => require('./src/config/db').close().finally(() => process.exit(0)));
+    server.close(() => require('./src/config/db').pool.end().finally(() => process.exit(0)));
     server.closeIdleConnections();
     setTimeout(() => { server.closeAllConnections(); process.exit(0); }, 2000).unref();
   };

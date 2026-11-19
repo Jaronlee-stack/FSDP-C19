@@ -38,11 +38,11 @@ Instructors and office staff sign in at `/admin_portal/signin.html`.
 
 ## Tech stack
 
-Node.js, Express 5, PostgreSQL (PGlite by default, or a server through `pg`), plain HTML/CSS/JS front end, Telegram Bot API, Brevo, Groq or Ollama for Ben, Docker.
+Node.js, Express 5, PostgreSQL (`pg`), plain HTML/CSS/JS front end, Telegram Bot API, Brevo, Groq or Ollama for Ben, Docker.
 
 ## Run it locally
 
-You need Node.js 20+. No database server is needed.
+You need Node.js 20+ and PostgreSQL 14+.
 
 ```powershell
 npm install
@@ -50,15 +50,7 @@ copy .env.example .env      # then fill in your values
 npm start                   # or: npm run dev (restarts on change)
 ```
 
-Open http://localhost:3000.
-
-### Database
-
-The app uses **PGlite** by default: real PostgreSQL compiled to WebAssembly, running inside the Node process and saved in `data/pglite/`.
-On the first start it loads the schema, the demo data and every migration in `database/migrations/` (a few seconds). Later starts apply only
-new migrations. To start again from fresh demo data, stop the app and delete `data/pglite/`.
-
-To use a PostgreSQL server instead, set `DB_DRIVER=postgres` and the `DB_*` settings, then load the database once:
+Create and load the database (in this order):
 
 ```powershell
 createdb FSDP
@@ -67,8 +59,10 @@ psql -d FSDP -f database/seed.sql
 psql -d FSDP -f database/seed_extra.sql
 ```
 
-Then run each file in `database/migrations/` in number order. `db.sql` drops and recreates every table, so only run it on an empty or
-throwaway database.
+Then run each file in `database/migrations/` in number order (0003 to 0008). `db.sql` drops and recreates every table, so only run it on an
+empty or throwaway database.
+
+Open http://localhost:3000.
 
 ## Run it with Docker
 
@@ -78,8 +72,7 @@ docker compose logs -f app       # watch the app log
 docker compose down              # stop (data is kept in the pgdata volume)
 ```
 
-The app is on http://localhost:3100. Compose runs a separate PostgreSQL container (`DB_DRIVER=postgres`), using the settings from `.env`
-with `DB_HOST` switched to that container.
+The app is on http://localhost:3100. The database settings come from `.env`, with `DB_HOST` switched to the database container.
 
 ## Configuration (`.env`)
 
@@ -87,10 +80,8 @@ with `DB_HOST` switched to that container.
 | --- | --- |
 | `NODE_ENV` | `development` locally, `production` when deployed |
 | `PORT` | HTTP port (default 3000) |
-| `DB_DRIVER` | `pglite` (default, no server) or `postgres` |
-| `PGLITE_DATA_DIR` | where PGlite saves the database (default `data/pglite`) |
-| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL connection (only with `DB_DRIVER=postgres`) |
-| `DB_SSL` | `true` for hosted PostgreSQL that needs TLS |
+| `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD` | PostgreSQL connection |
+| `DB_SSL` | `true` for hosted databases that need TLS (for example Render) |
 | `JWT_SECRET` | signs sign-in sessions; required in production |
 | `APP_FAKE_TODAY` | development only: pins the date, for example `2026-11-06` (the seed data is built around this day) |
 | `TRUST_PROXY` | number of proxies in front of the app when deployed (for example `1`) |
