@@ -777,7 +777,7 @@ html.sm-lock .ben-fab, html.sm-lock .ben-panel { opacity: 0; pointer-events: non
 .pcard-tile { aspect-ratio: auto; min-height: 0; }
 @supports (aspect-ratio: 1) { .pcard-tile { aspect-ratio: 1.58; } }
 .pcard-mid > div { min-width: 0; }
-.pcard-name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.pcard-name { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .pcard-foot button { flex: none; white-space: nowrap; }
 .pcard-foot .st { min-width: 0; }
 @media (max-width: 380px) { .pcard-tile { aspect-ratio: auto; min-height: 190px; gap: 12px; } .pcard-name { font-size: 17px; } }

@@ -98,6 +98,8 @@ test('answer() end to end with a fake model', async t => {
   const escalated = [];
   const realEscalate = adminInboxService.escalate;
   const realVault = config.ben.vaultPath, realModel = config.ben.ollamaModel, realUrl = config.ben.ollamaUrl;
+  const realKey = config.ben.groqApiKey;
+  config.ben.groqApiKey = null; // these tests use the fake Ollama server, even when a Groq key is configured
   adminInboxService.escalate = async x => { escalated.push(x); return { id: 'INB-T' }; };
   config.ben.vaultPath = vault;
   config.ben.ollamaModel = 'test-model';
@@ -105,6 +107,7 @@ test('answer() end to end with a fake model', async t => {
   t.after(() => {
     adminInboxService.escalate = realEscalate;
     config.ben.vaultPath = realVault; config.ben.ollamaModel = realModel; config.ben.ollamaUrl = realUrl;
+    config.ben.groqApiKey = realKey;
     fake.server.close();
   });
   const reset = () => { escalated.length = 0; fake.state.requests.length = 0; };

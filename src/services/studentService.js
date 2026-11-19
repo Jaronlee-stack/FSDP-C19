@@ -19,10 +19,17 @@ const gradingService = require('./gradingService');
 
 const STATUS = { Attended: 'present', 'No-Show': 'noshow', Booked: 'pending' };
 
+/* nothing changes the stored status when a membership runs out, so an Active membership past its expiry date is shown as Expired */
+const memberStatus = (p, today) => {
+  if (p.account_status !== 'Active' || !p.membership_expiry) return p.account_status;
+  const expiry = p.membership_expiry instanceof Date ? clock.ymd(p.membership_expiry) : String(p.membership_expiry).slice(0, 10);
+  return expiry < today ? 'Expired' : p.account_status;
+};
+
 const profileShape = (p, today) => ({
   name: p.full_name, memberNo: p.member_no, email: p.email, rank: p.rank_name, rankId: p.rank_id, dojoId: p.dojo_id,
   group: p.age_group === 'Child' ? 'child' : 'adult', gender: p.gender, age: ageOn(p.dob, today),
-  joinedOn: p.joined_on, status: p.account_status, expiry: p.membership_expiry, lastRenewedAt: p.last_renewed_at,
+  joinedOn: p.joined_on, status: memberStatus(p, today), expiry: p.membership_expiry, lastRenewedAt: p.last_renewed_at,
   hours: { total: p.total_accumulated_hours, accumulated: p.accumulated_hours, weapon: p.weapon_hours }
 });
 const fullProfileShape = (p, today) => ({

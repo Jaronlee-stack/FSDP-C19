@@ -27,7 +27,7 @@ async function bzOverview() {
   if (!d || n !== bzOvSeq) return;   // a newer period was chosen while this one loaded
   const s = d.stats, label = BZ_PERIOD[per];
   $('#baSub').textContent = `All centres · ${fmtDate(TODAY)}`;
-  $('#baStats').innerHTML = bzStat('', 'Active members', s.activeMembers, `${s.totalMembers} members in total`)
+  $('#baStats').innerHTML = bzStat('', 'Active members', s.activeMembers, `${plural(s.totalMembers, 'member')} in total`)
     + bzStat('', 'New members', s.newMembers, `Joined ${label}`)
     + bzStat('', '90-day retention', s.retention === null ? '—' : s.retention + '%', s.retention === null ? 'No month of joiners is 90 days old yet' : 'Still training 90 days after joining')
     + bzStat('alert', 'Collected vs outstanding', money(s.collected), `${money(s.outstanding)} outstanding · collected ${label}`);

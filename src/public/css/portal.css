@@ -251,6 +251,9 @@ body[data-portal]:not(.ok) { visibility: hidden; }
   .topbar .search { display: none; }
   .topbar .crumb { font-size: 14px; }
   .main { gap: 12px; }
+  .shell:has(> .tabbar) > .main { padding-bottom: calc(104px + var(--safe-b)); }
+  body:has(.tabbar) .ben-fab { bottom: calc(96px + var(--safe-b)); }
+  @media (max-width: 380px) { body:has(.tabbar) .ben-fab { transform: scale(.7); transform-origin: right bottom; } }
   .g2, .g3 { grid-template-columns: minmax(0, 1fr); }
   .bars > div { grid-template-columns: 110px minmax(0, 1fr) 40px; }
   .page-h { padding: 4px 2px 2px; }
@@ -1255,7 +1258,7 @@ body[data-page="scan"] .tabbar, body[data-page="scan"] .ben-fab, body[data-page=
 .scan-title { font-size: 20px; font-weight: 600; text-align: center; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
 .scan-hint { font-size: 14px; color: rgba(255,255,255,.85); text-align: center; max-width: 300px; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
 /* the frame dims everything around it with one huge shadow */
-.scan-frame { position: relative; width: min(72vw, 300px); aspect-ratio: 1; border-radius: 18px; box-shadow: 0 0 0 200vmax rgba(0,0,0,.5); }
+.scan-frame { position: relative; width: min(72vw, 300px); aspect-ratio: 1; border-radius: 18px; background: none; box-shadow: 0 0 0 200vmax rgba(0,0,0,.5); }   /* transparent: the camera shows through the viewfinder */
 .scan-frame i { position: absolute; width: 44px; height: 44px; border: 3px solid #fff; transition: border-color .2s; }
 .scan-frame i:nth-child(1) { top: -10px; left: -10px; border-right: 0; border-bottom: 0; border-top-left-radius: 20px; }
 .scan-frame i:nth-child(2) { top: -10px; right: -10px; border-left: 0; border-bottom: 0; border-top-right-radius: 20px; }
