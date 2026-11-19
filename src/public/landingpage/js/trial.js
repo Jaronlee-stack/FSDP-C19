@@ -60,7 +60,7 @@ function initPass() {
 
   slideCommit($('#passSlide'), completePass, validatePass);
   $('#passAgain').addEventListener('click', () => {
-    $$('#v-pass [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '1'));
+    $$('#passForm [data-pstep]').forEach(s => s.classList.toggle('on', s.dataset.pstep === '1'));
     $('#passSlide').reset(); passState.sig.reset(); window.scrollTo(0, 0);
   });
   syncWho();

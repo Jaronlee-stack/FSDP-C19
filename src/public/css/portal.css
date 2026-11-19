@@ -622,15 +622,16 @@ body.home-std .game-only, body.home-game .std-only { display: none; }
    RESPONSIVE: tablets and phones
    ===================================================================== */
 @media (max-width: 1100px) {
-  /* one column: the student card first, then the stats row, next belt and the path */
+  /* one column: membership card on top, then Your path (stats inside it), then Next belt last */
   .home-grid { grid-template-columns: minmax(0, 1fr); }
   .home-main, .home-side { display: contents; }
-  .hstats { order: 1; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .home-pcard { order: 1; display: grid; justify-items: center; }
+  .home-pcard .pcard { max-width: 420px; width: 100%; }
   .lvl-stack { order: 2; }
-  .next-belt { order: 3; }
+  .hstats { order: 3; grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .path-card, .std-only { order: 4; }
-  .home-pcard { order: -1; display: grid; justify-items: center; }
-  .home-pcard .pcard { max-width: 420px; }
+  .next-belt { order: 5; }
+  .path-card .hstats { margin: 0 0 14px; }
   .hstats .hs { padding: 12px 14px; border-radius: var(--r-md); }
   .hstats .hs b { font-size: 20px; }
   .hstats .hs-ic, .hstats .hs-belt { width: 36px; height: 36px; }
@@ -649,6 +650,7 @@ body.home-std .game-only, body.home-game .std-only { display: none; }
   .card-h .sub { font-size: 12.5px; }
   .home-top { grid-template-areas: "hi ctrl"; gap: 10px; }
   .home-top h1 { font-size: 20px; }
+  .home-pcard .pcard { max-width: none; }
   .view-toggle button { height: 30px; padding: 0 10px; font-size: 12px; }
   .hstats { gap: 8px; }
   .hs, .hstats .hs { flex-direction: column; align-items: flex-start; gap: 6px; padding: 10px 12px; }
@@ -1227,3 +1229,98 @@ html:has(body[data-portal="instructor"]) { scrollbar-gutter: stable; }
 @media (max-width: 640px) { .rec-chips { padding: 0; } }
 /* admin: a long row of tabs scrolls inside its bar instead of widening the page on phones */
 .list-bar > .filters { min-width: 0; max-width: 100%; }
+/* =====================================================================
+   SCAN TO CHECK IN
+   ===================================================================== */
+/* phone tab bar: raised scan button in the middle */
+.tabbar > .tab-scan { color: #fff; padding-top: 0; }
+.tabbar > .tab-scan.on { background: none; color: #fff; }
+.tabbar > .tab-scan .tab-scan-btn { width: 54px; height: 54px; margin: -24px auto 0; border-radius: 50%; background: var(--red); display: grid; place-items: center; overflow: visible; max-width: none;
+  box-shadow: 0 0 0 5px rgba(22,33,59,.96), 0 10px 22px -6px rgba(193,39,45,.7); transition: transform .15s var(--spring, ease); }
+.tabbar > .tab-scan .tab-scan-btn .ic { width: 26px; height: 26px; stroke-width: 2; }
+.tabbar > .tab-scan:active .tab-scan-btn { transform: scale(.94); }
+
+/* full-screen camera */
+body[data-page="scan"] .tabbar, body[data-page="scan"] .ben-fab, body[data-page="scan"] .ben-panel, body[data-page="scan"] .topbar { display: none; }
+.scan { position: fixed; inset: 0; z-index: 180; background: #000; color: #fff; display: grid; grid-template-rows: auto 1fr auto; overflow: hidden; }
+.scan video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.scan-top, .scan-bot, .scan-mid, .scan-msg { position: relative; z-index: 1; }
+.scan-top { display: flex; justify-content: flex-end; padding: calc(14px + env(safe-area-inset-top, 0px)) 18px 0; }
+.scan-round { width: 52px; height: 52px; border-radius: 50%; border: 0; background: rgba(20,20,22,.6); backdrop-filter: blur(8px); color: #fff; display: grid; place-items: center; text-decoration: none; }
+.scan-round .ic { width: 24px; height: 24px; stroke-width: 2; }
+.scan-round[aria-pressed="true"] { background: #fff; color: #111; }
+.scan-mid { align-self: center; display: grid; justify-items: center; gap: 22px; padding: 0 24px; }
+.scan-mid[hidden] { display: none; }
+.scan-title, .scan-hint { position: relative; z-index: 1; }
+.scan-title { font-size: 20px; font-weight: 600; text-align: center; text-shadow: 0 1px 8px rgba(0,0,0,.5); }
+.scan-hint { font-size: 14px; color: rgba(255,255,255,.85); text-align: center; max-width: 300px; text-shadow: 0 1px 6px rgba(0,0,0,.6); }
+/* the frame dims everything around it with one huge shadow */
+.scan-frame { position: relative; width: min(72vw, 300px); aspect-ratio: 1; border-radius: 18px; box-shadow: 0 0 0 200vmax rgba(0,0,0,.5); }
+.scan-frame i { position: absolute; width: 44px; height: 44px; border: 3px solid #fff; transition: border-color .2s; }
+.scan-frame i:nth-child(1) { top: -10px; left: -10px; border-right: 0; border-bottom: 0; border-top-left-radius: 20px; }
+.scan-frame i:nth-child(2) { top: -10px; right: -10px; border-left: 0; border-bottom: 0; border-top-right-radius: 20px; }
+.scan-frame i:nth-child(3) { bottom: -10px; left: -10px; border-right: 0; border-top: 0; border-bottom-left-radius: 20px; }
+.scan-frame i:nth-child(4) { bottom: -10px; right: -10px; border-left: 0; border-top: 0; border-bottom-right-radius: 20px; }
+.scan-line { position: absolute; left: 8%; right: 8%; top: 8%; height: 2px; border-radius: 2px; background: var(--red); box-shadow: 0 0 12px 2px rgba(193,39,45,.7); animation: scanline 2.2s ease-in-out infinite alternate; }
+@keyframes scanline { to { top: 92%; } }
+.scan-ok { position: absolute; inset: 0; margin: auto; width: 76px; height: 76px; border-radius: 50%; background: #1FA463; display: grid; place-items: center; transform: scale(.4); opacity: 0; transition: transform .35s var(--spring, ease), opacity .2s; }
+.scan-ok .ic { width: 38px; height: 38px; stroke-width: 2.6; color: #fff; }
+.scan-frame.ok i { border-color: #3DDC84; }
+.scan-frame.ok .scan-line { display: none; }
+.scan-frame.ok .scan-ok { transform: scale(1); opacity: 1; }
+.scan-bot { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 0 18px calc(26px + env(safe-area-inset-bottom, 0px)); min-height: 52px; }
+.scan-pill { height: 48px; padding: 0 20px; border-radius: 99px; border: 0; background: rgba(20,20,22,.6); backdrop-filter: blur(8px); color: #fff; font: inherit; font-size: 14px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; }
+.scan-pill .ic { width: 17px; height: 17px; }
+.scan-bot .scan-round { position: absolute; right: 18px; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+.scan-bot .scan-round[hidden] { display: none; }
+.scan-msg { align-self: center; justify-self: center; display: grid; justify-items: center; gap: 12px; text-align: center; max-width: 340px; padding: 0 24px; }
+.scan-msg[hidden] { display: none; }
+.scan-msg-ic { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,.1); display: grid; place-items: center; }
+.scan-msg-ic .ic { width: 30px; height: 30px; }
+.scan-msg h2 { font-size: 22px; }
+.scan-msg p { font-size: 14px; line-height: 1.55; color: rgba(255,255,255,.78); }
+.scan-msg-acts { margin-top: 6px; }
+.scan-msg-acts [hidden] { display: none; }
+@media (prefers-reduced-motion: reduce) { .scan-line { animation: none; top: 50%; } .scan-ok { transition: none; } }
+
+/* membership card: scan button */
+.pcard-foot button[data-scan] { white-space: nowrap; }
+@media (max-width: 380px) { .pcard-foot .st { font-size: 12px; } .pcard-foot button[data-scan] { padding: 0 10px; } }
+
+/* instructor: live class card. Details on the left, check-in QR on the right */
+.g-even > .live-card.live-split { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 20px 28px; }
+.g-even > .live-card.live-split > :last-child { margin-top: 0; }
+.live-info { display: grid; gap: 14px; align-content: center; min-width: 0; }
+.live-hint { font-size: 13px; line-height: 1.5; color: rgba(255,255,255,.78); max-width: 300px; }
+.live-qr { display: grid; justify-items: center; gap: 10px; }
+.live-qr-img { width: 168px; height: 168px; padding: 8px; border: 0; border-radius: 18px; background: #fff; cursor: zoom-in; box-shadow: 0 10px 28px -10px rgba(0,0,0,.45); transition: transform .15s; }
+.live-qr-img svg { width: 100%; height: 100%; display: block; }
+.live-qr-img:active { transform: scale(.97); }
+@media (hover: hover) and (pointer: fine) { .live-qr-img:not(:disabled):hover { transform: scale(1.03); } }
+.live-qr-img:disabled { cursor: default; opacity: .45; }
+.live-qr-code { display: grid; justify-items: center; gap: 2px; text-align: center; }
+.live-qr-code small { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.72); }
+.live-qr-code b { font-size: 15px; letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+.live-card.ended .live-qr-code { opacity: .6; }
+@media (max-width: 520px) {
+  .g-even > .live-card.live-split { grid-template-columns: minmax(0, 1fr); }
+  .live-qr { padding-top: 4px; }
+  .live-qr-img { width: 200px; height: 200px; }
+}
+
+/* full-screen QR to flash at the class */
+html.qr-open { overflow: hidden; }
+.qr-full { position: fixed; inset: 0; z-index: 500; background: #fff; color: var(--ink); display: grid; place-items: center; padding: calc(24px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px)); overflow: auto; cursor: zoom-out; animation: qrIn .2s ease-out; }
+@keyframes qrIn { from { opacity: 0; } }
+.qr-full-in { display: grid; justify-items: center; gap: 12px; text-align: center; }
+.qr-full-eb { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--red); }
+.qr-full h2 { font-size: clamp(22px, 3.4vw, 36px); line-height: 1.15; }
+.qr-full-code svg { width: min(86vw, calc(100vh - 260px), 640px); height: auto; min-width: 220px; display: block; }
+.qr-full-lbl { font-size: clamp(14px, 1.6vw, 18px); color: var(--muted); }
+.qr-full-lbl b { color: var(--ink); font-size: 1.4em; letter-spacing: .12em; margin-left: 8px; font-variant-numeric: tabular-nums; }
+.qr-full p { font-size: 14px; color: var(--muted); }
+.qr-full-x { position: absolute; top: calc(16px + env(safe-area-inset-top, 0px)); right: 16px; width: 48px; height: 48px; border-radius: 50%; border: 0; background: var(--mist); color: var(--ink); display: grid; place-items: center; cursor: pointer; }
+.qr-full-x .ic { width: 22px; height: 22px; }
+@media (prefers-reduced-motion: reduce) { .qr-full { animation: none; } }
+.qr-pill { border: 0; font: inherit; cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .qr-pill:hover { filter: brightness(.95); text-decoration: underline; } }

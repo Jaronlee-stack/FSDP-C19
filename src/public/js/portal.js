@@ -38,7 +38,9 @@ function adminPortal() {
 const PORTALS = {
   student: {
     label: 'Student', dir: 'student_portal/', login: 'student_portal/login.html', me: ['', '', ''], ben: true,
-    pages: [['home', 'home', 'Home'], ['book', 'cal', 'Book a class'], ['packages', 'box', 'Packages'], ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['profile', 'user', 'Profile']]
+    // tabs: what the phone tab bar shows ('scan' becomes the raised button in the middle); the rest sit under More
+    tabs: ['home', 'book', 'scan', 'grading'],
+    pages: [['home', 'home', 'Home'], ['scan', 'scan', 'Scan to check in'], ['book', 'cal', 'Book a class'], ['packages', 'box', 'Packages'], ['grading', 'award', 'Grading'], ['payments', 'card', 'Payments'], ['profile', 'user', 'Profile']]
   },
   instructor: {
     label: 'Instructor', dir: 'instructor_portal/', login: 'admin_portal/signin.html?denied', me: ['', '', ''],
@@ -112,8 +114,10 @@ function buildShell() {
   // phones: bottom tab bar (first 4 + "More" when there are more than 5)
   const many = P.pages.length > 5, shown = P.tabs ? P.tabs.map(k => P.pages.find(p => p[0] === k)).filter(Boolean) : many ? P.pages.slice(0, 4) : P.pages;
   const onMore = many && !shown.includes(cur);
-  shell.insertAdjacentHTML('beforeend', `<nav class="tabbar" aria-label="${P.label} portal">${shown.map(p =>
-    `<a href="${pageFile(p[0])}"${p === cur ? ' class="on" aria-current="page"' : ''}>${icon(p[1])}<span>${p[2].split(' ')[0] === 'Book' ? 'Book' : p[2]}</span>${p[3] && p[3]() ? `<i class="cnt" data-cnt="${p[0]}">${p[3]()}</i>` : ''}</a>`).join('')
+  const tab = p => p[0] === 'scan'
+    ? `<a href="${pageFile(p[0])}" class="tab-scan${p === cur ? ' on' : ''}" aria-label="Scan QR to check in"${p === cur ? ' aria-current="page"' : ''}><span class="tab-scan-btn">${icon('scan')}</span><span>Scan</span></a>`
+    : `<a href="${pageFile(p[0])}"${p === cur ? ' class="on" aria-current="page"' : ''}>${icon(p[1])}<span>${p[2].split(' ')[0] === 'Book' ? 'Book' : p[2]}</span>${p[3] && p[3]() ? `<i class="cnt" data-cnt="${p[0]}">${p[3]()}</i>` : ''}</a>`;
+  shell.insertAdjacentHTML('beforeend', `<nav class="tabbar" aria-label="${P.label} portal">${shown.map(tab).join('')
     }${many ? `<button type="button" data-sm-open aria-expanded="false"${onMore ? ' class="on"' : ''}>${icon('more')}<span>More</span></button>` : ''}</nav>`);
 
   // phones: the menu button and "More" open the sidebar as an 80% sheet with the page dimmed behind it

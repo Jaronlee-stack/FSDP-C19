@@ -510,6 +510,11 @@ function openCheckIn() {
     if (code) location.href = url('student_portal/checkin.html') + '?qr=' + encodeURIComponent(code);
   });
 }
+    ${vid ? '' : `<div class="acts"><a class="sbtn" href="https://www.youtube.com/results?search_query=${encodeURIComponent('aikido ' + title)}" target="_blank" rel="noopener">${icon('ur')}Find demonstrations</a></div>`}`, true);
+}
+
+/* check in = open the camera and scan the QR code the instructor is showing */
+const openScanner = () => { location.href = url('student_portal/scan.html'); };
 
 /* =====================================================================
    HOME — one number per idea, plus the gamified path
@@ -530,7 +535,7 @@ function memberCardHTML(id = 'memberCard') {
     <span class="pcard-glare"></span></div>
     <div class="pcard-foot"><span class="st">${esc(ME.status || 'Active')}${ME.expiry ? ` · Expires ${MON[ME.expiry.getMonth()]} ${ME.expiry.getFullYear()}` : ''}</span><button type="button" data-qr>${icon('scan')}Scan to check in</button></div></div></div>`;
 }
-document.addEventListener('click', e => { if (e.target.closest('[data-qr]')) openCheckIn(); });
+document.addEventListener('click', e => { if (e.target.closest('[data-scan]')) openScanner(); });
 
 /* weeks in a row (this week or last, backwards) with at least one class attended */
 function streakWeeks() {
@@ -858,6 +863,17 @@ function renderAttendance() {
   }).join('') : `<div class="empty-mini">${icon('clock')}<p><b>No classes yet</b><span>Classes you attend show here, each with +1 toward your next grade.</span></p></div>`;
 }
 
+/* on phones/tablets the three stats sit inside the "Your path" card (gamified view);
+   on desktop, or in Standard view, they go back to the side column under the card */
+const narrowMQ = window.matchMedia('(max-width: 1100px)');
+function placeStats() {
+  const st = $('#hStats'), path = $('#pathCard'), hc = $('#homeCard');
+  if (!st || !path || !hc) return;
+  if (narrowMQ.matches && gameView()) { const h = path.querySelector('.card-h'); if (h.nextElementSibling !== st) h.after(st); }
+  else if (hc.nextElementSibling !== st) hc.after(st);
+}
+if (narrowMQ.addEventListener) narrowMQ.addEventListener('change', placeStats); else narrowMQ.addListener(placeStats);
+
 /* notes from instructors: the three newest on the home page, the full history in a drawer */
 const NOTE_KIND = { class: ['Class note', 'k-class'], student: ['For you', 'k-student'] };   // grading notes are for instructors and examiners only
 const noteRow = r => `<article class="note-row"><div class="note-top"><span class="note-kind ${NOTE_KIND[r.kind][1]}">${NOTE_KIND[r.kind][0]}</span><span>${esc(r.label)}</span><span>${esc(r.by)}</span></div><p>${esc(r.text)}</p></article>`;
@@ -881,6 +897,9 @@ function renderHome(anim) {
   renderNextBelt(home.shown);
   if (game) { renderLevelCards(); renderPath(home.shown, anim); } else { const promo = DB.levelUps.find(l => l.kind === 'promotion'); $('#levelCards').hidden = !promo; $('#levelCards').innerHTML = promo ? `<div class="note"><svg class="ic"><use href="#i-award"/></svg><span><b>Promoted to ${esc(promo.to)}.</b> Congratulations.</span><button class="sbtn ghost" data-claim="promotion">Dismiss</button></div>` : ''; }
   renderNextClass(); renderAttendance(); renderNotes();
+  renderNextClass(); renderAttendance();
+  placeStats();
+  save();
 }
 
 /* the level-up moment: one tap = one counted session joins the path */
@@ -1053,4 +1072,13 @@ function renderCheckedIn(r) {
 /* on every student page: refresh the lesson widgets, and ask about any attended class that is not rated yet */
 if (ALLOWED && !GATED) {
   stuReady.then(() => { renderPassViews(); syncNotifDot(); setTimeout(promptRating, 1200); }).catch(() => {});
+/* on every student page: seed, refresh lesson widgets, and ask about any class that just ended */
+if (ALLOWED) {
+  seedBookings();
+  queueRating(lastEndedClass());
+  renderPassViews();
+  if (PAGE !== 'scan') {          // never pop the rating sheet over the camera
+    setTimeout(promptRating, 1200);
+    setInterval(promptRating, 60000);
+  }
 }
