@@ -42,7 +42,7 @@ const historyFor = (userId, db) => query(
 
 /* promotions HQ approved on or after `since` */
 const promotedSince = (userId, since, db) => query(
-  `SELECT tr.name AS to_name, c.promotion_decided_at FROM grading_candidate c JOIN belt_rank tr ON tr.id = c.to_rank_id
+  `SELECT c.session_id, tr.name AS to_name, c.promotion_decided_at FROM grading_candidate c JOIN belt_rank tr ON tr.id = c.to_rank_id
     WHERE c.user_id = $1 AND c.promotion_status = 'Promoted' AND c.promotion_decided_at >= $2 ORDER BY c.promotion_decided_at DESC`, [userId, since], db).then(r => r.rows);
 
 /* ---------- examiner side ---------- */

@@ -26,5 +26,6 @@ router.get('/payments/:id', validate({ params: v.idParam }), ctrl.payment);
 router.get('/grading', ctrl.grading);
 router.post('/grading/applications', validate({ body: v.applyGrading }), ctrl.applyGrading);
 router.delete('/grading/applications/:id', validate({ params: v.idParam }), ctrl.withdrawGrading);
+router.post('/level-ups/ack', validate({ body: v.ackLevelUp }), ctrl.ackLevelUp);
 router.post('/feedback', validate({ body: v.feedback }), ctrl.feedback);
 module.exports = router;

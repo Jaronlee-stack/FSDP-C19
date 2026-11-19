@@ -30,5 +30,6 @@ module.exports = {
   grading: h(req => gradingService.overview(u(req))),
   applyGrading: created(req => gradingService.apply(u(req), req.valid.body)),
   withdrawGrading: h(req => gradingService.withdraw(u(req), req.valid.params.id)),
+  ackLevelUp: h(req => studentService.ackLevelUp(u(req), req.valid.body)),
   feedback: created(req => studentService.rate(u(req), req.valid.body))
 };

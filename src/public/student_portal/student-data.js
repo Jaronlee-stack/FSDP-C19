@@ -46,7 +46,7 @@ ASK.load.home = async () => {
     const date = ASK.d(q.date);
     return { lessonId: q.lessonId, c: { type: q.type, time: q.time, ins: q.ins }, date, end: stuDateAt(q.date, q.end), key: stuKey(date, q.time) };
   }));
-  ASK.fill(DB.levelUps, h.levelUps.map(l => (l.kind === 'session' ? { kind: 'session', date: ASK.d(l.date), type: l.type } : { kind: 'promotion', to: l.to })));
+  ASK.fill(DB.levelUps, h.levelUps.map(l => (l.kind === 'session' ? { kind: 'session', ref: l.refId, date: ASK.d(l.date), type: l.type } : { kind: 'promotion', ref: l.refId, to: l.to })));
   return h;
 };
 
@@ -86,6 +86,7 @@ ASK.act.cancel = lessonId => ASK.del('/student/bookings/' + encodeURIComponent(l
 ASK.act.buy = (packageId, method = 'Visa') => ASK.post('/student/packages', { packageId, method });
 ASK.act.extension = (packId, body) => ASK.post(`/student/packages/${encodeURIComponent(packId)}/extension-requests`, body);
 ASK.act.withdrawExtension = id => ASK.del('/student/extension-requests/' + encodeURIComponent(id));
+ASK.act.ackLevelUp = (kind, refId) => ASK.post('/student/level-ups/ack', { kind, refId });
 ASK.act.rate = body => ASK.post('/student/feedback', body);
 ASK.act.applyGrading = body => ASK.post('/student/grading/applications', body);
 ASK.act.updateProfile = body => ASK.patch('/student/profile', body);

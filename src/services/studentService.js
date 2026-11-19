@@ -12,6 +12,7 @@ const attendanceModel = require('../models/attendanceModel');
 const remarkModel = require('../models/remarkModel');
 const feedbackModel = require('../models/feedbackModel');
 const gradingModel = require('../models/gradingModel');
+const levelUpModel = require('../models/levelUpModel');
 const { nextId } = require('../models/ids');
 const { ageOn } = require('./accountService');
 const packageService = require('./packageService');
@@ -50,9 +51,11 @@ async function home(user) {
     const { grade } = await gradingService.gradeFor(profile, tx, today);
     const dayAgo = new Date(now.getTime() - 24 * 36e5);
     const { passes, unlimited } = packageService.splitActive(active);
+    const acked = new Set((await levelUpModel.acknowledged(user.id, tx)).map(a => `${a.kind}|${a.ref_id}`));
     const levelUps = [
-      ...history.filter(a => a.attendance_status === 'Attended' && a.marked_at && new Date(a.marked_at) >= dayAgo).map(a => ({ kind: 'session', date: a.session_date, type: a.class_type, lessonId: a.lesson_id })),
-      ...promos.map(p => ({ kind: 'promotion', to: p.to_name }))
+      ...history.filter(a => a.attendance_status === 'Attended' && a.marked_at && new Date(a.marked_at) >= dayAgo && !acked.has(`session|${a.lesson_id}`))
+        .map(a => ({ kind: 'session', refId: a.lesson_id, date: a.session_date, type: a.class_type, lessonId: a.lesson_id })),
+      ...promos.filter(p => !acked.has(`promotion|${p.session_id}`)).map(p => ({ kind: 'promotion', refId: p.session_id, to: p.to_name }))
     ];
     return {
       profile: profileShape(profile, today), packages: passes, unlimited,
@@ -119,4 +122,11 @@ async function rate(user, { lessonId, rating, tags, note, skipped }) {
   });
 }
 
-module.exports = { home, profile, updateProfile, payments, payment, upcoming, attendance, rate };
+/* the student tapped a level-up: remember it so GET /student/home stops listing it. Only their own attended class or promotion counts; repeating is fine. */
+async function ackLevelUp(user, { kind, refId }) {
+  if (!(await levelUpModel.exists(user.id, kind, refId))) throw notFound('Level-up not found.', 'LEVEL_UP_NOT_FOUND');
+  await levelUpModel.acknowledge(user.id, kind, refId);
+  return { ok: true, kind, refId };
+}
+
+module.exports = { home, profile, updateProfile, payments, payment, upcoming, attendance, rate, ackLevelUp };

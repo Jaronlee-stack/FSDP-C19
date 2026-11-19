@@ -899,13 +899,20 @@ function renderHome(anim) {
 }
 
 /* the level-up moment: one tap = one counted session joins the path */
-function claim(kind, btn) {
+let claiming = false;   // one tap at a time while the server saves it
+async function claim(kind, btn) {
+  if (claiming) return;
+  const item = DB.levelUps.find(l => l.kind === kind); if (!item) return;
+  claiming = true;
+  try { await ASK.act.ackLevelUp(kind, item.ref); }   // saved on the server first, so it stays done on every page and after sign-in
+  catch (e) { ASK.errToast(e); return; }              // keep the prompt so the student can tap again
+  finally { claiming = false; }
   if (kind === 'promotion') {
-    DB.levelUps = DB.levelUps.filter(l => l.kind !== 'promotion');
+    DB.levelUps = DB.levelUps.filter(l => l !== item);
     if (gameView()) { chime(true); confetti(); toast('Congratulations on your new grade.'); }
     renderHome(false); return;
   }
-  const i = DB.levelUps.findIndex(l => l.kind === 'session'); if (i < 0) return;
+  const i = DB.levelUps.indexOf(item); if (i < 0) return;
   DB.levelUps.splice(i, 1);
   const before = home.shown, after = before + 1, need = GRADE.needSessions, big = after >= need && before < need;
   chime(big);
