@@ -7,3 +7,4 @@ tests
 Ben Bot
 database/docker
 *.log
+data
