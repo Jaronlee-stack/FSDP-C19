@@ -80,6 +80,14 @@ const exception = z.strictObject({
 }).refine(o => o.subjectName || o.memberNo || o.mcId, 'Say who this is about.');
 const exceptionDecision = z.strictObject({ decision: z.enum(['approved', 'declined']), reason: text(300) });
 
+/* admin inbox: questions Ben escalated */
+const inboxQuery = z.strictObject({ status: z.enum(['open', 'answered']).optional() });
+const inboxReply = z.strictObject({
+  choice: z.enum(['this_user', 'faq', 'knowledge', 'not_for_bot']),
+  reply: text(1500),
+  knowledgeNote: text(120).optional()
+});
+
 /* ---------- follow-ups, notifications ---------- */
 const followupCreate = z.strictObject({ memberNo: text(50).optional(), kind: z.enum(['newcomer', 'declining', 'renewal']), ownerId: id.nullable().optional(), dueDate: day });
 const followupPatch = z.strictObject({ ownerId: id.nullable().optional(), dueDate: day.optional(), status: z.enum(['open', 'done']).optional() }).refine(atLeastOne, 'Nothing to change.');
@@ -155,6 +163,6 @@ module.exports = {
   lessonParam, lessonUserParam, rosterQuery, book, cancelBooking, walkIn, waitlist, attendance, submit,
   membersQuery, memberParam, memberPatch, message, contact,
   paymentsQuery, idParam, takePayment, voidPayment, reason, refundRequest, decision, lock, lockParam, equipmentQuery, handover,
-  checklist, activate, reject, requestInfo, deskRegistration, mcDecision, exception, exceptionDecision,
+  checklist, activate, reject, requestInfo, deskRegistration, mcDecision, exception, exceptionDecision, inboxQuery, inboxReply,
   followupCreate, followupPatch, attempt, notify
 };

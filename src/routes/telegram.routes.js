@@ -15,12 +15,13 @@ const fromTelegram = req => {
 
 router.post('/webhook', async (req, res) => {
   if (!fromTelegram(req)) return res.status(401).json({ error: { code: 'UNAUTHENTICATED', message: 'Invalid webhook secret.' } });
+  // answer Telegram first: Ben may take a while on a local model, and a slow reply makes Telegram resend the same update
+  res.json({ ok: true });
   try {
     if (req.body.message) await telegramBotService.handleWebhookMessage(req.body.message);
   } catch (error) {
     console.error('[telegram-webhook] Error:', error.message);
   }
-  res.json({ ok: true });   // always 200 to Telegram, or it retries the same update
 });
 
 module.exports = router;

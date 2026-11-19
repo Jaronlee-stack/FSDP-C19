@@ -604,6 +604,7 @@ runPage({
   },
   imports() { return impInit(); },
   venues() { return vnInit(); },
+  inbox() { return ibInit(); },
   reports() { return rpInit(); },
   notify() { return nfInit(); }
 });

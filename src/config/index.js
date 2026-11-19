@@ -58,5 +58,16 @@ module.exports = {
     adminChatId: env.TELEGRAM_ADMIN_CHAT_ID || null,
     webhookSecret: env.TELEGRAM_WEBHOOK_SECRET || null
   } : null,
+  /* Ben: the Ben Bot vault and the local Ollama model. Ben stays off (escalates everything) until OLLAMA_MODEL is set. */
+  ben: {
+    vaultPath: env.BEN_VAULT_PATH || path.join(__dirname, '..', '..', 'Ben Bot'),
+    ollamaUrl: env.OLLAMA_URL || 'http://localhost:11434',
+    ollamaModel: env.OLLAMA_MODEL || null,
+    timeoutMs: int(env.OLLAMA_TIMEOUT_MS, 60000),
+    /* cloud model (Groq, OpenAI-compatible). Used when GROQ_API_KEY is set; takes priority over Ollama. */
+    groqApiKey: env.GROQ_API_KEY || null,
+    groqModel: env.BEN_GROQ_MODEL || 'llama-3.1-8b-instant',
+    groqUrl: env.BEN_GROQ_URL || 'https://api.groq.com/openai/v1/chat/completions'
+  },
   warnings
 };

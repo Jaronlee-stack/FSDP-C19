@@ -30,9 +30,17 @@ async function handleWebhookMessage(message) {
     return { processed: true, action: r.success ? 'linked' : 'code_rejected' };
   }
 
+  const followUp = input === '/START' ? null : await require('./benFollowupService').handleReply(chat.id, text);
+  if (followUp) {
+    await sendMessage(chat.id, escHtml(followUp.reply));
+    return { processed: true, action: followUp.action };
+  }
+
   if (input !== '/START') {
-    await sendMessage(chat.id, 'Send /start to link your account, or reply with your member number (e.g. ASK-2025-1834).');
-    return { processed: false, reason: 'unrecognised' };
+    // anything else is a question for Ben (answered from the vault, or passed to the admin inbox)
+    const r = await require('./benService').answer({ question: text, chatId: chat.id });
+    await sendMessage(chat.id, escHtml(r.text));
+    return { processed: true, action: r.kind };
   }
 
   // Try to find student by telegram user ID or other identifier

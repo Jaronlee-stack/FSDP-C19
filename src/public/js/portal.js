@@ -12,7 +12,7 @@
 const ADMIN_PAGES = [
   ['dashboard', 'home', 'Today', 'Operations', false], ['sessions', 'cal', 'Classes', 'Operations', false], ['members', 'users', 'Members', 'Operations', false],
   ['payments', 'card', 'Payments', 'Operations', false], ['applications', 'inbox', 'Registrations', 'Operations', false], ['equipment', 'box', 'Equipment', 'Operations', false],
-  ['followups', 'flag', 'Follow-ups', 'Operations', false], ['notify', 'mega', 'Notifications', 'Operations', false],
+  ['followups', 'flag', 'Follow-ups', 'Operations', false], ['notify', 'mega', 'Notifications', 'Operations', false], ['inbox', 'inbox', 'Inbox', 'Operations', false],
   ['insights', 'chart', 'Insights', 'Management', true], ['revenue', 'receipt', 'Revenue', 'Management', true], ['grading', 'award', 'Grading', 'Management', true], ['reports', 'doc', 'Reports', 'Management', true],
   ['policies', 'shield', 'Policies', 'Control', true], ['staff', 'id', 'Staff', 'Control', true], ['audit', 'clock', 'Audit log', 'Control', true], ['imports', 'upload', 'Import issues', 'Control', true],
   ['venues', 'box', 'Venues', 'Control', true]
@@ -24,7 +24,8 @@ function adminPortal() {
   /* the badge counts come from the server (GET /admin/summary, loaded before this page runs) */
   const cnt = {
     applications: () => (ASK.summary && ASK.summary.applications) || 0,
-    imports: () => (ASK.summary && ASK.summary.importsOpen) || 0
+    imports: () => (ASK.summary && ASK.summary.importsOpen) || 0,
+    inbox: () => (ASK.summary && ASK.summary.inboxOpen) || 0
   };
   return {
     label: ba ? 'Business Admin' : 'Front desk', dir: 'admin_portal/', login: 'admin_portal/signin.html?expired', parent: ADMIN_PARENT,

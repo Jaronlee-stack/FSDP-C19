@@ -40,7 +40,17 @@ if (require.main === module) {
     if (config.FAKE_TODAY) console.log(`⏰ Fake date: ${config.FAKE_TODAY}`);
     console.log('');
   });
-  const stop = () => server.close(() => require('./src/config/db').pool.end().finally(() => process.exit(0)));
-  process.on('SIGINT', stop);
-  process.on('SIGTERM', stop);
+  if (process.env.BEN_OUTREACH_ENABLED === 'true') {
+    const DAY = 24 * 60 * 60 * 1000;
+    const run = () => require('./src/services/benFollowupService').runOutreach()
+      .then(s => console.log('[ben] follow-up outreach:', JSON.stringify(s)))
+      .catch(e => console.error('[ben] follow-up outreach failed:', e.message));
+    setInterval(run, DAY).unref();
+  }
+  const stop = () => {
+    server.close(() => require('./src/config/db').pool.end().finally(() => process.exit(0)));
+    server.closeIdleConnections();
+    setTimeout(() => { server.closeAllConnections(); process.exit(0); }, 2000).unref();
+  };
+  for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGBREAK']) process.on(sig, stop);
 }
