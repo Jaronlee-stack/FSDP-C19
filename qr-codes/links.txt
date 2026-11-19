@@ -1,0 +1,11 @@
+hq         ASK Headquarters Dojo        https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-HQ-7F3A
+bedok      ActiveSG Bedok Dojo          https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-BDAS-1C9D
+tampines   Our Tampines Hub Dojo        https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-OTH-82B4
+kovan      Paya Lebar Kovan Dojo        https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-PLKC-5E10
+sengkang   ActiveSG Sengkang Dojo       https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-SKAS-A7C2
+bishan     ActiveSG Bishan Dojo         https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-BSAS-3D68
+toapayoh   SAFRA Toa Payoh Dojo         https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-STPY-90E1
+jurong     ActiveSG Jurong East Dojo    https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-JEAS-4B27
+westcoast  West Coast Dojo              https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-WCCC-C6F9
+woodlands  ActiveSG Woodlands Dojo      https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-WDAS-2A85
+chongpang  Chong Pang Dojo              https://fsdp-c19.onrender.com/student_portal/checkin.html?qr=ASK-QR-CPCC-D13E
