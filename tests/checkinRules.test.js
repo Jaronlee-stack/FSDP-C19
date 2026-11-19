@@ -64,3 +64,26 @@ test('after the 7 pm class is already marked, a scan for the 8 pm class marks th
 test('the wrong-dojo check comes first, even when the time and booking are right', () => {
   assert.equal(scan({ dojoId: 'bedok', studentDojoId: 'hq' }).reason, 'WRONG_DOJO');
 });
+
+const venueClass = { lessonId: 'LS-VEN-1', start: at(19, 0), attended: false };
+const venueScan = (over = {}) => decide({ dojoId: 'bedok', studentDojoId: 'bedok', now: at(19, 0), bookings: [venueClass], ...over });
+
+test('venue: principal dojo matches and the class is on now: marked', () => {
+  assert.deepEqual(venueScan(), { action: 'marked', lessonId: 'LS-VEN-1' });
+});
+
+test('venue: an active student whose principal dojo is elsewhere is not recognised', () => {
+  assert.equal(venueScan({ studentDojoId: 'hq' }).reason, 'WRONG_DOJO');
+});
+
+test('venue: no roster or make-up class today: nothing recorded', () => {
+  assert.equal(venueScan({ bookings: [] }).reason, 'NO_BOOKING');
+});
+
+test('venue: outside the 15-minute window: nothing recorded', () => {
+  assert.equal(venueScan({ now: at(20, 0) }).reason, 'OUTSIDE_WINDOW');
+});
+
+test('venue: already attended today: reported as already, not counted twice', () => {
+  assert.equal(venueScan({ bookings: [{ ...venueClass, attended: true }] }).action, 'already');
+});

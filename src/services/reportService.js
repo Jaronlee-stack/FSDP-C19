@@ -236,9 +236,18 @@ async function reports(q) {
   for (const k of KINDS) out[k] = (await reportRows(k, q)).rows.length;
   return { from: r.from, to: r.to, centre: q.centre || 'all', counts: out };
 }
+/* venue attendance for one venue (centre = its id) or every venue (centre = all) */
+async function venueCsv(q) {
+  const r = rangeOf(q), dojo = q.centre && q.centre !== 'all' ? q.centre : null;
+  if (dojo && !(await referenceModel.listDojos()).some(d => d.id === dojo && d.id !== 'hq')) throw notFound('That venue does not exist.', 'INVALID_DOJO');
+  const rows = await reportModel.venueAttendanceRows(r.from, r.to, dojo);
+  const header = ['Venue', 'Date', 'Class', 'Start', 'Instructor', 'Member no.', 'Name', 'How they came in', 'Status', 'Recorded at'];
+  const body = rows.map(x => [x.dojo_name, x.day, x.class_type, x.start_time, x.instructor_name, x.member_no, x.full_name, x.booked_via, x.attendance_status, x.marked_at ? new Date(x.marked_at).toISOString() : '']);
+  return { filename: `venue-attendance-${r.from}-to-${r.to}.csv`, csv: toCsv([header, ...body]), rows: body.length };
+}
 async function reportCsv(kind, q) {
   const { header, rows, range } = await reportRows(kind, q);
   const [y, m] = range.today.split('-');
   return { filename: `${kind}-${MON[Number(m) - 1].toLowerCase()}-${y}.csv`, csv: toCsv([header, ...rows]), rows: rows.length };
 }
-module.exports = { overview, insights, revenue, reports, reportCsv, reportRows, addIntervention, decideIntervention, KINDS };
+module.exports = { overview, insights, revenue, reports, reportCsv, venueCsv, reportRows, addIntervention, decideIntervention, KINDS };

@@ -603,6 +603,7 @@ runPage({
     return stfLoad();
   },
   imports() { return impInit(); },
+  venues() { return vnInit(); },
   reports() { return rpInit(); },
   notify() { return nfInit(); }
 });

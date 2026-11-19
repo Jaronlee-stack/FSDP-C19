@@ -14,7 +14,8 @@ const ADMIN_PAGES = [
   ['payments', 'card', 'Payments', 'Operations', false], ['applications', 'inbox', 'Registrations', 'Operations', false], ['equipment', 'box', 'Equipment', 'Operations', false],
   ['followups', 'flag', 'Follow-ups', 'Operations', false], ['notify', 'mega', 'Notifications', 'Operations', false],
   ['insights', 'chart', 'Insights', 'Management', true], ['revenue', 'receipt', 'Revenue', 'Management', true], ['grading', 'award', 'Grading', 'Management', true], ['reports', 'doc', 'Reports', 'Management', true],
-  ['policies', 'shield', 'Policies', 'Control', true], ['staff', 'id', 'Staff', 'Control', true], ['audit', 'clock', 'Audit log', 'Control', true], ['imports', 'upload', 'Import issues', 'Control', true]
+  ['policies', 'shield', 'Policies', 'Control', true], ['staff', 'id', 'Staff', 'Control', true], ['audit', 'clock', 'Audit log', 'Control', true], ['imports', 'upload', 'Import issues', 'Control', true],
+  ['venues', 'box', 'Venues', 'Control', true]
 ];
 /* pages with no menu item highlight their parent */
 const ADMIN_PARENT = { roster: 'sessions', member: 'members', register: 'applications' };
