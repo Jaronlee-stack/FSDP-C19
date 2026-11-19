@@ -1,0 +1,49 @@
+# Render blueprint for the ASK (Aikido Shinju-Kai) system: one web service built from the Dockerfile, plus its PostgreSQL database.
+# Express serves the /api/v1 routes and the static portals on one port; Render sets PORT and the app reads it.
+# Database settings come straight from the database below, so nothing is copied by hand.
+# Secrets marked `sync: false` are asked for once in the Render dashboard when the blueprint is created; they are never stored here.
+services:
+  - type: web
+    name: fsdp-c19
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: singapore
+    # bring the database up to date (first deploy: schema, demo data, migrations), then start the app
+    dockerCommand: sh -c "node scripts/migrate.js && node app.js"
+    healthCheckPath: /api/v1/reference
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: TRUST_PROXY
+        value: "1"            # Render sits in front of the app; without this every visitor shares one IP for rate limits
+      - key: DB_SSL
+        value: "true"
+      - key: DB_HOST
+        fromDatabase: { name: fsdp-c19-db, property: host }
+      - key: DB_PORT
+        fromDatabase: { name: fsdp-c19-db, property: port }
+      - key: DB_NAME
+        fromDatabase: { name: fsdp-c19-db, property: database }
+      - key: DB_USER
+        fromDatabase: { name: fsdp-c19-db, property: user }
+      - key: DB_PASSWORD
+        fromDatabase: { name: fsdp-c19-db, property: password }
+      - key: JWT_SECRET
+        generateValue: true   # Render makes a random one
+      - key: TELEGRAM_WEBHOOK_SECRET
+        generateValue: true   # use this value as secret_token when calling setWebhook
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: BREVO_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false           # optional: Ben's cloud model; leave blank to keep Ben off
+
+databases:
+  - name: fsdp-c19-db
+    databaseName: fsdp
+    user: fsdp
+    plan: free
+    region: singapore
+    postgresMajorVersion: "16"

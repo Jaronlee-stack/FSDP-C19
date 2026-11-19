@@ -4,6 +4,5 @@ node_modules
 .claude
 docs
 tests
-Ben Bot
 database/docker
 *.log
