@@ -2,6 +2,7 @@
 /* Members for the office: the list with filters, the member record, contact edits (both admin types), rank / status / dojo changes and the CSV export
    (Business Admin only: also checked here, not only on the route). Never returns password_hash. */
 const config = require('../config');
+const { memberStatus } = require('../utils/membership');
 const { withTx } = require('../config/db');
 const clock = require('../utils/clock');
 const { toCsv } = require('../utils/csv');
@@ -21,11 +22,12 @@ const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct
 const fmtShort = ymd => `${Number(ymd.slice(8, 10))} ${MON[Number(ymd.slice(5, 7)) - 1]}`;
 
 function memberShape(m, today) {
+  const shownStatus = memberStatus(m.account_status, m.membership_expiry, today);
   const seen = m.last_seen ? clock.diffDays(m.last_seen, today) : null;
   const expiring = m.account_status === 'Active' && !!m.pkg_exp && (m.pkg_left > 0 || !!m.unl_until) && clock.diffDays(today, m.pkg_exp) >= 0 && clock.diffDays(today, m.pkg_exp) <= 14;
   return {
     userId: m.user_id, memberNo: m.member_no, name: m.full_name, rankId: m.rank_id, rank: m.rank_name, dojoId: m.dojo_id, dojo: m.dojo_name, hours: m.total_accumulated_hours,
-    status: m.account_status, joinedOn: m.joined_on, source: m.source, kind: m.age_group === 'Child' ? 'child' : 'adult', gender: m.gender, dob: m.dob, phone: m.contact_no, email: m.email,
+    status: shownStatus, joinedOn: m.joined_on, source: m.source, kind: m.age_group === 'Child' ? 'child' : 'adult', gender: m.gender, dob: m.dob, phone: m.contact_no, email: m.email,
     guardian: m.guardian_name, lastSeen: m.last_seen, seenDays: seen, left: m.pkg_left, expires: m.pkg_exp, unlimitedUntil: m.unl_until, owed: m.owed, expiring,
     membershipExpiry: m.membership_expiry, nsf: m.discount_type === 'nsf'
   };

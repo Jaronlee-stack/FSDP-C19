@@ -13,7 +13,13 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<':
 const icon = (n, cls = 'ic') => `<svg class="${cls}"><use href="#i-${n}"/></svg>`;
 const money = n => 'S$' + Number(n).toLocaleString('en-SG', { minimumFractionDigits: n % 1 ? 2 : 0, maximumFractionDigits: 2 });
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const initials = n => n.replace(/ (Sensei|Shihan)$/, '').split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+/* first letter of the first and the last real word (skips emoji and suffixes such as III, Jr); '?' when there is no letter */
+const initials = n => {
+  const words = n.replace(/ (Sensei|Shihan)$/, '').trim().split(/\s+/).filter(w => /\p{L}/u.test(w) && !/^(I|II|III|IV|V|Jr|Sr)\.?$/i.test(w));
+  const first = (w => (w ? (typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter().segment(w)][0].segment : [...w][0]) : ''))(words[0]);
+  const last = words.length > 1 ? (typeof Intl !== 'undefined' && Intl.Segmenter ? [...new Intl.Segmenter().segment(words[words.length - 1])][0].segment : [...words[words.length - 1]][0]) : '';
+  return (first + last).toUpperCase() || '?';
+};
 const DAY = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmtDate = d => `${d.getDate()} ${MON[d.getMonth()]} ${d.getFullYear()}`;
