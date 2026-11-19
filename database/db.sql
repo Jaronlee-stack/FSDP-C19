@@ -63,6 +63,7 @@ DROP TABLE IF EXISTS grading_examiner CASCADE;
 DROP TABLE IF EXISTS grading_session CASCADE;
 DROP TABLE IF EXISTS check_in CASCADE;
 DROP TABLE IF EXISTS instructor_remark CASCADE;
+DROP TABLE IF EXISTS level_up_ack CASCADE;           -- backend: level-ups a student already tapped
 DROP TABLE IF EXISTS class_feedback_prompt CASCADE; -- backend: which students already answered the rating pop-up
 DROP TABLE IF EXISTS class_waitlist CASCADE;         -- backend: roster waitlist
 DROP TABLE IF EXISTS class_feedback CASCADE;
@@ -482,6 +483,17 @@ CREATE TABLE class_feedback_prompt (
     state VARCHAR(10) NOT NULL CHECK (state IN ('rated', 'skipped')),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (lesson_id, user_id)
+);
+
+-- Backend: level-ups (an attended class, a promotion) a student has already tapped on the home page, so they do not come back on reload.
+-- ref_id is the lesson_id for kind 'session' and the grading session id for kind 'promotion'. Progress numbers are not touched.
+-- Also applied to existing databases by migrations/0009_level_up_ack.sql.
+CREATE TABLE level_up_ack (
+    user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    kind VARCHAR(20) NOT NULL CHECK (kind IN ('session', 'promotion')),
+    ref_id VARCHAR(255) NOT NULL,
+    acknowledged_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, kind, ref_id)
 );
 
 CREATE TABLE instructor_remark (

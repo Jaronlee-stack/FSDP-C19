@@ -9,3 +9,4 @@
 \i /app-db/migrations/0006_venue_import.sql
 \i /app-db/migrations/0007_admin_inbox.sql
 \i /app-db/migrations/0008_ben_followups.sql
+\i /app-db/migrations/0009_level_up_ack.sql

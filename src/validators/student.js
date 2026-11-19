@@ -30,4 +30,6 @@ const feedback = z.strictObject({
   lessonId: id, rating: z.number().int().min(1).max(5).default(3), tags: z.array(text(60, 1)).max(6).default([]), note: text(1000).optional(), skipped: z.boolean().default(false)
 });
 
-module.exports = { idParam, lessonParam, timetableQuery, attendanceQuery, profilePatch, buyPackage, extension, book, checkIn, applyGrading, feedback };
+const ackLevelUp = z.strictObject({ kind: z.enum(['session', 'promotion']), refId: id });
+
+module.exports = { ackLevelUp, idParam, lessonParam, timetableQuery, attendanceQuery, profilePatch, buyPackage, extension, book, checkIn, applyGrading, feedback };
