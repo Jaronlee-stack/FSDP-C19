@@ -61,7 +61,7 @@ const INSTRUCTORS = [
 
 /* HQ weekly timetable (day: 0 = Mon). Online booking covers HQ classes only. */
 const TIMES = ['09:00', '10:00', '11:00', '18:00', '19:00', '20:00'];
-const timeLabel = t => { const h = +t.slice(0, 2); return (h % 12 || 12) + (h < 12 ? ' AM' : ' PM'); };
+const timeLabel = t => { const h = +t.slice(0, 2), m = t.slice(3, 5); return (h % 12 || 12) + (m && m !== '00' ? ':' + m : '') + (h < 12 ? ' AM' : ' PM'); };   // '20:30' -> '8:30 PM', '19:00' -> '7 PM'
 const CLASSES = [
   { day: 0, time: '18:00', type: 'Children Beginners', ins: 'Lim Cheen Cheen Sensei', cap: 14, booked: 10, kids: true },
   { day: 0, time: '19:00', type: 'Adults', ins: 'Bob Tan Sensei', cap: 20, booked: 14 },

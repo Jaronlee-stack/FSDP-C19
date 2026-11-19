@@ -1039,7 +1039,7 @@ runPage({
 
 /* ---------- the page a QR code or NFC tag opens: checkin.html?qr=<code> ----------
    The server decides (POST /student/check-in). It marks the student present only when the code belongs to their principal dojo and
-   they have a class booked there within 15 minutes of its start. Anything else records nothing and they land on the home page. */
+   they have a class booked there within 15 minutes of its start. Anything else records nothing: a dialog says why, then home. */
 async function runCheckIn() {
   const home = () => location.replace(url('student_portal/index.html'));
   const qr = new URLSearchParams(location.search).get('qr');
@@ -1047,9 +1047,46 @@ async function runCheckIn() {
   let r;
   try { r = await ASK.post('/student/check-in', { qr }); }
   catch (e) { ASK.errToast(e); setTimeout(home, 1800); return; }
-  if (r.status === 'none') { home(); return; }
   history.replaceState(null, '', location.pathname);              // a refresh must not scan again
+  if (r.status === 'none') { explainNoCheckIn(r, home); return; }
   renderCheckedIn(r);
+}
+
+/* why a scan recorded nothing, in words the student can act on. Closing the dialog (button, X, Escape or the backdrop) goes home. */
+function explainNoCheckIn(r, home) {
+  const dojoName = id => (DOJOS.find(d => d.id === id) || {}).name;
+  const here = r.venue ? esc(r.venue) : 'this dojo', mine = esc(dojoName(ME.dojo) || 'your home dojo');
+  const hm = (s, add) => { const [h, m] = s.split(':').map(Number), t = new Date(2000, 0, 1, h, m + add); return timeLabel(`${String(t.getHours()).padStart(2, '0')}:${String(t.getMinutes()).padStart(2, '0')}`); };
+  let title, body, extra = '';
+  switch (r.reason) {
+    case 'WRONG_DOJO':
+      title = 'You’re not a member at this dojo';
+      body = `This check-in tag is for <b>${here}</b>. Your home dojo is <b>${mine}</b>, so you can only check in there. If you’ve moved dojo, ask the front desk to update your record.`;
+      break;
+    case 'NO_BOOKING':
+      title = 'No class to check in to';
+      body = r.venue && ME.dojo === 'hq'
+        ? `You don’t have a class booked at <b>${here}</b> today. Book a class first, then scan again when it starts.`
+        : `You’re not on the roster for a class at <b>${here}</b> today. If you think you should be, ask your instructor or the front desk.`;
+      if (ME.dojo === 'hq') extra = `<a class="sbtn" href="${url('student_portal/book.html')}">Book a class</a>`;
+      break;
+    case 'OUTSIDE_WINDOW': {
+      const l = r.lesson, w = r.windowMin || 15;
+      title = 'Check-in isn’t open right now';
+      body = l
+        ? `Your <b>${esc(l.type)}</b> class at ${here} starts at <b>${timeLabel(l.start)}</b>. You can check in from ${hm(l.start, -w)} to ${hm(l.start, w)}.`
+        : `You can check in from ${w} minutes before your class starts until ${w} minutes after.`;
+      break;
+    }
+    default:
+      title = 'That code isn’t a Shinju-Kai check-in';
+      body = 'This tag or QR code doesn’t belong to any of our dojos. Try scanning the one at the front desk.';
+  }
+  openModal(`<h3 id="modalTitle">${title}</h3><div class="note warn" style="margin-top:14px"><svg class="ic"><use href="#i-info"/></svg><span>${body}</span></div>
+    <p class="sub" style="margin-top:12px">Nothing was recorded.</p>
+    <div class="acts"><button class="sbtn red" data-close autofocus>Back to home</button>${extra}</div>`);
+  const watch = new MutationObserver(() => { if (!$('#modal').classList.contains('open')) { watch.disconnect(); home(); } });
+  watch.observe($('#modal'), { attributes: true, attributeFilter: ['class'] });
 }
 
 function renderCheckedIn(r) {

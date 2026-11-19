@@ -1,6 +1,6 @@
 'use strict';
 /* A student scans a QR code (or taps an NFC tag that opens the same link). The page calls this once the student is signed in.
-   It never fails for a wrong dojo or a wrong time: nothing is recorded and the student simply lands on their home page.
+   It never fails for a wrong dojo or a wrong time: nothing is recorded, the page tells the student why, and they go to their home page.
    When the scan is accepted, the attendance goes through attendanceService.mark, so the hours are credited in the same one place
    as an instructor marking the student present. */
 const { withTx } = require('../config/db');
@@ -21,7 +21,9 @@ const outcome = (status, extra = {}) => ({
   status,                                                   // 'marked' | 'already' | 'none'
   reason: extra.reason || null,                             // INVALID_CODE | WRONG_DOJO | NO_BOOKING | OUTSIDE_WINDOW
   lessonId: extra.lessonId || null,
-  lesson: extra.lesson || null,                             // { type, date, start, end, instructor, venue } for marked and already
+  lesson: extra.lesson || null,                             // { type, date, start, end, instructor, venue } for marked, already and OUTSIDE_WINDOW
+  venue: extra.venue || null,                               // name of the dojo the scanned code belongs to (null for INVALID_CODE)
+  windowMin: rules.WINDOW_MIN,                              // check-in opens this many minutes either side of the class start
   at: extra.at || null,                                     // when the check-in was recorded (marked only)
   redirect: status === 'none' ? LANDING : `${SUCCESS}?lesson=${encodeURIComponent(extra.lessonId)}`
 });
@@ -42,7 +44,11 @@ async function scan(user, token) {
 
     const profile = await studentModel.getProfile(user.id, tx);
     const d = rules.decide({ dojoId: dojo.id, studentDojoId: profile && profile.dojo_id, now, bookings });
-    if (d.action === 'none') return outcome('none', d);
+    if (d.action === 'none') {
+      /* nothing is recorded, but the page explains why: which dojo the code was for, and for a class outside the window, which class */
+      const near = d.reason === 'OUTSIDE_WINDOW' && d.lessonId ? await sessionModel.getById(d.lessonId, tx) : null;
+      return outcome('none', { ...d, venue: dojo.name, lesson: near ? lessonView(near, dojo) : null });
+    }
 
     const lesson = await sessionModel.getById(d.lessonId, tx);
     if (d.action === 'marked') {
