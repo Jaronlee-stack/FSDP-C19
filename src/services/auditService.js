@@ -11,7 +11,7 @@ const requestContext = require('../middleware/requestContext');
 
 /* the groups an action name may start with (action = group.verb) */
 const GROUPS = ['auth', 'staff', 'member', 'payment', 'refund', 'exception', 'registration', 'attendance', 'booking', 'closure', 'class', 'policy',
-  'timetable', 'grading', 'mc', 'day', 'followup', 'notification', 'equipment', 'import', 'intervention', 'audit'];
+  'timetable', 'inbox', 'grading', 'mc', 'day', 'followup', 'notification', 'equipment', 'import', 'intervention', 'audit'];
 
 /* the actions the system writes (group.verb). FEAT-002 fills in the rest as it instruments the services. */
 const ACTIONS = [
@@ -21,7 +21,7 @@ const ACTIONS = [
   'member.updated', 'member.belt_changed', 'member.message_sent',
   'followup.created', 'followup.updated', 'followup.attempt_logged', 'followup.contact_logged',
   'payment.collected', 'payment.voided', 'payment.adjusted', 'payment.mistake_reported', 'refund.requested', 'refund.decided', 'day.locked', 'day.unlocked',
-  'equipment.ready', 'equipment.handed_over', 'exception.raised', 'exception.decided', 'mc.decision',
+  'equipment.ready', 'equipment.handed_over', 'exception.raised', 'exception.decided', 'inbox.escalated', 'inbox.answered', 'mc.decision',
   'booking.overridden', 'booking.cancelled_by_staff', 'attendance.corrected', 'attendance.submitted',
   'closure.created', 'closure.deleted', 'class.cancelled',
   'policy.updated', 'policy.package_updated', 'policy.rule_updated', 'policy.template_created', 'policy.template_updated', 'policy.template_deleted',

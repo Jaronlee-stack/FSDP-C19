@@ -50,7 +50,15 @@ Object.assign(ASK.act, {
   baStaffReset: id => act('POST', `/staff/${enc(id)}/reset-password`, {}),
   notifySend: body => act('POST', '/notifications/send', body)
 });
+Object.assign(ASK.load, {
+  baVenueMapping: dojo => ASK.get(P(`/venues/${enc(dojo)}/import-mapping`))
+});
+Object.assign(ASK.act, {
+  baVenueMappingSave: (dojo, body) => act('PUT', `/venues/${enc(dojo)}/import-mapping`, body),
+  baRosterImport: (dojo, body) => act('POST', `/venues/${enc(dojo)}/roster-import`, body)
+});
 /* a CSV file the server builds (named by the server) */
+ASK.baVenueCsv = q => ASK.csv(P('/venues/attendance.csv' + qs(q)), 'venue-attendance.csv');
 ASK.baCsv = (kind, params) => ASK.csv(P(`/reports/${enc(kind)}.csv` + qs(params)), `${kind}.csv`);
 ASK.baAuditCsv = q => ASK.csv(P('/audit/export.csv' + qs(q)), 'audit-log.csv');
 })();

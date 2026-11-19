@@ -80,12 +80,20 @@ const exception = z.strictObject({
 }).refine(o => o.subjectName || o.memberNo || o.mcId, 'Say who this is about.');
 const exceptionDecision = z.strictObject({ decision: z.enum(['approved', 'declined']), reason: text(300) });
 
+/* admin inbox: questions Ben escalated */
+const inboxQuery = z.strictObject({ status: z.enum(['open', 'answered']).optional() });
+const inboxReply = z.strictObject({
+  choice: z.enum(['this_user', 'faq', 'knowledge', 'not_for_bot']),
+  reply: text(1500),
+  knowledgeNote: text(120).optional()
+});
+
 /* ---------- follow-ups, notifications ---------- */
 const followupCreate = z.strictObject({ memberNo: text(50).optional(), kind: z.enum(['newcomer', 'declining', 'renewal']), ownerId: id.nullable().optional(), dueDate: day });
 const followupPatch = z.strictObject({ ownerId: id.nullable().optional(), dueDate: day.optional(), status: z.enum(['open', 'done']).optional() }).refine(atLeastOne, 'Nothing to change.');
 const attempt = z.strictObject({ method: z.enum(['WhatsApp', 'Call', 'Email', 'SMS']), outcome: text(255), note: text(1000).optional(), nextDate: day.optional() });
 const notify = z.strictObject({
-  templateId: id.optional(), title: text(120).optional(),
+  templateId: id.optional(), title: text(120).optional(), body: text(1000).optional(),
   audience: z.strictObject({ type: z.enum(['lesson', 'student', 'all', 'dojo', 'grade', 'lapsed', 'unpaid']), target: text(100).optional() })
 });
 
@@ -103,6 +111,9 @@ const revenueQuery = z.strictObject({ from: day.optional(), to: day.optional() }
 const reportsQuery = z.strictObject({ from: day.optional(), to: day.optional(), centre: id.optional(), kind: z.enum(['attendance', 'progression', 'payments', 'followups']).optional() });
 const reportParam = z.strictObject({ kind: z.enum(['attendance', 'progression', 'payments', 'followups']) });
 const reportCsvQuery = z.strictObject({ from: day.optional(), to: day.optional(), centre: id.optional() });
+const venueParam = z.strictObject({ dojoId: id });
+const venueMappingBody = z.strictObject({ memberNoColumn: text(100), nameColumn: text(100), classColumn: text(100) });
+const rosterImportBody = z.strictObject({ fileName: text(200), data: z.string().min(1).max(200000) });
 const interventionBody = z.strictObject({ name: text(80), slot: text(40), before: whole(0, 9999), after: whole(0, 9999), decision: z.enum(['continue', 'adjust', 'stop']) });
 const interventionPatch = z.strictObject({ decision: z.enum(['continue', 'adjust', 'stop']) });
 const policiesQuery = z.strictObject({ declineDays: num(1, 90).optional() });
@@ -146,12 +157,12 @@ const auditExportQuery = z.strictObject({
 }).refine(o => !o.from || !o.to || o.from <= o.to, 'The start date must not be after the end date.');
 module.exports = {
   auditQuery, auditExportQuery,
-  overviewQuery, insightsQuery, revenueQuery, reportsQuery, reportParam, reportCsvQuery, interventionBody, interventionPatch, policiesQuery, policiesPatch, packagePatch, rulePatch,
+  overviewQuery, insightsQuery, revenueQuery, reportsQuery, reportParam, reportCsvQuery, venueParam, venueMappingBody, rosterImportBody, interventionBody, interventionPatch, policiesQuery, policiesPatch, packagePatch, rulePatch,
   templateBody, templatePatch, staffCreate, staffPatch, timetableQuery, timetableBody, closureBody, closurePreviewQuery, classCancel, importsQuery, importDecision,
   gradingAppDecision, promotionParam, promotionBody, audienceQuery,
   lessonParam, lessonUserParam, rosterQuery, book, cancelBooking, walkIn, waitlist, attendance, submit,
   membersQuery, memberParam, memberPatch, message, contact,
   paymentsQuery, idParam, takePayment, voidPayment, reason, refundRequest, decision, lock, lockParam, equipmentQuery, handover,
-  checklist, activate, reject, requestInfo, deskRegistration, mcDecision, exception, exceptionDecision,
+  checklist, activate, reject, requestInfo, deskRegistration, mcDecision, exception, exceptionDecision, inboxQuery, inboxReply,
   followupCreate, followupPatch, attempt, notify
 };

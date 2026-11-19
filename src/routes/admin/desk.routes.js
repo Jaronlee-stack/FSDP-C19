@@ -24,7 +24,8 @@ router.get('/guests', ctrl.guests);
 router.get('/followups', ctrl.followups);
 router.post('/followups', ba, validate({ body: v.followupCreate }), ctrl.followupCreate);
 router.patch('/followups/:id', ba, validate({ params: v.idParam, body: v.followupPatch }), ctrl.followupUpdate);
-router.post('/followups/:id/attempts', validate({ params: v.idParam, body: v.attempt }), ctrl.followupAttempt);
+router.post('/followups/ben-outreach', ba, ctrl.benOutreach);
+router.post('/followups/:id/attempts',validate({ params: v.idParam, body: v.attempt }), ctrl.followupAttempt);
 
 router.get('/notifications', ctrl.notifications);
 router.get('/notifications/audience', validate({ query: v.audienceQuery }), ctrl.audience);

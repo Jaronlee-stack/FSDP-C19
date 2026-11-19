@@ -3,6 +3,7 @@
 const { asyncHandler, badRequest } = require('../utils/errors');
 const deskService = require('../services/deskService');
 const followupService = require('../services/followupService');
+const benFollowupService = require('../services/benFollowupService');
 const notificationService = require('../services/notificationService');
 const summaryService = require('../services/summaryService');
 const clock = require('../utils/clock');
@@ -33,6 +34,7 @@ module.exports = {
   followupCreate: h(req => followupService.create(u(req), req.valid.body)),
   followupUpdate: h(req => followupService.update(u(req), req.valid.params.id, req.valid.body)),
   followupAttempt: h(req => followupService.addAttempt(u(req), req.valid.params.id, req.valid.body)),
+  benOutreach: h(req => benFollowupService.runOutreach(u(req))),
   notifications: h(req => notificationService.overview(u(req))),
   audience: h(req => notificationService.preview(u(req), { type: req.valid.query.type, target: req.valid.query.target })),
   notify: h(req => notificationService.send(u(req), req.valid.body))

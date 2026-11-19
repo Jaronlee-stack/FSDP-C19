@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aikido Shinju-Kai Notification</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.6;
+      color: #2c3e50;
+      background-color: #f5f7fa;
+    }
+
+    .email-container {
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Header with branding */
+    .header {
+      background: linear-gradient(135deg, #1a472a 0%, #2d5a3d 100%);
+      padding: 32px 24px;
+      text-align: center;
+      color: #ffffff;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 13px;
+      color: #e8f0eb;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    /* Notification badge */
+    .badge {
+      display: inline-block;
+      background-color: #3d7a52;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 12px;
+    }
+
+    /* Main content */
+    .content {
+      padding: 40px 32px;
+    }
+
+    .greeting {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a472a;
+      margin-bottom: 16px;
+    }
+
+    .message {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #445566;
+      margin-bottom: 24px;
+    }
+
+    /* Details section */
+    .details {
+      background-color: #f9fafb;
+      border-left: 4px solid #3d7a52;
+      padding: 20px;
+      margin-bottom: 28px;
+      border-radius: 4px;
+    }
+
+    .detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+
+    .detail-label {
+      color: #667085;
+      font-weight: 500;
+    }
+
+    .detail-value {
+      color: #1a472a;
+      font-weight: 600;
+    }
+
+    /* Call-to-action button */
+    .cta-section {
+      text-align: center;
+      margin: 32px 0;
+    }
+
+    .cta-button {
+      display: inline-block;
+      background-color: #3d7a52;
+      color: #ffffff;
+      padding: 14px 32px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 15px;
+      letter-spacing: 0.3px;
+      transition: background-color 200ms ease-out;
+    }
+
+    .cta-button:hover {
+      background-color: #2d5a3d;
+    }
+
+    /* Secondary message */
+    .secondary-message {
+      font-size: 14px;
+      color: #667085;
+      line-height: 1.6;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    /* Footer */
+    .footer {
+      background-color: #f9fafb;
+      padding: 32px;
+      text-align: center;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .footer-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a472a;
+      margin-bottom: 12px;
+    }
+
+    .footer-contact {
+      font-size: 13px;
+      color: #667085;
+      line-height: 1.8;
+      margin-bottom: 20px;
+    }
+
+    .footer-link {
+      color: #3d7a52;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .footer-divider {
+      height: 1px;
+      background-color: #e5e7eb;
+      margin: 20px 0;
+    }
+
+    .footer-legal {
+      font-size: 12px;
+      color: #667085;
+      line-height: 1.6;
+    }
+
+    /* Responsive design */
+    @media only screen and (max-width: 600px) {
+      .email-container {
+        margin: 0;
+        border-radius: 0;
+      }
+
+      .content {
+        padding: 24px 20px;
+      }
+
+      .details {
+        padding: 16px;
+      }
+
+      .detail-item {
+        flex-direction: column;
+        padding: 8px 0;
+      }
+
+      .detail-label {
+        margin-bottom: 4px;
+      }
+
+      .header {
+        padding: 24px 20px;
+      }
+
+      .cta-button {
+        display: block;
+        width: 100%;
+        padding: 16px;
+      }
+    }
+
+    /* Notification type specific colors */
+    .badge.reminder {
+      background-color: #3d7a52;
+    }
+
+    .badge.grading {
+      background-color: #c97d3f;
+    }
+
+    .badge.registration {
+      background-color: #2563eb;
+    }
+
+    .badge.attendance {
+      background-color: #7c3aed;
+    }
+
+    .badge.event {
+      background-color: #dc2626;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">🥋 Aikido Shinju-Kai</div>
+      <div class="tagline">Cultivating Mind, Body, and Spirit</div>
+      <div class="badge {{notificationType}}">{{notificationTypeLabel}}</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <div class="greeting">Hello {{studentName}},</div>
+
+      <div class="message">{{message}}</div>
+
+      <!-- Details Section (shown for relevant notification types) -->
+      {{#if showDetails}}
+      <div class="details">
+        {{#if className}}
+        <div class="detail-item">
+          <span class="detail-label">Class</span>
+          <span class="detail-value">{{className}}</span>
+        </div>
+        {{/if}}
+        {{#if date}}
+        <div class="detail-item">
+          <span class="detail-label">Date</span>
+          <span class="detail-value">{{date}}</span>
+        </div>
+        {{/if}}
+        {{#if time}}
+        <div class="detail-item">
+          <span class="detail-label">Time</span>
+          <span class="detail-value">{{time}}</span>
+        </div>
+        {{/if}}
+        {{#if venue}}
+        <div class="detail-item">
+          <span class="detail-label">Venue</span>
+          <span class="detail-value">{{venue}}</span>
+        </div>
+        {{/if}}
+        {{#if instructor}}
+        <div class="detail-item">
+          <span class="detail-label">Instructor</span>
+          <span class="detail-value">{{instructor}}</span>
+        </div>
+        {{/if}}
+      </div>
+      {{/if}}
+
+      <!-- Call-to-Action Button -->
+      {{#if actionUrl}}
+      <div class="cta-section">
+        <a href="{{actionUrl}}" class="cta-button">{{actionText}}</a>
+      </div>
+      {{/if}}
+
+      <!-- Secondary Message -->
+      {{#if secondaryMessage}}
+      <div class="secondary-message">
+        {{secondaryMessage}}
+      </div>
+      {{/if}}
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <div class="footer-title">Aikido Shinju-Kai</div>
+      <div class="footer-contact">
+        📍 Multiple Dojos Across Singapore<br>
+        📞 <a href="tel:+6567123456" class="footer-link">+65 6712 3456</a><br>
+        📧 <a href="mailto:info@aikidoshinjukai.com.sg" class="footer-link">info@aikidoshinjukai.com.sg</a>
+      </div>
+
+      <div class="footer-divider"></div>
+
+      <div class="footer-legal">
+        You're receiving this notification because you're a member of Aikido Shinju-Kai.
+        You can manage your notification preferences in your account settings.
+      </div>
+    </div>
+  </div>
+</body>
+</html>

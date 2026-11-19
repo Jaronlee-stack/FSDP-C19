@@ -13,6 +13,10 @@ router.post('/insights/interventions', ba, validate({ body: v.interventionBody }
 router.patch('/insights/interventions/:id', ba, validate({ params: v.idParam, body: v.interventionPatch }), ctrl.decideIntervention);
 router.get('/revenue', ba, validate({ query: v.revenueQuery }), ctrl.revenue);
 router.get('/reports', ba, validate({ query: v.reportsQuery }), ctrl.reports);
+router.get('/venues/attendance.csv', ba, validate({ query: v.reportCsvQuery }), ctrl.venueCsv);
+router.get('/venues/:dojoId/import-mapping', ba, validate({ params: v.venueParam }), ctrl.venueMapping);
+router.put('/venues/:dojoId/import-mapping', ba, validate({ params: v.venueParam, body: v.venueMappingBody }), ctrl.saveVenueMapping);
+router.post('/venues/:dojoId/roster-import', ba, validate({ params: v.venueParam, body: v.rosterImportBody }), ctrl.importVenueRoster);
 router.get('/reports/:kind.csv', ba, validate({ params: v.reportParam, query: v.reportCsvQuery }), ctrl.reportCsv);
 router.get('/policies', ba, validate({ query: v.policiesQuery }), ctrl.policies);
 router.patch('/policies', ba, validate({ body: v.policiesPatch }), ctrl.policiesPatch);

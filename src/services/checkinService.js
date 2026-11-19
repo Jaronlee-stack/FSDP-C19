@@ -33,15 +33,24 @@ async function scan(user, token) {
     if (!dojo) return outcome('none', { reason: 'INVALID_CODE' });
 
     const now = clock.now();
-    const profile = await studentModel.getProfile(user.id, tx);
-    const rows = await checkinModel.bookingsAtDojoOn(user.id, dojo.id, clock.ymd(now), tx);
+    const day = clock.ymd(now);
+    const venue = dojo.id !== 'hq';
+    const rows = venue
+      ? await checkinModel.venueClassesOn(user.id, dojo.id, day, tx)
+      : await checkinModel.bookingsAtDojoOn(user.id, dojo.id, day, tx);
     const bookings = rows.map(r => ({ lessonId: r.lesson_id, start: clock.at(r.session_date, r.start_time), attended: r.attendance_status === 'Attended' }));
 
+    const profile = await studentModel.getProfile(user.id, tx);
     const d = rules.decide({ dojoId: dojo.id, studentDojoId: profile && profile.dojo_id, now, bookings });
     if (d.action === 'none') return outcome('none', d);
 
     const lesson = await sessionModel.getById(d.lessonId, tx);
     if (d.action === 'marked') {
+      if (venue) {
+        const via = rows.find(r => r.lesson_id === d.lessonId);
+        await checkinModel.addVenueAttendance(user.id, d.lessonId, via.via, now, tx);
+        if (via.makeup_id) await checkinModel.useMakeup(via.makeup_id, tx);
+      }
       await attendanceService.mark(tx, { lessonId: d.lessonId, userId: user.id, status: 'Attended', actor: { role: 'student', id: user.id }, lesson });
       await checkinModel.insert({ id: await nextId(tx, 'check_in', 'id', 'CI-', 2), userId: user.id, dojoId: dojo.id, lessonId: d.lessonId, at: now }, tx);
     }

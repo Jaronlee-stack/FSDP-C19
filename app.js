@@ -32,9 +32,25 @@ if (require.main === module) {
   const app = createApp();
   config.warnings.forEach(w => console.warn('[config] ' + w));
   const server = app.listen(config.PORT, () => {
-    console.log(`ASK server listening on port ${config.PORT} (${config.NODE_ENV}), API at ${config.API_PREFIX}${config.FAKE_TODAY ? `, fake today ${config.FAKE_TODAY}` : ''}`);
+    const url = `http://localhost:${config.PORT}`;
+    console.log(`\n🚀 ASK server running at ${url}`);
+    console.log(`📍 API endpoint: ${url}${config.API_PREFIX}`);
+    console.log(`📱 Student portal: ${url}/student_portal/login.html`);
+    console.log(`👨‍💼 Staff sign-in (instructors & admin): ${url}/admin_portal/signin.html`);
+    if (config.FAKE_TODAY) console.log(`⏰ Fake date: ${config.FAKE_TODAY}`);
+    console.log('');
   });
-  const stop = () => server.close(() => require('./src/config/db').pool.end().finally(() => process.exit(0)));
-  process.on('SIGINT', stop);
-  process.on('SIGTERM', stop);
+  if (process.env.BEN_OUTREACH_ENABLED === 'true') {
+    const DAY = 24 * 60 * 60 * 1000;
+    const run = () => require('./src/services/benFollowupService').runOutreach()
+      .then(s => console.log('[ben] follow-up outreach:', JSON.stringify(s)))
+      .catch(e => console.error('[ben] follow-up outreach failed:', e.message));
+    setInterval(run, DAY).unref();
+  }
+  const stop = () => {
+    server.close(() => require('./src/config/db').pool.end().finally(() => process.exit(0)));
+    server.closeIdleConnections();
+    setTimeout(() => { server.closeAllConnections(); process.exit(0); }, 2000).unref();
+  };
+  for (const sig of ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGBREAK']) process.on(sig, stop);
 }

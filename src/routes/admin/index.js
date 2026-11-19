@@ -13,4 +13,5 @@ router.use(require('./business.routes'));
 router.use(require('./grading.routes'));
 router.use(require('./staff.routes'));
 router.use(require('./audit.routes'));
+router.use(require('./inbox.routes'));
 module.exports = router;

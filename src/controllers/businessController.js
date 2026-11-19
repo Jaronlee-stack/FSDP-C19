@@ -6,6 +6,7 @@ const policyService = require('../services/policyService');
 const timetableService = require('../services/timetableService');
 const closureService = require('../services/closureService');
 const importService = require('../services/importService');
+const venueImportService = require('../services/venueImportService');
 const h = fn => asyncHandler(async (req, res) => res.json(await fn(req)));
 const created = fn => asyncHandler(async (req, res) => res.status(201).json(await fn(req)));
 const u = req => req.user;
@@ -23,6 +24,14 @@ module.exports = {
   }),
   reportCsv: asyncHandler(async (req, res) => {
     const { filename, csv } = await reportService.reportCsv(req.valid.params.kind, req.valid.query);
+    res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${filename}"`, 'Cache-Control': 'no-store' });
+    res.send(csv);
+  }),
+  venueMapping: h(req => venueImportService.getMapping(req.valid.params.dojoId)),
+  saveVenueMapping: h(req => venueImportService.saveMapping(u(req), req.valid.params.dojoId, req.valid.body)),
+  importVenueRoster: h(req => venueImportService.importRoster(u(req), req.valid.params.dojoId, req.valid.body)),
+  venueCsv: asyncHandler(async (req, res) => {
+    const { filename, csv } = await reportService.venueCsv(req.valid.query);
     res.set({ 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${filename}"`, 'Cache-Control': 'no-store' });
     res.send(csv);
   }),

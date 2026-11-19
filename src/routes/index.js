@@ -12,6 +12,7 @@ router.use('/public', require('./public.routes'));
 router.use('/student', require('./student.routes'));
 router.use('/instructor', require('./instructor.routes'));
 router.use('/admin', require('./admin'));
+router.use('/telegram', require('./telegram.routes'));
 
 router.use(apiNotFound);
 

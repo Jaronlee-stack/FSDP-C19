@@ -114,6 +114,15 @@ const paymentRows = (from, to, tz, dojo, db) => query(
      FROM payment p JOIN student_profile sp ON sp.user_id = p.user_id
     WHERE (COALESCE(p.paid_at, p.created_at) AT TIME ZONE $1)::date BETWEEN $2::date AND $3::date AND ($4::text IS NULL OR sp.dojo_id = $4)
     ORDER BY COALESCE(p.paid_at, p.created_at), p.id`, [tz, from, to, dojo], db).then(r => r.rows);
+/* one row per venue attendance (roster, make-up or walk-in) between two days; HQ classes are not listed here */
+const venueAttendanceRows = (from, to, dojo, db) => query(
+  `SELECT d.name AS dojo_name, s.session_date::text AS day, s.class_type, to_char(s.start_time, 'HH24:MI') AS start_time, i.full_name AS instructor_name,
+          sp.member_no, sp.full_name, a.booked_via, a.attendance_status, a.marked_at
+     FROM class_attendance a
+     JOIN class_session s ON s.lesson_id = a.lesson_id JOIN dojo d ON d.id = s.dojo_id JOIN instructor_profile i ON i.user_id = s.instructor_id
+     JOIN student_profile sp ON sp.user_id = a.user_id
+    WHERE s.dojo_id <> 'hq' AND a.attendance_status <> 'Cancelled' AND s.session_date BETWEEN $1::date AND $2::date AND ($3::text IS NULL OR s.dojo_id = $3)
+    ORDER BY d.name, s.session_date, s.start_time, sp.member_no`, [from, to, dojo], db).then(r => r.rows);
 const followupRows = (from, to, tz, dojo, db) => query(
   `SELECT sp.full_name, sp.member_no, f.kind, (a.attempted_at AT TIME ZONE $1)::date::text AS day, a.method, a.outcome, a.note, o.full_name AS owner_name
      FROM followup_attempt a JOIN followup f ON f.id = a.followup_id JOIN student_profile sp ON sp.user_id = f.user_id LEFT JOIN staff_profile o ON o.user_id = f.owner_id
@@ -122,5 +131,5 @@ const followupRows = (from, to, tz, dojo, db) => query(
 
 module.exports = {
   slotStats, ratingsByTemplate, feedbackRows, members, cohorts, notReturning, waiting, paidIn, byStatus, outstanding, outstandingByDojo, failedList, refundsIn,
-  upcomingBookings, waitingApplications, attendanceRows, paymentRows, followupRows
+  upcomingBookings, waitingApplications, attendanceRows, venueAttendanceRows, paymentRows, followupRows
 };
