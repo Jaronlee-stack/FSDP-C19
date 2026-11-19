@@ -11,7 +11,7 @@ const requestContext = require('../middleware/requestContext');
 
 /* the groups an action name may start with (action = group.verb) */
 const GROUPS = ['auth', 'staff', 'member', 'payment', 'refund', 'exception', 'registration', 'attendance', 'booking', 'closure', 'class', 'policy',
-  'timetable', 'inbox', 'grading', 'mc', 'day', 'followup', 'notification', 'equipment', 'import', 'intervention', 'audit'];
+  'timetable', 'inbox', 'grading', 'mc', 'day', 'followup', 'notification', 'equipment', 'import', 'intervention', 'audit', 'telegram'];
 
 /* the actions the system writes (group.verb). FEAT-002 fills in the rest as it instruments the services. */
 const ACTIONS = [
@@ -27,7 +27,7 @@ const ACTIONS = [
   'policy.updated', 'policy.package_updated', 'policy.rule_updated', 'policy.template_created', 'policy.template_updated', 'policy.template_deleted',
   'timetable.changed', 'import.decided', 'intervention.added', 'intervention.decided', 'notification.sent',
   'grading.result_submitted', 'grading.application_decided', 'grading.promotion_decided',
-  'audit.exported'
+  'audit.exported', 'telegram.linked', 'telegram.unlinked'
 ];
 
 const SECRET_KEY = /pass|hash|token|secret|jwt|authorization|cookie|card|cvv|otp/i;

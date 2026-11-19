@@ -3,6 +3,7 @@ const axios = require('axios');
 const config = require('../config');
 const crypto = require('node:crypto');
 const { query, withTx } = require('../config/db');
+const audit = require('./auditService');
 const messaging = () => require('./messagingService');
 
 const TELEGRAM_API_URL = 'https://api.telegram.org';
@@ -100,9 +101,28 @@ async function verifyLinkCode(chatId, code) {
     await query(`UPDATE student_profile SET telegram_chat_id = NULL WHERE telegram_chat_id = $1`, [chatId], tx);
     await query(`UPDATE student_profile SET telegram_chat_id = $1 WHERE user_id = $2`, [chatId, row.user_id], tx);
     await query(`DELETE FROM telegram_link_code WHERE chat_id = $1 OR user_id = $2`, [chatId, row.user_id], tx);
+    await audit.record(tx, { id: row.user_id, role: 'student' }, { action: 'telegram.linked', entityType: 'student', entityId: row.user_id, summary: 'Linked a Telegram chat by email code' });
     console.log(`[telegram] Student ${row.user_id} linked a Telegram chat`);
     return { success: true, userId: row.user_id };
   });
+}
+
+/* The bot's @name for the profile page's Open bot link: TELEGRAM_BOT_USERNAME, else one getMe call (kept in memory).
+   Fails soft: no token or a failed call gives null, and a failed call is not retried for 5 minutes. */
+let botNameCache = null, botNameRetryAt = 0;
+async function getBotUsername() {
+  if (config.telegram?.botUsername) return config.telegram.botUsername;
+  if (botNameCache) return botNameCache;
+  if (!config.telegram?.botToken || Date.now() < botNameRetryAt) return null;
+  try {
+    const r = await axios.get(`${TELEGRAM_API_URL}/bot${config.telegram.botToken}/getMe`, { timeout: 5000 });
+    const name = r.data?.result?.username;
+    if (typeof name === 'string' && /^[A-Za-z0-9_]{3,64}$/.test(name)) return (botNameCache = name);
+  } catch (error) {
+    console.error('[telegram] getMe failed:', error.message);
+  }
+  botNameRetryAt = Date.now() + 5 * 60 * 1000;
+  return null;
 }
 
 /**
@@ -189,4 +209,5 @@ module.exports = {
   verifyLinkCode,
   sendMessage,
   notifyStudent,
+  getBotUsername,
 };

@@ -30,8 +30,10 @@ export async function pgConnect() {
 export async function resetDb() {
   const c = await pgConnect();
   try {
+    await c.query('DROP TABLE IF EXISTS telegram_link_code CASCADE');
     await c.query(fs.readFileSync(path.join(ROOT, 'database', 'db.sql'), 'utf8'));
     await c.query(fs.readFileSync(path.join(ROOT, 'database', 'seed.sql'), 'utf8'));
+    for (const m of ['0003_add_telegram_chat_id.sql', '0004_telegram_link_code.sql']) await c.query(fs.readFileSync(path.join(ROOT, 'database', 'migrations', m), 'utf8'));
   } finally { await c.end(); }
 }
 

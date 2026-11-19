@@ -1227,3 +1227,13 @@ html:has(body[data-portal="instructor"]) { scrollbar-gutter: stable; }
 @media (max-width: 640px) { .rec-chips { padding: 0; } }
 /* admin: a long row of tabs scrolls inside its bar instead of widening the page on phones */
 .list-bar > .filters { min-width: 0; max-width: 100%; }
+/* student profile: Telegram notifications card */
+.tg-card { margin-top: 14px; }
+.tg-card[hidden] { display: none; }
+.tg-note { margin: 0 0 12px; font-size: 14px; color: var(--muted); line-height: 1.45; }
+.tg-steps { margin: 0 0 12px; padding-left: 22px; display: grid; gap: 8px; font-size: 14px; color: var(--muted); line-height: 1.45; }
+.tg-steps li::marker { color: var(--red); font-weight: 700; }
+.tg-steps b { color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+.tg-acts { display: flex; gap: 8px; flex-wrap: wrap; }
+.tg-acts .hint { font-size: 13px; color: var(--muted); }
+@media (max-width: 520px) { .tg-card { padding: 18px; } .tg-acts .sbtn { flex: 1; justify-content: center; height: 44px; } }

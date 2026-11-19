@@ -11,6 +11,8 @@ router.use(authenticate, requireRole('student'));
 router.get('/home', ctrl.home);
 router.get('/profile', ctrl.profile);
 router.patch('/profile', validate({ body: v.profilePatch }), ctrl.updateProfile);
+router.get('/telegram', ctrl.telegram);
+router.delete('/telegram', ctrl.unlinkTelegram);
 router.get('/packages', ctrl.packages);
 router.post('/packages', validate({ body: v.buyPackage }), ctrl.buyPackage);
 router.post('/packages/:id/extension-requests', validate({ params: v.idParam, body: v.extension }), ctrl.requestExtension);

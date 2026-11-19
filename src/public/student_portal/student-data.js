@@ -89,3 +89,5 @@ ASK.act.withdrawExtension = id => ASK.del('/student/extension-requests/' + encod
 ASK.act.rate = body => ASK.post('/student/feedback', body);
 ASK.act.applyGrading = body => ASK.post('/student/grading/applications', body);
 ASK.act.updateProfile = body => ASK.patch('/student/profile', body);
+ASK.load.telegram = async () => ASK.get('/student/telegram');
+ASK.act.unlinkTelegram = () => ASK.del('/student/telegram');

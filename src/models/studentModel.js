@@ -41,6 +41,13 @@ async function updateProfile(userId, fields, db) {
   if (sets.length) await query(`UPDATE student_profile SET ${sets.join(', ')} WHERE user_id = $1`, params, db);
 }
 
+/* Telegram link state of one student. The chat id itself is never selected. */
+const telegramState = (userId, db) => query(
+  `SELECT member_no, telegram_chat_id IS NOT NULL AS linked FROM student_profile WHERE user_id = $1`, [userId], db).then(r => r.rows[0] || null);
+/* true when a chat was linked and is now cleared */
+const unlinkTelegram = (userId, db) => query(
+  `UPDATE student_profile SET telegram_chat_id = NULL WHERE user_id = $1 AND telegram_chat_id IS NOT NULL`, [userId], db).then(r => r.rowCount > 0);
+
 /* a unique member number: ASK-<year>-<4 digits> */
 const memberNoTaken = (memberNo, db) => query(`SELECT 1 FROM student_profile WHERE member_no = $1`, [memberNo], db).then(r => r.rowCount > 0);
 
@@ -60,4 +67,4 @@ const addHours = (userId, hours, weapon, db) => query(
 const hoursOf = (userId, db) => query(
   `SELECT total_accumulated_hours, accumulated_hours, weapon_hours FROM student_profile WHERE user_id = $1`, [userId], db).then(r => r.rows[0] || null);
 const setLastGradingDate = (userId, day, db) => query(`UPDATE student_profile SET last_grading_date = $2 WHERE user_id = $1`, [userId, day], db);
-module.exports = { getProfile, findByMemberNo, lock, nextRank, updateProfile, memberNoTaken, insertStudent, insertMembership, addHours, hoursOf, setLastGradingDate, promote };
+module.exports = { getProfile, findByMemberNo, telegramState, unlinkTelegram, lock, nextRank, updateProfile, memberNoTaken, insertStudent, insertMembership, addHours, hoursOf, setLastGradingDate, promote };

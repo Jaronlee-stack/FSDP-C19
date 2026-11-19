@@ -28,6 +28,9 @@ if (env.APP_FAKE_TODAY) {
 
 if (env.TELEGRAM_BOT_TOKEN && !env.TELEGRAM_WEBHOOK_SECRET) warnings.push('TELEGRAM_WEBHOOK_SECRET is not set: the Telegram webhook rejects every update until it is.');
 
+/* the bot's public @name (letters, digits, underscore), shown on the student profile as the Open bot link. Optional: looked up with getMe when empty. */
+const botUsername = /^@?[A-Za-z0-9_]{3,64}$/.test((env.TELEGRAM_BOT_USERNAME || '').trim()) ? env.TELEGRAM_BOT_USERNAME.trim().replace(/^@/, '') : null;
+
 module.exports = {
   NODE_ENV,
   isProd,
@@ -53,10 +56,11 @@ module.exports = {
     senderEmail: env.BREVO_SENDER_EMAIL || 'noreply@aikidoshinjukai.com.sg',
     senderName: env.BREVO_SENDER_NAME || 'Aikido Shinju-Kai'
   } : null,
-  telegram: env.TELEGRAM_BOT_TOKEN ? {
-    botToken: env.TELEGRAM_BOT_TOKEN,
+  telegram: (env.TELEGRAM_BOT_TOKEN || botUsername) ? {
+    botToken: env.TELEGRAM_BOT_TOKEN || null,
     adminChatId: env.TELEGRAM_ADMIN_CHAT_ID || null,
-    webhookSecret: env.TELEGRAM_WEBHOOK_SECRET || null
+    webhookSecret: env.TELEGRAM_WEBHOOK_SECRET || null,
+    botUsername
   } : null,
   /* Ben: the Ben Bot vault and the local Ollama model. Ben stays off (escalates everything) until OLLAMA_MODEL is set. */
   ben: {

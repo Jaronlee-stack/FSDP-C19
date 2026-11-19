@@ -521,6 +521,37 @@ const soundOn = () => pref(SOUND_KEY, 'on') === 'on';
 const gameView = () => pref(VIEW_KEY, 'game') === 'game';
 const MILESTONE = 6;   // a reward chest every 6 sessions
 
+/* Profile: the Telegram notifications card. Linking itself happens in the Telegram chat (member number, then the emailed code). */
+async function telegramCard() {
+  const card = $('#tgCard'), body = $('#tgBody');
+  const draw = t => {
+    const open = t.botUsername ? `<a class="sbtn dark" href="https://t.me/${encodeURIComponent(t.botUsername)}" target="_blank" rel="noopener noreferrer">${icon('send')}Open bot in Telegram</a>` : '';
+    $('#tgStatus').textContent = t.linked ? 'Linked' : 'Not linked';
+    $('#tgStatus').className = 'pill ' + (t.linked ? 'ok' : 'warn');
+    body.innerHTML = t.linked
+      ? `<p class="tg-note">Your Telegram is linked. You will get class reminders, grading announcements, attendance updates and event announcements there.</p>
+         <div class="tg-acts"><button class="sbtn" id="tgUnlink">${icon('x')}Unlink Telegram</button></div>`
+      : `<p class="tg-note">Get class reminders, grading announcements and attendance updates on Telegram.</p>
+         <ol class="tg-steps">
+           <li>Open the ASK bot in Telegram.</li>
+           <li>Send <b>/start</b>.</li>
+           <li>Send your member number: <b class="num" id="tgMemberNo">${esc(t.memberNo)}</b></li>
+           <li>Check your email for a 6-digit code.</li>
+           <li>Send that code back to the bot in the same chat.</li>
+         </ol>
+         <p class="tg-note">The code is emailed to the address on your account. It expires in 10 minutes.</p>
+         <div class="tg-acts">${open || '<span class="hint">Ask the office for the bot name.</span>'}</div>`;
+    const un = $('#tgUnlink');
+    if (un) un.addEventListener('click', async () => {
+      un.disabled = true;
+      try { draw(await ASK.act.unlinkTelegram()); toast('Telegram unlinked'); }
+      catch (err) { un.disabled = false; ASK.errToast(err); }
+    });
+    card.hidden = false;
+  };
+  try { draw(await ASK.load.telegram()); } catch (err) { ASK.errToast(err); }
+}
+
 /* membership card (shown on Profile, and when the belt badge on Home is tapped) */
 function memberCardHTML(id = 'memberCard') {
   return `<div class="pcard" id="${id}"><div class="pcard-body"><div class="pcard-tile"><span class="pcard-holo"></span>
@@ -1010,6 +1041,7 @@ runPage({
     });
     if (location.hash === '#terms') { const d = $('#terms details'); if (d) { d.open = true; $('#terms').scrollIntoView(); } }
     $('#pwBtn').addEventListener('click', () => ASK.openChangePassword());
+    telegramCard();
   }),
   checkin: stuPage(() => runCheckIn())
 });

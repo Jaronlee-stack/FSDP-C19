@@ -16,6 +16,8 @@ const { nextId } = require('../models/ids');
 const { ageOn } = require('./accountService');
 const packageService = require('./packageService');
 const gradingService = require('./gradingService');
+const auditService = require('./auditService');
+const telegramBotService = require('./telegramBotService');
 
 const STATUS = { Attended: 'present', 'No-Show': 'noshow', Booked: 'pending' };
 
@@ -117,4 +119,22 @@ async function rate(user, { lessonId, rating, tags, note, skipped }) {
   });
 }
 
-module.exports = { home, profile, updateProfile, payments, payment, upcoming, attendance, rate };
+/* Telegram link state for the profile page: whether a chat is linked, the bot's name and the student's own member number. No chat id leaves the server. */
+async function telegramStatus(user) {
+  const s = await studentModel.telegramState(user.id);
+  if (!s) throw notFound('Profile not found.', 'PROFILE_NOT_FOUND');
+  return { linked: s.linked, botUsername: await telegramBotService.getBotUsername(), memberNo: s.member_no };
+}
+
+/* unlinking is safe to repeat; only a real change is audit logged */
+async function unlinkTelegram(user) {
+  await withTx(async tx => {
+    await studentModel.lock(user.id, tx);
+    if (await studentModel.unlinkTelegram(user.id, tx)) {
+      await auditService.record(tx, user, { action: 'telegram.unlinked', entityType: 'student', entityId: user.id, summary: 'Unlinked Telegram' });
+    }
+  });
+  return telegramStatus(user);
+}
+
+module.exports = { home, profile, updateProfile, payments, payment, upcoming, attendance, rate, telegramStatus, unlinkTelegram };
